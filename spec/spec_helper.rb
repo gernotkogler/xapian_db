@@ -1,12 +1,9 @@
 require 'rubygems'
-require 'spec'
 require 'fileutils'
-require File.dirname(__FILE__) + '/../lib/xapian_db'
+require 'simplecov'
 
-Spec::Runner.configure do |config|
-  config.mock_with :rr
-  config.before(:each) do
-    XapianDb.setup(:database_path => File.dirname(__FILE__) + '/tmp/xapiandb')
-    XapianDb.remove_database
-  end
+SimpleCov.start do
+  add_group "Basic", "lib/xapian_db"
 end
+
+require File.dirname(__FILE__) + '/../lib/xapian_db'
