@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{xapit}
+  s.name = %q{xapian_db}
   s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.description = %q{Ruby library to use a Xapian db as a key/value store with high performance fulltext search}
   s.email = %q{gernot.kogler (at) garaio (dot) com}
   s.extra_rdoc_files = ["CHANGELOG"]
-  s.files = ["CHANGELOG", "xapit.gemspec"]
+  s.files = ["CHANGELOG", "xapian_db.gemspec"]
   s.homepage = %q{http://github.com/gernotkogler/xapian_db}
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Xapian-DB", "--main", "README.rdoc"]
   s.require_paths = ["lib"]
