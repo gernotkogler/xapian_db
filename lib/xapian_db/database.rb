@@ -7,40 +7,41 @@ module XapianDb
 
   # Base class for a Xapian database.    
   class Database
-    
-    class << self
-    
-      # Create a database. Overwrites an existing database on disk, if
-      # option :in_memory is set to false.
-      def create(options = {})
-        @options = {:in_memory => true}.merge(options)
-        @options[:in_memory] ? create_in_memory : create_persistent(@options[:path])
-      end
-      
-      private
-
-      # Create a new in memory database  
-      def create_in_memory
-        InMemoryDatabase.new
-      end
-      
-    end
-    
+    attr_reader :writer
   end
   
+  # In Memory database
   class InMemoryDatabase < Database
 
+    def initialize
+      @writer = Xapian::inmemory_open
+    end
+    
+    # Access to a database reader; for now we always create
+    # a new Database instance. Might be reconsidered when we
+    # need some optimizations
     def reader
       Xapian::Database.new
     end
     
-    def writer
-      @writer ||= Xapian::inmemory_open
-    end
-    
   end
 
+  # Persistent database on disk
   class PersistentDatabase < Database
+        
+    def initialize(options)
+      @path   = options[:path]
+      db_flag = options[:create] ? Xapian::DB_CREATE_OR_OVERWRITE : Xapian::DB_OPEN
+      @writer = Xapian::WritableDatabase.new(@path, db_flag)
+    end
+    
+    # Access to a database reader; for now we always create
+    # a new Database instance. Might be reconsidered when we
+    # need some optimizations
+    def reader
+      Xapian::Database.new(@path)
+    end
+
   end
   
 end
