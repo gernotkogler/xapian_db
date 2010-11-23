@@ -7,21 +7,19 @@ module XapianDb
 
   # Base class for a Xapian database.    
   class Database
-    attr_reader :writer
+    attr_reader :reader    
+    
   end
   
   # In Memory database
   class InMemoryDatabase < Database
 
     def initialize
-      @writer = Xapian::inmemory_open
+      @reader = Xapian::Database.new
     end
     
-    # Access to a database reader; for now we always create
-    # a new Database instance. Might be reconsidered when we
-    # need some optimizations
-    def reader
-      Xapian::Database.new
+    def writer
+      @writer ||= Xapian::inmemory_open
     end
     
   end
@@ -30,18 +28,18 @@ module XapianDb
   class PersistentDatabase < Database
         
     def initialize(options)
-      @path   = options[:path]
-      db_flag = options[:create] ? Xapian::DB_CREATE_OR_OVERWRITE : Xapian::DB_OPEN
-      @writer = Xapian::WritableDatabase.new(@path, db_flag)
+      @path    = options[:path]
+      @db_flag = options[:create] ? Xapian::DB_CREATE_OR_OVERWRITE : Xapian::DB_OPEN
+      if options[:create]
+        @writer = Xapian::WritableDatabase.new(@path, @db_flag)
+      end
+      @reader = Xapian::Database.new(@path)
     end
     
-    # Access to a database reader; for now we always create
-    # a new Database instance. Might be reconsidered when we
-    # need some optimizations
-    def reader
-      Xapian::Database.new(@path)
+    def writer
+      @writer ||= Xapian::WritableDatabase.new(@path, @db_flag)
     end
-
+    
   end
   
 end

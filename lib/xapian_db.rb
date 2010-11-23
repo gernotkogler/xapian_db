@@ -13,6 +13,15 @@ module XapianDb
       InMemoryDatabase.new
     end
   end
+
+  # Open a database.
+  def self.open_db(options = {})
+    if options[:path] 
+      PersistentDatabase.new(:path => options[:path], :create => false) 
+    else
+      InMemoryDatabase.new
+    end
+  end
   
 end
 
