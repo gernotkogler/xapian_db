@@ -18,11 +18,6 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.setup(IndexedObject)
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of(XapianDb::DocumentBlueprint)
     end
-
-    it "adds the method 'xapian_id' to the configured class" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject)
-      IndexedObject.new(1).respond_to?(:xapian_id).should be_true
-    end
     
   end
   
