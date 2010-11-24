@@ -7,13 +7,15 @@
 module XapianDb
     
   class DocumentBlueprint
-  
-    # We use it as a singleton
+
+    # ---------------------------------------------------------------------------------   
+    # Singleton Implementation
+    # ---------------------------------------------------------------------------------   
     class << self
 
-      # Configure a pattern to generate unique keys for any indexed object
-      def define_unique_key_pattern(&block)
-        @unique_key_pattern = block
+      # Set the default adapter for all indexed classes
+      def default_adapter=(klass)
+        @default_adapter = klass
       end
       
       # Configure the blueprint for a class
@@ -22,28 +24,26 @@ module XapianDb
         blueprint = DocumentBlueprint.new
         yield blueprint if block_given?
         @blueprints[klass] = blueprint
-        add_class_methods_to klass          
+        adapter = blueprint.adapter || @default_adapter || Adapters::DatamapperAdapter
+        adapter.add_helper_methods_to klass
       end
       
       # Get the blueprint for a class
       def blueprint_for(klass)
         @blueprints[klass]
       end
-      
-      private
-
-      # Add the helper methods to a configured class        
-      def add_class_methods_to(klass)
-
-        klass.instance_eval do
-          define_method(:xapian_id) do
-            @unique_key_pattern
-          end
-        end
-
-      end
-      
+            
     end
+    
+    # ---------------------------------------------------------------------------------   
+    # Blueprint DSL
+    # ---------------------------------------------------------------------------------   
+    attr_reader :adapter
+    
+    def adapter=(adapter)
+      @adapter = adapter
+    end
+
   end
   
 end

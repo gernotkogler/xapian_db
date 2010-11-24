@@ -4,10 +4,10 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::DocumentBlueprint do
 
-  describe ".define_unique_key_pattern" do
+  describe ".default_adapter=" do
 
-    it "stores the pattern to retrieve a unique key for an object" do
-      XapianDb::DocumentBlueprint.define_unique_key_pattern {"#{self.class}-#{self.id}"}
+    it "sets the default adapter for all indexed classes" do
+      XapianDb::DocumentBlueprint.default_adapter = DemoAdapter
     end
     
   end
