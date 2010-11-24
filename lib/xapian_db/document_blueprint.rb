@@ -38,12 +38,32 @@ module XapianDb
     # ---------------------------------------------------------------------------------   
     # Blueprint DSL
     # ---------------------------------------------------------------------------------   
-    attr_reader :adapter
+    attr_reader :adapter, :fields
     
+    # Construct the blueprint
+    def initialize
+      @fields = {}
+    end
+    
+    # Set a custom adapter for this blueprint
     def adapter=(adapter)
       @adapter = adapter
     end
+    
+    # Add a field to the fields list
+    def field(name, options={})
+      @fields[name] = FieldOptions.new(options)
+    end
 
+    # Options for a field blueprint
+    class FieldOptions      
+      attr_accessor :weight
+      
+      def initialize(options)
+        @weight = options[:weight]
+      end
+    end
+          
   end
   
 end
