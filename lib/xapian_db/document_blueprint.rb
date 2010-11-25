@@ -9,7 +9,7 @@ module XapianDb
   class DocumentBlueprint
 
     # ---------------------------------------------------------------------------------   
-    # Singleton Implementation
+    # Singleton methods
     # ---------------------------------------------------------------------------------   
     class << self
 
@@ -22,7 +22,8 @@ module XapianDb
       def setup(klass, &block)
         @blueprints ||= {}
         blueprint = DocumentBlueprint.new
-        yield blueprint if block_given?
+        blueprint.indexer = Indexer.new(blueprint)
+        yield blueprint if block_given? # Configure the blueprint through the block
         @blueprints[klass] = blueprint
         adapter = blueprint.adapter || @default_adapter || Adapters::DatamapperAdapter
         adapter.add_helper_methods_to klass
@@ -36,13 +37,15 @@ module XapianDb
     end
     
     # ---------------------------------------------------------------------------------   
-    # Blueprint DSL
+    # Blueprint DSL methods
     # ---------------------------------------------------------------------------------   
-    attr_reader :adapter, :fields
-    
+    attr_reader :adapter, :fields, :indexed_values
+    attr_accessor :indexer
+        
     # Construct the blueprint
     def initialize
-      @fields = {}
+      @fields = []
+      @indexed_values = {}
     end
     
     # Set a custom adapter for this blueprint
@@ -50,13 +53,18 @@ module XapianDb
       @adapter = adapter
     end
     
-    # Add a field to the fields list
+    # Add a field to the list
     def field(name, options={})
-      @fields[name] = FieldOptions.new(options)
+      @fields << name
     end
 
-    # Options for a field blueprint
-    class FieldOptions      
+    # Add an indexed value to the list
+    def text(name, options={})
+      @indexed_values[name] = TextOptions.new(options)
+    end
+
+    # Options for an indexed text
+    class TextOptions      
       attr_accessor :weight
       
       def initialize(options)

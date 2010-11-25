@@ -15,6 +15,11 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.setup(IndexedObject)
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of(XapianDb::DocumentBlueprint)
     end
+
+    it "adds an indexer to the blueprint" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexer.should be_a_kind_of(XapianDb::Indexer)
+    end
   end
   
   describe ".adapter=" do
@@ -31,14 +36,24 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.field :id
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).fields[:id].should be
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).fields.should include(:id)
+    end
+
+  end
+
+  describe ".text" do
+    it "adds an indexed value to the blueprint" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.text :id
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_values[:id].should be
     end
 
     it "accepts weight as an option" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.field :id, :weight => 10
+        blueprint.text :id, :weight => 10
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).fields[:id].weight.should == 10
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_values[:id].weight.should == 10
     end
 
   end

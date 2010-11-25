@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.description = %q{Ruby library to use a Xapian db as a key/value store with high performance fulltext search}
   s.email = %q{gernot.kogler (at) garaio (dot) com}
   s.extra_rdoc_files = ["CHANGELOG"]
-  s.files = ["CHANGELOG", "xapian_db.gemspec"]
+  s.files = ["CHANGELOG", "xapian_db.gemspec", "init.rb", "install.rb", "lib/xapian_db.rb", "lib/xapian_db/database.rb", "lib/xapian_db/document_blueprint.rb", "lib/xapian_db/indexer.rb", "lib/xapian_db/adapters/datamapper_adapter.rb"]
   s.homepage = %q{http://github.com/gernotkogler/xapian_db}
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Xapian-DB", "--main", "README.rdoc"]
   s.require_paths = ["lib"]
