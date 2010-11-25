@@ -22,11 +22,14 @@ describe XapianDb::Indexer do
     it "adds values for the configured methods" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.field :id
+        blueprint.field :text
       end
       blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       obj       = IndexedObject.new(1)
+      obj.stub!(:text).and_return("Some Text")
       doc       = blueprint.indexer.build_document_for(obj)
       doc.values[0].value.should == obj.id.to_s
+      doc.values[1].value.should == "Some Text"
     end
     
   end

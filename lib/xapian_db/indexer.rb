@@ -38,10 +38,18 @@ module XapianDb
     # Index all configured text methods
     def index_text
       term_generator = Xapian::TermGenerator.new()
+      term_generator.document = @xapian_doc
       # TODO: make this configurable globally and per document 
       # (retrieve the language from the object, if configured)
       stemmer = Xapian::Stem.new("english")
       term_generator.stemmer = stemmer
+      # tg.stopper = stopper if stopper
+      # tg.stemmer = stemmer
+      # tg.set_flags Xapian::TermGenerator::FLAG_SPELLING if db.spelling
+      @blueprint.indexed_values.each do |method, options|
+        value = @obj.send(method)
+        term_generator.index_text(value.to_s, options.weight, "X#{method.upcase}") unless value.nil?
+      end
     end
     
   end
