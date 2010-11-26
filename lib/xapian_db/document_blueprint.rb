@@ -68,7 +68,7 @@ module XapianDb
       attr_accessor :weight
       
       def initialize(options)
-        @weight = options[:weight]
+        @weight = options[:weight] || 1
       end
     end
           
