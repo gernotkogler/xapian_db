@@ -54,7 +54,7 @@ module XapianDb
       @reader = Xapian::Database.new(@path)
     end
     
-    # The writer is instantiated layzily toavoid a permanent write lock on the database
+    # The writer is instantiated layzily to avoid a permanent write lock on the database
     def writer
       @writer ||= Xapian::WritableDatabase.new(@path, @db_flag)
     end

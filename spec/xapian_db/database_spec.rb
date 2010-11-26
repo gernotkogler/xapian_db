@@ -43,16 +43,6 @@ describe XapianDb::Database do
       @db.size.should == 0
     end
 
-    it "reflects added documents without committing" do
-      doc = Xapian::Document.new
-      doc.data = "1" # We need data to store the doc
-      @db.store_doc(doc)
-      @db.size.should == 1
-    end
-
-  end
-
-  describe ".commit" do
   end
   
 end
@@ -62,17 +52,54 @@ describe XapianDb::InMemoryDatabase do
   before :each do
     @db = XapianDb.create_db    
   end
+
+  describe ".size" do
+
+    before :each do
+      @db = XapianDb.create_db    
+    end
+    
+    it "reflects added documents without committing" do
+      doc = Xapian::Document.new
+      doc.data = "1" # We need data to store the doc
+      @db.store_doc(doc)
+      @db.size.should == 1
+    end
+
+  end
     
 end
 
 describe XapianDb::PersistentDatabase do
   
   before :each do
+    GC.start # Since we create a new persistent database for each spec, we 
+             # need the GC to release any pending write locks to the database
     @db = XapianDb.create_db :path => "/tmp/xapiandb"
   end
 
   after :all do
     FileUtils.rm_rf "/tmp/xapiandb"
+  end
+
+  it "does not reflect added documents without committing" do
+    doc = Xapian::Document.new
+    doc.data = "1" # We need data to store the doc
+    @db.store_doc(doc)
+    @db.size.should == 0
+  end
+
+  describe ".commit" do
+    
+    it "writes all pending changes to the database" do
+      doc = Xapian::Document.new
+      doc.data = "1" # We need data to store the doc
+      @db.store_doc(doc)
+      @db.size.should == 0
+      @db.commit
+      @db.size.should == 1
+    end
+    
   end
   
 end
