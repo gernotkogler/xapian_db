@@ -9,17 +9,35 @@ module XapianDb
   class Database
     attr_reader :reader    
     
+    # Size of the database (number of docs)
+    def size
+      reader.doccount
+    end
+    
+    # Store a Xapian document
+    def store_doc(doc)
+      # We always replace; Xapian adds the documents automatically if
+      # it's not found
+      writer.replace_document("Q#{doc.data}", doc)
+    end
+          
   end
   
   # In Memory database
   class InMemoryDatabase < Database
 
     def initialize
-      @reader = Xapian::Database.new
+      @writer ||= Xapian::inmemory_open
+      @reader = @writer
     end
     
     def writer
-      @writer ||= Xapian::inmemory_open
+      @writer
+    end
+
+    # Commit all pending changes 
+    def commit
+      # Nothing to do for an in memory database
     end
     
   end
@@ -36,8 +54,16 @@ module XapianDb
       @reader = Xapian::Database.new(@path)
     end
     
+    # The writer is instantiated layzily toavoid a permanent write lock on the database
     def writer
       @writer ||= Xapian::WritableDatabase.new(@path, @db_flag)
+    end
+   
+    # Commit all pending changes 
+    def commit
+      writer.commit
+      reader.reopen
+      @writer = nil # GC will release the write lock on the database
     end
     
   end

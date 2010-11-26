@@ -28,6 +28,7 @@ module XapianDb
     # Store all configured fields
     def store_fields
       pos = 0
+      
       @blueprint.fields.each do |field, options|
         value = @obj.send(field).to_s
         @xapian_doc.add_value(pos, value)
@@ -43,9 +44,15 @@ module XapianDb
       # (retrieve the language from the object, if configured)
       stemmer = Xapian::Stem.new("english")
       term_generator.stemmer = stemmer
+      # TODO: Configure and enable these features
       # tg.stopper = stopper if stopper
       # tg.stemmer = stemmer
       # tg.set_flags Xapian::TermGenerator::FLAG_SPELLING if db.spelling
+
+      # Always index the class and the primary key
+      @xapian_doc.add_term("C#{@obj.class}")
+      @xapian_doc.add_term("Q#{@obj.xapian_id}")
+      
       @blueprint.indexed_values.each do |method, options|
         value = @obj.send(method)
         term_generator.index_text(value.to_s, options.weight, "X#{method.upcase}") unless value.nil?

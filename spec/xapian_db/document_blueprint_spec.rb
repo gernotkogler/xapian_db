@@ -42,11 +42,19 @@ describe XapianDb::DocumentBlueprint do
   end
 
   describe ".text" do
-    it "adds an indexed value to the blueprint" do
+    
+    before :all do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.text :id
       end
+    end
+    
+    it "adds an indexed value to the blueprint" do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_values[:id].should be
+    end
+
+    it "defaults the weight option to 1" do
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_values[:id].weight.should == 1
     end
 
     it "accepts weight as an option" do
