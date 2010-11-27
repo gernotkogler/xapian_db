@@ -45,6 +45,29 @@ describe XapianDb::Database do
 
   end
   
+  describe ".search(expression)" do
+
+    before :each do 
+      @db = XapianDb.create_db    
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.field :id
+        blueprint.field :text
+
+        blueprint.text :text
+      end
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @obj       = IndexedObject.new(1)
+      @obj.stub!(:text).and_return("Some Text")
+      @doc       = @blueprint.indexer.build_document_for(@obj)
+    end
+          
+    it "should find a stored document" do
+      @db.store_doc(@doc).should be_true
+      @db.search("Some").size.should == 1
+    end
+    
+  end
+  
 end
 
 describe XapianDb::InMemoryDatabase do
