@@ -20,7 +20,17 @@ module XapianDb
       # it's not found
       writer.replace_document("Q#{doc.data}", doc)
     end
-          
+
+    # Perform a search
+    def search(expression)
+      @query_parser ||= QueryParser.new(self)
+      query = @query_parser.parse(expression)
+      enquiry = Xapian::Enquire.new(reader)
+      enquiry.query = query
+      # TODO: Make this configurable / pageable
+      enquiry.mset(0, 10)
+    end
+           
   end
   
   # In Memory database
