@@ -16,8 +16,8 @@ module XapianDb
     
     # Store a Xapian document
     def store_doc(doc)
-      # We always replace; Xapian adds the documents automatically if
-      # it's not found
+      # We always replace; Xapian adds the document automatically if
+      # it is not found
       writer.replace_document("Q#{doc.data}", doc)
     end
 
@@ -27,8 +27,7 @@ module XapianDb
       query = @query_parser.parse(expression)
       enquiry = Xapian::Enquire.new(reader)
       enquiry.query = query
-      # TODO: Make this configurable / pageable
-      enquiry.mset(0, 10)
+      Resultset.new(enquiry)
     end
            
   end

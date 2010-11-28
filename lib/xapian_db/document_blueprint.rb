@@ -31,7 +31,7 @@ module XapianDb
       
       # Get the blueprint for a class
       def blueprint_for(klass)
-        @blueprints[klass]
+        @blueprints[klass] if @blueprints
       end
             
     end
@@ -54,6 +54,8 @@ module XapianDb
     end
     
     # Add a field to the list
+    # TODO: Make sure the name does not collide with a method name of Xapian::Document since
+    # we generate methods in the documents for all defined fields
     def field(name, options={})
       @fields << name
     end
