@@ -26,14 +26,16 @@ describe XapianDb::Indexer do
       @doc.data.should == @obj.xapian_id
     end
 
+    it "adds the class name of the object as the first value" do
+      @doc.values[0].value.should == @obj.class.name
+    end
+
     it "adds values for the configured methods" do
-      @doc.values[0].value.should == @obj.id.to_s
-      @doc.values[1].value.should == "Some Text"
+      @doc.values[1].value.should == @obj.id.to_s
+      @doc.values[2].value.should == "Some Text"
     end
 
     it "adds terms for the configured methods" do
-      @doc.values[0].value.should == @obj.id.to_s
-      @doc.values[1].value.should == "Some Text"
       @doc.terms.map(&:term).should include("some") 
       @doc.terms.map(&:term).should include("text") 
     end

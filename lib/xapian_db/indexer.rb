@@ -27,8 +27,11 @@ module XapianDb
     
     # Store all configured fields
     def store_fields
-      pos = 0
+
+      # We store the class name of the object at position 0
+      @xapian_doc.add_value(0, @obj.class.name)
       
+      pos = 1
       @blueprint.fields.each do |field, options|
         value = @obj.send(field).to_s
         @xapian_doc.add_value(pos, value)
