@@ -20,6 +20,16 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.setup(IndexedObject)
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexer.should be_a_kind_of(XapianDb::Indexer)
     end
+
+    it "builds an accessor module for the blueprint" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.field :id
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      blueprint.accessors_module.should be_a_kind_of Module
+      blueprint.accessors_module.instance_methods.should include(:id)
+    end
+
   end
   
   describe ".adapter=" do

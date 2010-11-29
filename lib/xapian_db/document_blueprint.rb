@@ -35,12 +35,28 @@ module XapianDb
       end
             
     end
+
+    attr_accessor :indexer
     
+    # Lazily build and return a module that implements accessors for each field
+    def accessors_module
+      return @accessors_module unless @accessors_module.nil?
+      @accessors_module = Module.new
+      @fields.each_with_index do |field, index|
+        @accessors_module.instance_eval do
+          define_method field do
+            # TODO: Convert the value back to the native type
+            self.values[index+1].value
+          end
+        end
+      end
+      @accessors_module
+    end
+          
     # ---------------------------------------------------------------------------------   
     # Blueprint DSL methods
     # ---------------------------------------------------------------------------------   
     attr_reader :adapter, :fields, :indexed_values
-    attr_accessor :indexer
         
     # Construct the blueprint
     def initialize

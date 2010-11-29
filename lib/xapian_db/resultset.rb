@@ -43,18 +43,7 @@ module XapianDb
     def decorate(document)
       klass_name = document.values[0].value
       blueprint  = XapianDb::DocumentBlueprint.blueprint_for(Kernel.const_get(klass_name))
-      blueprint.fields.each_with_index do |field, index|
-        # Dynamically add an accessor method for this field to the document;
-        # probably not the most elegant way to do it but it seems to work 
-        document.instance_eval do
-          eval <<CODE
-            def #{field}
-              self.values[#{index+1}].value
-            end
-CODE
-        end
-        
-      end
+      document.extend blueprint.accessors_module
       document
     end
               
