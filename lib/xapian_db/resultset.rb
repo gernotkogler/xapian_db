@@ -44,7 +44,6 @@ module XapianDb
       klass_name = document.values[0].value
       blueprint  = XapianDb::DocumentBlueprint.blueprint_for(Kernel.const_get(klass_name))
       document.extend blueprint.accessors_module
-      document
     end
               
   end
