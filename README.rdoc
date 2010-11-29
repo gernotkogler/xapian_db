@@ -3,7 +3,7 @@
 XapianDb is a ruby gem that lets you use {Xapian}[http://xapian.org/] databases like a nosql database.
 The gem is in very early development and not production ready yet.
 
-To use xapian_db, make sure you have installed the Xapian library and ruby bindings:
+To use xapian_db, make sure you have the Xapian library and ruby bindings installed:
 
 == Install Xapian
   curl -O http://oligarchy.co.uk/xapian/1.2.2/xapian-core-1.2.2.tar.gz
