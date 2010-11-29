@@ -23,7 +23,12 @@ class People
   
 end
 
-# 3: Define a document blueprint for our class; the blueprint describes
+# 3: Configure the generic adapter with a unique key expression
+XapianDb::Adapters::GenericAdapter.unique_key do
+  "#{self.class}-#{self.id}"
+end
+
+# 4: Define a document blueprint for our class; the blueprint describes
 # the structure of all documents for our class
 XapianDb::DocumentBlueprint.setup(People) do |blueprint|
   blueprint.field :name
@@ -33,18 +38,18 @@ XapianDb::DocumentBlueprint.setup(People) do |blueprint|
   blueprint.text :first_name
 end
 
-# 4: Let's create some objects
+# 5: Let's create some objects
 person_1 = People.new(:id => 1, :name => "Kogler", :first_name => "Gernot")
 person_2 = People.new(:id => 2, :name => "Frey",   :first_name => "Daniel")
 person_3 = People.new(:id => 3, :name => "Garaio", :first_name => "Thomas")
 
-# 5: Now add them to the database
+# 6: Now add them to the database
 indexer = XapianDb::Indexer.new(XapianDb::DocumentBlueprint.blueprint_for(People))
 db.store_doc(indexer.build_document_for(person_1))
 db.store_doc(indexer.build_document_for(person_2))
 db.store_doc(indexer.build_document_for(person_3))
 
-# 6: Now find the gem author ;-)
+# 7: Now find the gem author ;-)
 puts "Searching for Gernot..."
 results = db.search("Gernot")
 puts "We found #{results.size} documents"

@@ -25,7 +25,7 @@ module XapianDb
         blueprint.indexer = Indexer.new(blueprint)
         yield blueprint if block_given? # Configure the blueprint through the block
         @blueprints[klass] = blueprint
-        adapter = blueprint.adapter || @default_adapter || Adapters::DatamapperAdapter
+        adapter = blueprint.adapter || @default_adapter || Adapters::GenericAdapter
         adapter.add_helper_methods_to klass
       end
       

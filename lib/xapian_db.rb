@@ -25,6 +25,7 @@ module XapianDb
   
 end
 
+require File.dirname(__FILE__) + '/xapian_db/adapters/generic_adapter'
 require File.dirname(__FILE__) + '/xapian_db/adapters/datamapper_adapter'
 require File.dirname(__FILE__) + '/xapian_db/database'
 require File.dirname(__FILE__) + '/xapian_db/document_blueprint'
