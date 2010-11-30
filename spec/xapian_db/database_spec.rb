@@ -65,6 +65,11 @@ describe XapianDb::Database do
       @db.store_doc(@doc).should be_true
       @db.search("Some").size.should == 1
     end
+
+    it "should find a stored document with a wildcard expression" do
+      @db.store_doc(@doc).should be_true
+      @db.search("Som*").size.should == 1
+    end
     
   end
   
