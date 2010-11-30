@@ -46,7 +46,7 @@ module XapianDb
         @accessors_module.instance_eval do
           define_method field do
             # TODO: Convert the value back to the native type
-            self.values[index+1].value
+            self.values[index+1] ? self.values[index+1].value : nil
           end
         end
       end

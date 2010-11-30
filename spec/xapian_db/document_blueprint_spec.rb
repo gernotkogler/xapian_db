@@ -21,15 +21,6 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexer.should be_a_kind_of(XapianDb::Indexer)
     end
 
-    it "builds an accessor module for the blueprint" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.field :id
-      end
-      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-      blueprint.accessors_module.should be_a_kind_of Module
-      blueprint.accessors_module.instance_methods.should include(:id)
-    end
-
   end
   
   describe ".adapter=" do
@@ -76,4 +67,30 @@ describe XapianDb::DocumentBlueprint do
 
   end
   
+  describe ".accessors_module" do
+    
+    before :each do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.field :id
+        blueprint.field :name
+      end
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+    end
+    
+    it "builds an accessor module for the blueprint" do
+      @blueprint.accessors_module.should be_a_kind_of Module
+    end
+
+    it "adds accessor methods for each configured field" do
+      @blueprint.accessors_module.instance_methods.should include(:name)
+    end
+
+    it "adds accessor methods that can handle nil" do
+      doc = Xapian::Document.new
+      doc.add_value(2, nil.to_s)
+      doc.extend @blueprint.accessors_module
+      doc.name.should be_nil
+    end
+    
+  end
 end
