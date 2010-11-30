@@ -33,8 +33,8 @@ module XapianDb
       
       pos = 1
       @blueprint.fields.each do |field, options|
-        value = @obj.send(field).to_s
-        @xapian_doc.add_value(pos, value)
+        value = @obj.send(field)
+        @xapian_doc.add_value(pos, value.to_yaml)
         pos += 1
       end
     end

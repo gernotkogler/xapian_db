@@ -33,8 +33,8 @@ describe XapianDb::Indexer do
     end
 
     it "adds values for the configured methods" do
-      @doc.values[1].value.should == @obj.id.to_s
-      @doc.values[2].value.should == "Some Text"
+      @doc.values[1].value.should == @obj.id.to_yaml
+      @doc.values[2].value.should == "Some Text".to_yaml
     end
 
     it "adds terms for the configured methods" do
@@ -43,7 +43,7 @@ describe XapianDb::Indexer do
     end
 
     it "handles fields with nil values" do
-      @doc.values[3].should == nil
+      @doc.values[3].value.should == nil.to_yaml
     end
     
   end
