@@ -1,6 +1,7 @@
 require 'digest/sha1'
 require 'rubygems'
 require 'xapian'
+require 'yaml'
 
 module XapianDb
 

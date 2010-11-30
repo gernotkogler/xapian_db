@@ -73,8 +73,18 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.field :id
         blueprint.field :name
+        blueprint.field :date_of_birth
+        blueprint.field :empty_field
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      
+      @doc = Xapian::Document.new
+      @doc.add_value(0, "Object")
+      @doc.add_value(1, 1.to_yaml)
+      @doc.add_value(2, "Kogler".to_yaml)
+      @doc.add_value(3, Date.today.to_yaml)
+      @doc.add_value(4, nil.to_yaml)
+      @doc.extend @blueprint.accessors_module
     end
     
     it "builds an accessor module for the blueprint" do
@@ -82,14 +92,15 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "adds accessor methods for each configured field" do
-      @blueprint.accessors_module.instance_methods.should include(:name)
+      @blueprint.accessors_module.instance_methods.should include(:id, :name, :date_of_birth)
     end
 
     it "adds accessor methods that can handle nil" do
-      doc = Xapian::Document.new
-      doc.add_value(2, nil.to_s)
-      doc.extend @blueprint.accessors_module
-      doc.name.should be_nil
+      @doc.empty_field.should be_nil
+    end
+
+    it "adds accessor methods that deserialize values using YAML" do
+      @doc.date_of_birth.should == Date.today
     end
     
   end
