@@ -9,13 +9,17 @@ module XapianDb
     
     def initialize(database)
       @db = database
+      
+      # Set the parser options
+      @query_flags = 0
+      @query_flags |= Xapian::QueryParser::FLAG_WILDCARD # enable wildcards
     end
     
     def parse(expression)
       parser = Xapian::QueryParser.new
       parser.database = @db.reader
       # TODO: Setup stopper, stemmer, defaults and fields
-      parser.parse_query(expression)
+      parser.parse_query(expression, @query_flags)
     end
     
   end
