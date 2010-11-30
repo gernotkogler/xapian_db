@@ -75,6 +75,7 @@ describe XapianDb::DocumentBlueprint do
         blueprint.field :name
         blueprint.field :date_of_birth
         blueprint.field :empty_field
+        blueprint.field :array
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       
@@ -84,6 +85,7 @@ describe XapianDb::DocumentBlueprint do
       @doc.add_value(2, "Kogler".to_yaml)
       @doc.add_value(3, Date.today.to_yaml)
       @doc.add_value(4, nil.to_yaml)
+      @doc.add_value(5, [1, "two", Date.today].to_yaml)
       @doc.extend @blueprint.accessors_module
     end
     
@@ -101,6 +103,10 @@ describe XapianDb::DocumentBlueprint do
 
     it "adds accessor methods that deserialize values using YAML" do
       @doc.date_of_birth.should == Date.today
+    end
+
+    it "adds accessor methods that deserialize arrays using YAML" do
+      @doc.array.should == [1, "two", Date.today]
     end
     
   end

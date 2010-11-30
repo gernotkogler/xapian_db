@@ -11,12 +11,17 @@ describe XapianDb::Indexer do
         blueprint.field :id
         blueprint.field :text
         blueprint.field :no_value
+        blueprint.field :array
+
         blueprint.text :text
+        blueprint.text :array
       end
+      
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       @obj       = IndexedObject.new(1)
       @obj.stub!(:text).and_return("Some Text")
       @obj.stub!(:no_value).and_return(nil)
+      @obj.stub!(:array).and_return([1, "two", Date.today])
       @doc       = @blueprint.indexer.build_document_for(@obj)
     end
         
@@ -40,10 +45,16 @@ describe XapianDb::Indexer do
     it "adds terms for the configured methods" do
       @doc.terms.map(&:term).should include("some") 
       @doc.terms.map(&:term).should include("text") 
+      @doc.terms.map(&:term).should include("1") # from the array field 
+      @doc.terms.map(&:term).should include("two") # from the array field 
     end
 
     it "handles fields with nil values" do
       @doc.values[3].value.should == nil.to_yaml
+    end
+
+    it "handles fields with an array as the value" do
+      @doc.values[4].value.should == [1, "two", Date.today].to_yaml
     end
     
   end
