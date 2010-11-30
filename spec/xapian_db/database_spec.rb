@@ -33,6 +33,31 @@ describe XapianDb::Database do
     
   end
 
+  describe ".delete_doc_with_unique_term(term)" do
+    
+    before :each do 
+      @db = XapianDb.create_db    
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.field :id
+        blueprint.field :text
+      end
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @obj       = IndexedObject.new(1)
+      @obj.stub!(:text).and_return("Some Text")
+      @doc       = @blueprint.indexer.build_document_for(@obj)
+    end
+    
+    it "should delete the document with this term in the database" do
+      @db.store_doc(@doc).should be_true
+      @db.commit
+      @db.size.should == 1
+      @db.delete_doc_with_unique_term(@doc.data).should be_true
+      @db.commit
+      @db.size.should == 0
+    end
+
+  end
+
   describe ".size" do
 
     before :each do

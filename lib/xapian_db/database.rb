@@ -21,6 +21,13 @@ module XapianDb
       writer.replace_document("Q#{doc.data}", doc)
     end
 
+    # Delete a document by a unique term; this method is used by the
+    # orm adapters
+    def delete_doc_with_unique_term(term)
+      writer.delete_document("Q#{term}")
+      true
+    end
+       
     # Perform a search
     def search(expression)
       @query_parser ||= QueryParser.new(self)
@@ -58,6 +65,8 @@ module XapianDb
       @path    = options[:path]
       @db_flag = options[:create] ? Xapian::DB_CREATE_OR_OVERWRITE : Xapian::DB_OPEN
       if options[:create]
+        # make sure the path exists; Xapian will not create the necessary directories 
+        FileUtils.makedirs @path
         @writer = Xapian::WritableDatabase.new(@path, @db_flag)
       end
       @reader = Xapian::Database.new(@path)
