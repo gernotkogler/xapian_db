@@ -30,10 +30,42 @@ class DemoAdapter
       # This method must be implemented by all adapters. It must
       # return a string that uniquely identifies an object
       define_method(:xapian_id) do
-        "#{self.class}-#{self.id}"
+        "a_unique_key_expression"
       end
     end
 
+  end
+  
+end
+
+# Test class for indexed datamapper objects; this class mimics some behaviour
+# of datamapper and has methods to test the helper methods
+class DatamapperObject
+  
+  class << self
+    
+    attr_reader :hooks
+    
+    # Simulate the after method of datamapper
+    def after(action, &block)
+      @hooks ||= {}
+      @hooks["after_#{action}".to_sym] = block
+    end
+    
+  end
+  
+  attr_reader :id, :name
+  
+  def initialize(id, name)
+    @id, @name = id, name
+  end
+
+  def save
+    instance_eval &self.class.hooks[:after_save]
+  end  
+  
+  def destroy
+    instance_eval &self.class.hooks[:after_destroy]
   end
   
 end
