@@ -59,10 +59,13 @@ module XapianDb
       @blueprint.indexed_values.each do |method, options|
         value = @obj.send(method)
         unless value.nil?
-          # Add value with field name
-          term_generator.index_text(value.to_s.downcase, options.weight, "X#{method.upcase}")
-          # Add value without field name
-          term_generator.index_text(value.to_s.downcase)
+          values = value.is_a?(Array) ? value : [value]
+          values.each do |value|
+            # Add value with field name
+            term_generator.index_text(value.to_s.downcase, options.weight, "X#{method.upcase}")
+            # Add value without field name
+            term_generator.index_text(value.to_s.downcase)
+          end
         end
       end
     end
