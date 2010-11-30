@@ -23,20 +23,39 @@ module XapianDb
         @blueprints ||= {}
         blueprint = DocumentBlueprint.new
         blueprint.indexer = Indexer.new(blueprint)
-        yield blueprint if block_given? # Configure the blueprint through the block
+        yield blueprint if block_given? # configure the blueprint through the block
         @blueprints[klass] = blueprint
         adapter = blueprint.adapter || @default_adapter || Adapters::GenericAdapter
         adapter.add_helper_methods_to klass
+        @searchable_prefixes = nil # force rebuild of the searchable prefixes
       end
       
       # Get the blueprint for a class
       def blueprint_for(klass)
         @blueprints[klass] if @blueprints
       end
+
+      # Return an array of all configured text methods in any blueprint
+      def searchable_prefixes
+        return @searchable_prefixes unless @searchable_prefixes.nil?
+        prefixes = []
+        @blueprints.each do |klass, blueprint|
+          prefixes << blueprint.searchable_prefixes
+        end
+        @searchable_prefixes = prefixes.flatten.compact.uniq
+      end
             
     end
 
+    # ---------------------------------------------------------------------------------   
+    # Instance methods
+    # ---------------------------------------------------------------------------------       
     attr_accessor :indexer
+    
+    # Return an array of all configured text methods in this blueprint
+    def searchable_prefixes
+      @prefixes ||= indexed_values.map{|method_name, options| method_name}
+    end
     
     # Lazily build and return a module that implements accessors for each field
     def accessors_module

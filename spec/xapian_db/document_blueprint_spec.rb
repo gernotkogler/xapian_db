@@ -110,4 +110,31 @@ describe XapianDb::DocumentBlueprint do
     end
     
   end
+  
+  describe ".searchable_prefixes" do
+    
+    it "should return an array of all method names configured to be indexed" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.text :id
+        blueprint.text :name
+      end
+      XapianDb::DocumentBlueprint.searchable_prefixes.should include(:id, :name)
+    end
+
+    it "should return an array with unique values" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.text :id
+        blueprint.text :name
+      end
+      XapianDb::DocumentBlueprint.setup(Object) do |blueprint|
+        blueprint.text :id
+        blueprint.text :name
+      end
+      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix| prefix == :id}.size.should ==1
+      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix| prefix == :name}.size.should ==1
+    end
+    
+  end
+  
+  
 end
