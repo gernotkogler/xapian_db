@@ -50,14 +50,13 @@ describe XapianDb::Database do
     before :each do 
       @db = XapianDb.create_db    
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.field :id
-        blueprint.field :text
-
         blueprint.text :text
+        blueprint.text :text2
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       @obj       = IndexedObject.new(1)
       @obj.stub!(:text).and_return("Some Text")
+      @obj.stub!(:text2).and_return("findme_in_text2")
       @doc       = @blueprint.indexer.build_document_for(@obj)
     end
           
@@ -69,6 +68,12 @@ describe XapianDb::Database do
     it "should find a stored document with a wildcard expression" do
       @db.store_doc(@doc).should be_true
       @db.search("Som*").size.should == 1
+    end
+
+    it "should find a stored document with a field expression" do
+      @db.store_doc(@doc).should be_true
+      @db.search("text:findme_in_text2").size.should == 0
+      @db.search("text2:findme_in_text2").size.should == 1
     end
     
   end

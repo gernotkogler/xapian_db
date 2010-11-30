@@ -19,6 +19,10 @@ module XapianDb
       parser = Xapian::QueryParser.new
       parser.database = @db.reader
       # TODO: Setup stopper, stemmer, defaults and fields
+      
+      # Add the searchable prefixes to allow searches by field 
+      # (like "name:Kogler")
+      XapianDb::DocumentBlueprint.searchable_prefixes.each{|prefix| parser.add_prefix(prefix.to_s.downcase, "X#{prefix.to_s.upcase}") }
       parser.parse_query(expression, @query_flags)
     end
     
