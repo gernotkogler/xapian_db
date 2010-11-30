@@ -44,10 +44,10 @@ person_2 = People.new(:id => 2, :name => "Frey",   :first_name => "Daniel")
 person_3 = People.new(:id => 3, :name => "Garaio", :first_name => "Thomas")
 
 # 6: Now add them to the database
-indexer = XapianDb::Indexer.new(XapianDb::DocumentBlueprint.blueprint_for(People))
-db.store_doc(indexer.build_document_for(person_1))
-db.store_doc(indexer.build_document_for(person_2))
-db.store_doc(indexer.build_document_for(person_3))
+blueprint = XapianDb::DocumentBlueprint.blueprint_for(People)
+db.store_doc(blueprint.indexer.build_document_for(person_1))
+db.store_doc(blueprint.indexer.build_document_for(person_2))
+db.store_doc(blueprint.indexer.build_document_for(person_3))
 
 # 7: Now find the gem author ;-)
 puts "Searching for Gernot..."
