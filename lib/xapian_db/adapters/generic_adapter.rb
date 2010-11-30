@@ -18,6 +18,7 @@ module XapianDb
         
         # Implement the helper methods
         def add_helper_methods_to(klass)
+          raise "Unique key is not configured for generic adapter!" if @unique_key_block.nil?
           expression = @unique_key_block
           klass.instance_eval do
             define_method(:xapian_id) do
