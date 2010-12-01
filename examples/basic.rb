@@ -29,13 +29,12 @@ XapianDb::Adapters::GenericAdapter.unique_key do
 end
 
 # 4: Define a document blueprint for our class; the blueprint describes
-# the structure of all documents for our class
+# the structure of all documents for our class. Attribute values can
+# be accessed later for each retrieved doc. Attributes are indexed
+# by default.
 XapianDb::DocumentBlueprint.setup(People) do |blueprint|
   blueprint.attribute :name
   blueprint.attribute :first_name
-
-  blueprint.index :name
-  blueprint.index :first_name
 end
 
 # 5: Let's create some objects

@@ -33,11 +33,33 @@ describe XapianDb::DocumentBlueprint do
   end
   
   describe ".attribute" do
-    it "adds a field to the blueprint" do
+    
+    before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id
       end
+    end
+    
+    it "adds an attribute to the blueprint" do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes.should include(:id)
+    end
+
+    it "adds the attribute to the indexed methods by default" do
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods.should include(:id)
+    end
+
+    it "does not index the attribute if the :index option ist set to false " do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id, :index => false
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods.should_not include(:id)
+    end
+
+    it "allows to specify a weight for the attribute" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id, :weight=> 10
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods[:id].weight.should == 10
     end
 
   end

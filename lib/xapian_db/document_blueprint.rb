@@ -91,7 +91,9 @@ module XapianDb
     # TODO: Make sure the name does not collide with a method name of Xapian::Document since
     # we generate methods in the documents for all defined fields
     def attribute(name, options={})
+      opts = {:index => true}.merge(options)
       @attributes << name
+      self.index(name, opts) if opts[:index]
     end
 
     # Add an indexed value to the list
