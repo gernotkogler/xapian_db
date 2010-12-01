@@ -13,11 +13,14 @@ module XapianDb
       # Set the parser options
       @query_flags = 0
       @query_flags |= Xapian::QueryParser::FLAG_WILDCARD # enable wildcards
+      @query_flags |= Xapian::QueryParser::FLAG_BOOLEAN
+      @query_flags |= Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE
     end
     
     def parse(expression)
-      parser = Xapian::QueryParser.new
-      parser.database = @db.reader
+      parser            = Xapian::QueryParser.new
+      parser.database   = @db.reader
+      parser.default_op = Xapian::Query::OP_AND # Could be made configurable
       # TODO: Setup stopper, stemmer, defaults and fields
       
       # Add the searchable prefixes to allow searches by field 
