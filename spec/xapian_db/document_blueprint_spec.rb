@@ -32,37 +32,37 @@ describe XapianDb::DocumentBlueprint do
     end
   end
   
-  describe ".field" do
+  describe ".attribute" do
     it "adds a field to the blueprint" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.field :id
+        blueprint.attribute :id
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).fields.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes.should include(:id)
     end
 
   end
 
-  describe ".text" do
+  describe ".index" do
     
     before :all do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.text :id
+        blueprint.index :id
       end
     end
     
     it "adds an indexed value to the blueprint" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_values[:id].should be
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods[:id].should be
     end
 
     it "defaults the weight option to 1" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_values[:id].weight.should == 1
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods[:id].weight.should == 1
     end
 
     it "accepts weight as an option" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.text :id, :weight => 10
+        blueprint.index :id, :weight => 10
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_values[:id].weight.should == 10
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods[:id].weight.should == 10
     end
 
   end
@@ -71,11 +71,11 @@ describe XapianDb::DocumentBlueprint do
     
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.field :id
-        blueprint.field :name
-        blueprint.field :date_of_birth
-        blueprint.field :empty_field
-        blueprint.field :array
+        blueprint.attribute :id
+        blueprint.attribute :name
+        blueprint.attribute :date_of_birth
+        blueprint.attribute :empty_field
+        blueprint.attribute :array
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       
@@ -115,20 +115,20 @@ describe XapianDb::DocumentBlueprint do
     
     it "should return an array of all method names configured to be indexed" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.text :id
-        blueprint.text :name
+        blueprint.index :id
+        blueprint.index :name
       end
       XapianDb::DocumentBlueprint.searchable_prefixes.should include(:id, :name)
     end
 
     it "should return an array with unique values" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.text :id
-        blueprint.text :name
+        blueprint.index :id
+        blueprint.index :name
       end
       XapianDb::DocumentBlueprint.setup(Object) do |blueprint|
-        blueprint.text :id
-        blueprint.text :name
+        blueprint.index :id
+        blueprint.index :name
       end
       XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix| prefix == :id}.size.should ==1
       XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix| prefix == :name}.size.should ==1

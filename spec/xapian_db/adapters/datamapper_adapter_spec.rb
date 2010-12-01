@@ -13,7 +13,7 @@ describe XapianDb::Adapters::DatamapperAdapter do
     XapianDb::DocumentBlueprint.default_adapter = XapianDb::Adapters::DatamapperAdapter
     XapianDb::Adapters::DatamapperAdapter.database = @db
     XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
-      blueprint.text :name
+      blueprint.index :name
     end
     
     @object = DatamapperObject.new(1, "Kogler")

@@ -31,11 +31,11 @@ end
 # 4: Define a document blueprint for our class; the blueprint describes
 # the structure of all documents for our class
 XapianDb::DocumentBlueprint.setup(People) do |blueprint|
-  blueprint.field :name
-  blueprint.field :first_name
+  blueprint.attribute :name
+  blueprint.attribute :first_name
 
-  blueprint.text :name
-  blueprint.text :first_name
+  blueprint.index :name
+  blueprint.index :first_name
 end
 
 # 5: Let's create some objects

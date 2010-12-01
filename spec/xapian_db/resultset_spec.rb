@@ -24,7 +24,7 @@ describe XapianDb::Resultset do
         
     # Setup a blueprint
     XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-      blueprint.field :name
+      blueprint.attribute :name
     end
 
     @result = XapianDb::Resultset.new(enquiry)

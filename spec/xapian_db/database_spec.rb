@@ -9,8 +9,8 @@ describe XapianDb::Database do
     before :each do 
       @db = XapianDb.create_db    
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.field :id
-        blueprint.field :text
+        blueprint.attribute :id
+        blueprint.attribute :text
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       @obj       = IndexedObject.new(1)
@@ -38,8 +38,8 @@ describe XapianDb::Database do
     before :each do 
       @db = XapianDb.create_db    
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.field :id
-        blueprint.field :text
+        blueprint.attribute :id
+        blueprint.attribute :text
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       @obj       = IndexedObject.new(1)
@@ -75,8 +75,8 @@ describe XapianDb::Database do
     before :each do 
       @db = XapianDb.create_db    
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.text :text
-        blueprint.text :text2
+        blueprint.index :text
+        blueprint.index :text2
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       @obj       = IndexedObject.new(1)

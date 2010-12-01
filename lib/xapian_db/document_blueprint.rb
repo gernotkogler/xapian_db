@@ -54,14 +54,14 @@ module XapianDb
     
     # Return an array of all configured text methods in this blueprint
     def searchable_prefixes
-      @prefixes ||= indexed_values.map{|method_name, options| method_name}
+      @prefixes ||= indexed_methods.map{|method_name, options| method_name}
     end
     
     # Lazily build and return a module that implements accessors for each field
     def accessors_module
       return @accessors_module unless @accessors_module.nil?
       @accessors_module = Module.new
-      @fields.each_with_index do |field, index|
+      @attributes.each_with_index do |field, index|
         @accessors_module.instance_eval do
           define_method field do
             YAML::load(self.values[index+1].value)
@@ -74,12 +74,12 @@ module XapianDb
     # ---------------------------------------------------------------------------------   
     # Blueprint DSL methods
     # ---------------------------------------------------------------------------------   
-    attr_reader :adapter, :fields, :indexed_values
+    attr_reader :adapter, :attributes, :indexed_methods
         
     # Construct the blueprint
     def initialize
-      @fields = []
-      @indexed_values = {}
+      @attributes = []
+      @indexed_methods = {}
     end
     
     # Set a custom adapter for this blueprint
@@ -87,20 +87,20 @@ module XapianDb
       @adapter = adapter
     end
     
-    # Add a field to the list
+    # Add an attribute to the list
     # TODO: Make sure the name does not collide with a method name of Xapian::Document since
     # we generate methods in the documents for all defined fields
-    def field(name, options={})
-      @fields << name
+    def attribute(name, options={})
+      @attributes << name
     end
 
     # Add an indexed value to the list
-    def text(name, options={})
-      @indexed_values[name] = TextOptions.new(options)
+    def index(name, options={})
+      @indexed_methods[name] = IndexOptions.new(options)
     end
 
     # Options for an indexed text
-    class TextOptions      
+    class IndexOptions      
       attr_accessor :weight
       
       def initialize(options)

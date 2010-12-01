@@ -8,13 +8,13 @@ describe XapianDb::Indexer do
 
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.field :id
-        blueprint.field :text
-        blueprint.field :no_value
-        blueprint.field :array
+        blueprint.attribute :id
+        blueprint.attribute :text
+        blueprint.attribute :no_value
+        blueprint.attribute :array
 
-        blueprint.text :text
-        blueprint.text :array
+        blueprint.index :text
+        blueprint.index :array
       end
       
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
