@@ -1,22 +1,57 @@
 = XapianDb
 
-XapianDb is a ruby gem that lets you use {Xapian}[http://xapian.org/] databases like a nosql database.
+== What's in the box?
+
+XapianDb is a ruby gem that combines features of nosql databases and fultext indexing into one piece. The result: Rich documents and very fast queries.
+It is based on {Xapian}[http://xapian.org/], an efficient and powerful indexing library.
 The gem is in very early development and not production ready yet.
 
-To use xapian_db, make sure you have the Xapian library and ruby bindings installed:
+XapianDb is inspired by {xapian-fu}[https://github.com/johnl/xapian-fu] and {xapit}[https://github.com/ryanb/xapit].
+Thank you John and Ryan for your great work. It helped me learning to understand the xapian library and I borrowed an idea
+or two from you ;-)
 
-== Install Xapian
-  curl -O http://oligarchy.co.uk/xapian/1.2.2/xapian-core-1.2.2.tar.gz
-  tar xzvf xapian-core-1.2.2.tar.gz
-  cd xapian-core-1.2.2
+== Why yet another indexing gem?
+
+In the good old days I used {ferret}[https://github.com/dbalmain/ferret] and {acts_as_ferret}[https://github.com/jkraemer/acts_as_ferret] 
+as my fulltext indexing solution and everything was fine. But time moved on and Ferret didn't. 
+
+So I started to rethink fulltext indexing again. I looked for something that
+
+* is under active development
+* is fast
+* is lightweight and easy to install / deploy
+* is framework and database agnostic and works with pure POROS (plain old ruby objects)
+* is configurable anywhere, not just inside the model classes; I think that index configurations should not be part of the domain model 
+* supports document configuration at the class level, not the database level; each class has its own document structure
+* integrates with popular Ruby / Rails ORMs like ActiveRecord or Datamapper through an extensible plugin architecture
+* returns rich document objects that do not necessarily need a database roundtrip to render the search results (but know how to deliver the underlying object, if needed)
+* updates the index realtime (no scheduled reindexing jobs)
+* supports all major features of a full text indexer, namely wildcards!!
+
+I tried hard but I couldn't find such a thing so I decided to write it, based on the Xapian library.
+
+== Getting started
+
+=== 1. Install Xapian if not already installed
+
+To use xapian_db, make sure you have the Xapian library and ruby bindings installed. At the time of this writing, the newest release of Xapian was 1.2.3. You might 
+want to adjust the URLs below to load the most current release of Xapian. 
+The example code works for OSX. On linux you might want to use wget instead of curl.
+
+A future release of xapian_db might include the Xapian binaries and make this step obsolete.
+
+==== Install Xapian
+  curl -O http://oligarchy.co.uk/xapian/1.2.3/xapian-core-1.2.3.tar.gz
+  tar xzvf xapian-core-1.2.3.tar.gz
+  cd xapian-core-1.2.3
   ./configure --prefix=/usr/local
   make
   sudo make install
   
-== Install ruby bindings for Xapian
-  curl -O http://oligarchy.co.uk/xapian/1.2.2/xapian-bindings-1.2.2.tar.gz
-  tar xzvf xapian-bindings-1.2.2.tar.gz
-  cd xapian-bindings-1.2.2
+==== Install ruby bindings for Xapian
+  curl -O http://oligarchy.co.uk/xapian/1.2.2/xapian-bindings-1.2.3.tar.gz
+  tar xzvf xapian-bindings-1.2.3.tar.gz
+  cd xapian-bindings-1.2.3
   ./configure --prefix=/usr/local XAPIAN_CONFIG=/usr/local/bin/xapian-config
   make
   sudo make install
