@@ -58,6 +58,75 @@ describe XapianDb::Database do
 
   end
 
+  describe ".delete_docs_of_class(klass)" do
+
+    before :each do 
+      @db = XapianDb.create_db    
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id
+      end
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+    end
+    
+    it "should delete all docs of the given class" do
+      
+      # Create two test objects we will delete later
+      obj = IndexedObject.new(1)
+      doc = @blueprint.indexer.build_document_for(obj)
+      @db.store_doc(doc).should be_true
+      obj = IndexedObject.new(2)
+      doc = @blueprint.indexer.build_document_for(obj)
+      @db.store_doc(doc).should be_true
+      @db.commit
+      @db.size.should == 2
+      
+      # Now delete all docs of IndexedObject
+      @db.delete_docs_of_class(IndexedObject)
+      @db.commit
+      @db.size.should == 0
+      
+    end
+
+    it "must not delete docs of a different class that have a term like the name of <klass>" do
+           
+      class LeaveMeAlone
+        attr_reader :id, :text
+        
+        def initialize(id, text)
+          @id, @text = id, text
+        end
+      end
+
+      XapianDb::DocumentBlueprint.setup(LeaveMeAlone) do |blueprint|
+        blueprint.attribute :id
+        blueprint.attribute :text
+      end
+                
+      # Create two test objects we will delete later
+      obj = IndexedObject.new(1)
+      doc = @blueprint.indexer.build_document_for(obj)
+      @db.store_doc(doc).should be_true
+      obj = IndexedObject.new(2)
+      doc = @blueprint.indexer.build_document_for(obj)
+      @db.store_doc(doc).should be_true
+      
+      # Now create an object of a different class that has a term "IndexedObject"
+      leave_me_alone = LeaveMeAlone.new(1, "IndexedObject")
+      doc = @blueprint.indexer.build_document_for(leave_me_alone)
+      @db.store_doc(doc).should be_true
+        
+      @db.commit
+      @db.size.should == 3
+      
+      # Now delete all docs of IndexedObject
+      @db.delete_docs_of_class(IndexedObject)
+      @db.commit
+      @db.size.should == 1 # leave_me_alone must still exist
+      
+    end
+    
+  end
+
   describe ".size" do
 
     before :each do

@@ -16,8 +16,8 @@ module XapianDb
           @unique_key_block = block
         end
         
-        # Implement the helper methods
-        def add_helper_methods_to(klass)
+        # Implement the class helper methods
+        def add_class_helper_methods_to(klass)
           raise "Unique key is not configured for generic adapter!" if @unique_key_block.nil?
           expression = @unique_key_block
           klass.instance_eval do
@@ -25,6 +25,11 @@ module XapianDb
               instance_eval &expression
             end
           end
+        end
+        
+        # Implement the document helper methods
+        def add_doc_helper_methods_to(obj)
+          # We have none so far
         end
         
       end

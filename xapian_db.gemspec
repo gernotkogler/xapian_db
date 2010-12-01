@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{xapian_db}
-  s.version = "0.1.0"
-
+  s.version = "0.2.0"
+  s.add_dependency('progressbar', '>= 0.9.0')
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gernot kogler"]
-  s.date = %q{2010-11-23}
+  s.date = %q{2010-12-1}
   s.description = %q{Ruby library to use a Xapian db as a key/value store with high performance fulltext search}
   s.email = %q{gernot.kogler (at) garaio (dot) com}
   s.extra_rdoc_files = ["CHANGELOG"]

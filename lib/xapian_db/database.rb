@@ -27,6 +27,12 @@ module XapianDb
       writer.delete_document("Q#{term}")
       true
     end
+
+    # Delete all docs of a specific class 
+    def delete_docs_of_class(klass)
+      writer.delete_document("C#{klass}")
+      true
+    end
        
     # Perform a search
     def search(expression)
@@ -81,7 +87,6 @@ module XapianDb
     def commit
       writer.commit
       reader.reopen
-      @writer = nil # GC will release the write lock on the database
     end
     
   end

@@ -13,6 +13,8 @@ module XapianDb
     # ---------------------------------------------------------------------------------   
     class << self
 
+      attr_reader :adapter
+      
       # Set the default adapter for all indexed classes
       def default_adapter=(klass)
         @default_adapter = klass
@@ -25,8 +27,8 @@ module XapianDb
         blueprint.indexer = Indexer.new(blueprint)
         yield blueprint if block_given? # configure the blueprint through the block
         @blueprints[klass] = blueprint
-        adapter = blueprint.adapter || @default_adapter || Adapters::GenericAdapter
-        adapter.add_helper_methods_to klass
+        @adapter = blueprint.adapter || @default_adapter || Adapters::GenericAdapter
+        @adapter.add_class_helper_methods_to klass
         @searchable_prefixes = nil # force rebuild of the searchable prefixes
       end
       
@@ -68,6 +70,8 @@ module XapianDb
           end
         end
       end
+      # Let the adpater add its document helper methods (if any)
+      self.class.adapter.add_doc_helper_methods_to(@accessors_module)
       @accessors_module
     end
           

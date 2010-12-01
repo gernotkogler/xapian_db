@@ -23,7 +23,7 @@ end
 # Test adapter 
 class DemoAdapter
 
-  def self.add_helper_methods_to(klass)
+  def self.add_class_helper_methods_to(klass)
 
     klass.instance_eval do
       
@@ -36,16 +36,38 @@ class DemoAdapter
 
   end
   
+  def self.add_doc_helper_methods_to(klass)
+  end
+  
 end
 
 # Test class for indexed datamapper objects; this class mimics some behaviour
 # of datamapper and has methods to test the helper methods
 class DatamapperObject
   
+  @objects = []
+  
   class << self
     
     attr_reader :hooks
+  
+    def reset
+      @objects = []      
+      @hooks = {}
+    end
     
+    def count
+      @objects.size
+    end
+    
+    def get(id)
+      @objects.detect{|o| o.id == id}
+    end
+    
+    def all
+      @objects
+    end
+        
     # Simulate the after method of datamapper
     def after(action, &block)
       @hooks ||= {}
@@ -61,10 +83,12 @@ class DatamapperObject
   end
 
   def save
+    self.class.all << self
     instance_eval &self.class.hooks[:after_save]
   end  
   
   def destroy
+    self.class.all.delete self
     instance_eval &self.class.hooks[:after_destroy]
   end
   
@@ -89,5 +113,6 @@ RSpec.configure do |config|
     XapianDb::Adapters::GenericAdapter.unique_key do
       "#{self.class}-#{self.id}"
     end
+    DatamapperObject.reset
   end
 end

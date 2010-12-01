@@ -2,6 +2,7 @@ require 'digest/sha1'
 require 'rubygems'
 require 'xapian'
 require 'yaml'
+require 'progressbar'
 
 module XapianDb
 
