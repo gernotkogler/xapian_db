@@ -8,91 +8,8 @@ SimpleCov.start do
 end
 
 require File.dirname(__FILE__) + '/../lib/xapian_db'
-
-# Test class for indexed objects
-class IndexedObject
-  
-  attr_reader :id
-  
-  def initialize(id)
-    @id = id
-  end
-  
-end
-
-# Test adapter 
-class DemoAdapter
-
-  def self.add_class_helper_methods_to(klass)
-
-    klass.instance_eval do
-      
-      # This method must be implemented by all adapters. It must
-      # return a string that uniquely identifies an object
-      define_method(:xapian_id) do
-        "a_unique_key_expression"
-      end
-    end
-
-  end
-  
-  def self.add_doc_helper_methods_to(klass)
-  end
-  
-end
-
-# Test class for indexed datamapper objects; this class mimics some behaviour
-# of datamapper and has methods to test the helper methods
-class DatamapperObject
-  
-  @objects = []
-  
-  class << self
-    
-    attr_reader :hooks
-  
-    def reset
-      @objects = []      
-      @hooks = {}
-    end
-    
-    def count
-      @objects.size
-    end
-    
-    def get(id)
-      @objects.detect{|o| o.id == id}
-    end
-    
-    def all
-      @objects
-    end
-        
-    # Simulate the after method of datamapper
-    def after(action, &block)
-      @hooks ||= {}
-      @hooks["after_#{action}".to_sym] = block
-    end
-    
-  end
-  
-  attr_reader :id, :name
-  
-  def initialize(id, name)
-    @id, @name = id, name
-  end
-
-  def save
-    self.class.all << self
-    instance_eval &self.class.hooks[:after_save]
-  end  
-  
-  def destroy
-    self.class.all.delete self
-    instance_eval &self.class.hooks[:after_destroy]
-  end
-  
-end
+require File.dirname(__FILE__) + '/basic_mocks'
+require File.dirname(__FILE__) + '/orm_mocks'
 
 RSpec.configure do |config|
   # == Mock Framework
@@ -113,6 +30,7 @@ RSpec.configure do |config|
     XapianDb::Adapters::GenericAdapter.unique_key do
       "#{self.class}-#{self.id}"
     end
+    ActiveRecordObject.reset
     DatamapperObject.reset
   end
 end

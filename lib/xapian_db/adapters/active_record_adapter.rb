@@ -1,12 +1,12 @@
 # encoding: utf-8
 
-# Adapter for datamapper. To use it, simply set it as the
+# Adapter for ActiveRecord. To use it, simply set it as the
 # default for any DocumentBlueprint or a specific DocumentBlueprint
 
 module XapianDb
   module Adapters
      
-     class DatamapperAdapter
+     class ActiveRecordAdapter
 
        class << self
          
@@ -15,7 +15,7 @@ module XapianDb
          # Implement the class helper methods
          def add_class_helper_methods_to(klass)
 
-           raise "Database not set for DatamapperAdapter" unless @database
+           raise "Database not set for ActiveRecordAdapter" unless @database
            
            klass.instance_eval do
              # define the method to retrieve a unique key
@@ -30,21 +30,21 @@ module XapianDb
              @@blueprint = XapianDb::DocumentBlueprint.blueprint_for(klass)
              
              # add the after save logic
-             after :save do
+             after_save do
                doc = @@blueprint.indexer.build_document_for(self)
-               XapianDb::Adapters::DatamapperAdapter.database.store_doc(doc)
-               XapianDb::Adapters::DatamapperAdapter.database.commit
+               XapianDb::Adapters::ActiveRecordAdapter.database.store_doc(doc)
+               XapianDb::Adapters::ActiveRecordAdapter.database.commit
              end
              
              # add the after destroy logic
-             after :destroy do
-               XapianDb::Adapters::DatamapperAdapter.database.delete_doc_with_unique_term("#{self.class}-#{self.id}")
-               XapianDb::Adapters::DatamapperAdapter.database.commit
+             after_destroy do
+               XapianDb::Adapters::ActiveRecordAdapter.database.delete_doc_with_unique_term("#{self.class}-#{self.id}")
+               XapianDb::Adapters::ActiveRecordAdapter.database.commit
              end
 
              # Add a method to reindex all models of this class
              define_singleton_method(:rebuild_xapian_index) do
-               db = XapianDb::Adapters::DatamapperAdapter.database
+               db = XapianDb::Adapters::ActiveRecordAdapter.database
                # First, delete all docs of this class
                db.delete_docs_of_class(klass)
                obj_count = klass.count
@@ -70,7 +70,7 @@ module XapianDb
                # retrieve the object id from data
                klass_name, id = data.split("-")
                klass = Kernel.const_get(klass_name)
-               @indexed_object = klass.get(id.to_i)
+               @indexed_object = klass.find(id.to_i)
              end
            end
            
