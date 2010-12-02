@@ -37,7 +37,7 @@ describe XapianDb::Adapters::DatamapperAdapter do
     end
 
     it "adds a class method to reindex all objects of a class" do
-      DatamapperObject.should respond_to(:reindex_xapian_db)
+      DatamapperObject.should respond_to(:rebuild_xapian_index)
     end
 
   end
@@ -84,7 +84,7 @@ describe XapianDb::Adapters::DatamapperAdapter do
     
   end
   
-  describe ".reindex_xapian_db" do
+  describe ".rebuild_xapian_index" do
     it "should (re)index all objects of this class" do
       @object.save
       @db.search("Kogler").size.should == 1
@@ -94,7 +94,7 @@ describe XapianDb::Adapters::DatamapperAdapter do
       XapianDb::Adapters::DatamapperAdapter.database = @db
       @db.search("Kogler").size.should == 0
             
-      DatamapperObject.reindex_xapian_db
+      DatamapperObject.rebuild_xapian_index
       @db.commit
       @db.search("Kogler").size.should == 1
     end

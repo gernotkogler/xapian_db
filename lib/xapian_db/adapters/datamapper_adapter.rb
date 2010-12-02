@@ -41,7 +41,7 @@ module XapianDb
              end
 
              # Add a method to reindex all models of this class
-             define_singleton_method(:reindex_xapian_db) do
+             define_singleton_method(:rebuild_xapian_index) do
                db = XapianDb::Adapters::DatamapperAdapter.database
                # First, delete all docs of this class
                db.delete_docs_of_class(klass)
