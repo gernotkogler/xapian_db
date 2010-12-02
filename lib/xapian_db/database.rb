@@ -78,6 +78,14 @@ module XapianDb
       @reader = Xapian::Database.new(@path)
     end
     
+    # Get the readable instance of the database
+    def reader
+      # Always reopen the readable database so we get live index data
+      # TODO: make this configurable
+      @reader.reopen
+      @reader
+    end
+    
     # The writer is instantiated layzily to avoid a permanent write lock on the database
     def writer
       @writer ||= Xapian::WritableDatabase.new(@path, @db_flag)
