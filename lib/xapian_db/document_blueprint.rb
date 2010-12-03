@@ -39,6 +39,7 @@ module XapianDb
 
       # Return an array of all configured text methods in any blueprint
       def searchable_prefixes
+        return [] unless @blueprints
         return @searchable_prefixes unless @searchable_prefixes.nil?
         prefixes = []
         @blueprints.each do |klass, blueprint|

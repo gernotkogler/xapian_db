@@ -4,6 +4,38 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::DocumentBlueprint do
 
+  describe ".searchable_prefixes" do
+    
+    it "should return an array of all method names configured to be indexed" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.searchable_prefixes.should include(:id, :name)
+    end
+
+    it "should return an array with unique values" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.setup(Object) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix| prefix == :id}.size.should ==1
+      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix| prefix == :name}.size.should ==1
+    end
+
+    it "should return an empty array if no blueprints are configured" do
+      # We have to reload the DocumentBlueprint to get rid aof any configurations
+      XapianDb.send(:remove_const, 'DocumentBlueprint')
+      load File.expand_path(File.dirname(__FILE__) + '/../../lib/xapian_db/document_blueprint.rb')
+      XapianDb::DocumentBlueprint.searchable_prefixes.should == []
+    end
+    
+  end
+
   describe ".default_adapter= (singleton)" do
     it "sets the default adapter for all indexed classes" do
       XapianDb::DocumentBlueprint.default_adapter = DemoAdapter
@@ -131,32 +163,6 @@ describe XapianDb::DocumentBlueprint do
       @doc.array.should == [1, "two", Date.today]
     end
     
-  end
-  
-  describe ".searchable_prefixes" do
-    
-    it "should return an array of all method names configured to be indexed" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.index :id
-        blueprint.index :name
-      end
-      XapianDb::DocumentBlueprint.searchable_prefixes.should include(:id, :name)
-    end
-
-    it "should return an array with unique values" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.index :id
-        blueprint.index :name
-      end
-      XapianDb::DocumentBlueprint.setup(Object) do |blueprint|
-        blueprint.index :id
-        blueprint.index :name
-      end
-      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix| prefix == :id}.size.should ==1
-      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix| prefix == :name}.size.should ==1
-    end
-    
-  end
-  
+  end  
   
 end
