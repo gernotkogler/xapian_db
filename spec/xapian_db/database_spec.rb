@@ -7,7 +7,10 @@ describe XapianDb::Database do
   describe ".store_doc(doc)" do
     
     before :each do 
-      @db = XapianDb.create_db    
+      XapianDb.setup do |config|
+        config.adapter :generic
+        config.database :memory
+      end
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :text
@@ -19,16 +22,16 @@ describe XapianDb::Database do
     end
     
     it "should store the document in the database" do
-      @db.store_doc(@doc).should be_true
-      @db.commit
-      @db.size.should == 1
+      XapianDb.database.store_doc(@doc).should be_true
+      XapianDb.database.commit
+      XapianDb.database.size.should == 1
     end
 
     it "must replace a document if the object is already indexed" do
-      @db.store_doc(@doc).should be_true
-      @db.store_doc(@doc).should be_true
-      @db.commit
-      @db.size.should == 1
+      XapianDb.database.store_doc(@doc).should be_true
+      XapianDb.database.store_doc(@doc).should be_true
+      XapianDb.database.commit
+      XapianDb.database.size.should == 1
     end
     
   end
@@ -36,7 +39,10 @@ describe XapianDb::Database do
   describe ".delete_doc_with_unique_term(term)" do
     
     before :each do 
-      @db = XapianDb.create_db    
+      XapianDb.setup do |config|
+        config.adapter :generic
+        config.database :memory
+      end
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :text
@@ -48,12 +54,12 @@ describe XapianDb::Database do
     end
     
     it "should delete the document with this term in the database" do
-      @db.store_doc(@doc).should be_true
-      @db.commit
-      @db.size.should == 1
-      @db.delete_doc_with_unique_term(@doc.data).should be_true
-      @db.commit
-      @db.size.should == 0
+      XapianDb.database.store_doc(@doc).should be_true
+      XapianDb.database.commit
+      XapianDb.database.size.should == 1
+      XapianDb.database.delete_doc_with_unique_term(@doc.data).should be_true
+      XapianDb.database.commit
+      XapianDb.database.size.should == 0
     end
 
   end
@@ -61,7 +67,10 @@ describe XapianDb::Database do
   describe ".delete_docs_of_class(klass)" do
 
     before :each do 
-      @db = XapianDb.create_db    
+      XapianDb.setup do |config|
+        config.adapter :generic
+        config.database :memory
+      end
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id
       end
@@ -73,17 +82,17 @@ describe XapianDb::Database do
       # Create two test objects we will delete later
       obj = IndexedObject.new(1)
       doc = @blueprint.indexer.build_document_for(obj)
-      @db.store_doc(doc).should be_true
+      XapianDb.database.store_doc(doc).should be_true
       obj = IndexedObject.new(2)
       doc = @blueprint.indexer.build_document_for(obj)
-      @db.store_doc(doc).should be_true
-      @db.commit
-      @db.size.should == 2
+      XapianDb.database.store_doc(doc).should be_true
+      XapianDb.database.commit
+      XapianDb.database.size.should == 2
       
       # Now delete all docs of IndexedObject
-      @db.delete_docs_of_class(IndexedObject)
-      @db.commit
-      @db.size.should == 0
+      XapianDb.database.delete_docs_of_class(IndexedObject)
+      XapianDb.database.commit
+      XapianDb.database.size.should == 0
       
     end
 
@@ -105,23 +114,23 @@ describe XapianDb::Database do
       # Create two test objects we will delete later
       obj = IndexedObject.new(1)
       doc = @blueprint.indexer.build_document_for(obj)
-      @db.store_doc(doc).should be_true
+      XapianDb.database.store_doc(doc).should be_true
       obj = IndexedObject.new(2)
       doc = @blueprint.indexer.build_document_for(obj)
-      @db.store_doc(doc).should be_true
+      XapianDb.database.store_doc(doc).should be_true
       
       # Now create an object of a different class that has a term "IndexedObject"
       leave_me_alone = LeaveMeAlone.new(1, "IndexedObject")
       doc = @blueprint.indexer.build_document_for(leave_me_alone)
-      @db.store_doc(doc).should be_true
+      XapianDb.database.store_doc(doc).should be_true
         
-      @db.commit
-      @db.size.should == 3
+      XapianDb.database.commit
+      XapianDb.database.size.should == 3
       
       # Now delete all docs of IndexedObject
-      @db.delete_docs_of_class(IndexedObject)
-      @db.commit
-      @db.size.should == 1 # leave_me_alone must still exist
+      XapianDb.database.delete_docs_of_class(IndexedObject)
+      XapianDb.database.commit
+      XapianDb.database.size.should == 1 # leave_me_alone must still exist
       
     end
     
@@ -130,11 +139,14 @@ describe XapianDb::Database do
   describe ".size" do
 
     before :each do
-      @db = XapianDb.create_db    
+      XapianDb.setup do |config|
+        config.adapter :generic
+        config.database :memory
+      end
     end
     
     it "must be 0 for a new database" do
-      @db.size.should == 0
+      XapianDb.database.size.should == 0
     end
 
   end
@@ -142,7 +154,10 @@ describe XapianDb::Database do
   describe ".search(expression)" do
 
     before :each do 
-      @db = XapianDb.create_db    
+      XapianDb.setup do |config|
+        config.adapter :generic
+        config.database :memory
+      end
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :text
         blueprint.index :text2
@@ -155,19 +170,19 @@ describe XapianDb::Database do
     end
           
     it "should find a stored document" do
-      @db.store_doc(@doc).should be_true
-      @db.search("Some").size.should == 1
+      XapianDb.database.store_doc(@doc).should be_true
+      XapianDb.database.search("Some").size.should == 1
     end
 
     it "should find a stored document with a wildcard expression" do
-      @db.store_doc(@doc).should be_true
-      @db.search("Som*").size.should == 1
+      XapianDb.database.store_doc(@doc).should be_true
+      XapianDb.database.search("Som*").size.should == 1
     end
 
     it "should find a stored document with a field expression" do
-      @db.store_doc(@doc).should be_true
-      @db.search("text:findme_in_text2").size.should == 0
-      @db.search("text2:findme_in_text2").size.should == 1
+      XapianDb.database.store_doc(@doc).should be_true
+      XapianDb.database.search("text:findme_in_text2").size.should == 0
+      XapianDb.database.search("text2:findme_in_text2").size.should == 1
     end
     
   end
@@ -177,20 +192,19 @@ end
 describe XapianDb::InMemoryDatabase do
   
   before :each do
-    @db = XapianDb.create_db    
+    XapianDb.setup do |config|
+      config.adapter :generic
+      config.database :memory
+    end
   end
 
   describe ".size" do
 
-    before :each do
-      @db = XapianDb.create_db    
-    end
-    
     it "reflects added documents without committing" do
       doc = Xapian::Document.new
       doc.data = "1" # We need data to store the doc
-      @db.store_doc(doc)
-      @db.size.should == 1
+      XapianDb.database.store_doc(doc)
+      XapianDb.database.size.should == 1
     end
 
   end
@@ -200,20 +214,21 @@ end
 describe XapianDb::PersistentDatabase do
   
   before :each do
-    GC.start # Since we create a new persistent database for each spec, we 
-             # need the GC to release any pending write locks to the database
-    @db = XapianDb.create_db :path => "/tmp/xapiandb"
+    XapianDb.setup do |config|
+      config.adapter :generic
+      config.database "/tmp/xapiandb"
+    end
   end
 
-  after :all do
+  after :each do
     FileUtils.rm_rf "/tmp/xapiandb"
   end
 
   it "does not reflect added documents without committing" do
     doc = Xapian::Document.new
     doc.data = "1" # We need data to store the doc
-    @db.store_doc(doc)
-    @db.size.should == 0
+    XapianDb.database.store_doc(doc)
+    XapianDb.database.size.should == 0
   end
 
   describe ".commit" do
@@ -221,12 +236,12 @@ describe XapianDb::PersistentDatabase do
     it "writes all pending changes to the database" do
       doc = Xapian::Document.new
       doc.data = "1" # We need data to store the doc
-      @db.store_doc(doc)
-      @db.size.should == 0
-      @db.commit
-      @db.size.should == 1
+      XapianDb.database.store_doc(doc)
+      XapianDb.database.size.should == 0
+      XapianDb.database.commit
+      XapianDb.database.size.should == 1
     end
     
   end
-  
+
 end

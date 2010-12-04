@@ -4,8 +4,12 @@
 
 *0.2.0* (December 1st, 2010)
 
-* Blueprint configuration exetnded
+* Blueprint configuration extended
 * Adapter for Datamapper
 * Search by attribute names
 * Search with wildcards
 * Document attributes can carry anything that is serializable by YAML
+
+*0.3.0* (December 4st, 2010)
+
+* Rails integration with configuration file (config/xapian_db.yml) and automatic setup

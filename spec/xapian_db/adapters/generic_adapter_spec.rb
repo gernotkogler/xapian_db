@@ -13,7 +13,9 @@ describe XapianDb::Adapters::GenericAdapter do
   end
   
   before :each do
-    XapianDb::DocumentBlueprint.default_adapter = XapianDb::Adapters::GenericAdapter
+    XapianDb.setup do |config|
+      config.adapter :generic
+    end
   end
   
   describe ".unique_key do" do

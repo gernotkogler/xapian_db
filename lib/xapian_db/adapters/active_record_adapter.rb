@@ -10,13 +10,9 @@ module XapianDb
 
        class << self
          
-         attr_accessor :database
-         
          # Implement the class helper methods
          def add_class_helper_methods_to(klass)
 
-           raise "Database not set for ActiveRecordAdapter" unless @database
-           
            klass.instance_eval do
              # define the method to retrieve a unique key
              define_method(:xapian_id) do
@@ -27,35 +23,31 @@ module XapianDb
          
            klass.class_eval do
              
-             @@blueprint = XapianDb::DocumentBlueprint.blueprint_for(klass)
-             
              # add the after save logic
              after_save do
-               doc = @@blueprint.indexer.build_document_for(self)
-               XapianDb::Adapters::ActiveRecordAdapter.database.store_doc(doc)
-               XapianDb::Adapters::ActiveRecordAdapter.database.commit
+               XapianDb::Config.writer.index(self)
              end
              
              # add the after destroy logic
              after_destroy do
-               XapianDb::Adapters::ActiveRecordAdapter.database.delete_doc_with_unique_term("#{self.class}-#{self.id}")
-               XapianDb::Adapters::ActiveRecordAdapter.database.commit
+               XapianDb::Config.writer.unindex(self)
              end
 
              # Add a method to reindex all models of this class
              define_singleton_method(:rebuild_xapian_index) do
-               db = XapianDb::Adapters::ActiveRecordAdapter.database
-               # First, delete all docs of this class
-               db.delete_docs_of_class(klass)
-               obj_count = klass.count
-               puts "Reindexing #{obj_count} objects..."
-               pbar = ProgressBar.new("Status", obj_count)
-               klass.all.each do |obj|
-                 doc = @@blueprint.indexer.build_document_for(obj)
-                 db.store_doc(doc)
-                 pbar.inc
-               end
-               db.commit
+               # db = XapianDb::Adapters::ActiveRecordAdapter.database
+               # # First, delete all docs of this class
+               # db.delete_docs_of_class(klass)
+               # obj_count = klass.count
+               # puts "Reindexing #{obj_count} objects..."
+               # pbar = ProgressBar.new("Status", obj_count)
+               # klass.all.each do |obj|
+               #   doc = @@blueprint.indexer.build_document_for(obj)
+               #   db.store_doc(doc)
+               #   pbar.inc
+               # end
+               # db.commit
+               XapianDb::Config.writer.reindex_class(klass)
              end
            end
          

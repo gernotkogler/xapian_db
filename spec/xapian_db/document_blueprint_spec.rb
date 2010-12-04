@@ -36,12 +36,6 @@ describe XapianDb::DocumentBlueprint do
     
   end
 
-  describe ".default_adapter= (singleton)" do
-    it "sets the default adapter for all indexed classes" do
-      XapianDb::DocumentBlueprint.default_adapter = DemoAdapter
-    end
-  end
-
   describe ".setup (singleton)" do
     it "stores a blueprint for a given class" do
       XapianDb::DocumentBlueprint.setup(IndexedObject)

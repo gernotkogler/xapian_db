@@ -1,8 +1,19 @@
 # encoding: utf-8
 
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe XapianDb do
+
+  describe ".setup(&block)" do
+    
+    it "should delegate the setup to the config class" do
+      XapianDb.setup do |config|
+        config.database :memory
+      end
+      XapianDb.database.should be_a_kind_of XapianDb::InMemoryDatabase
+    end
+
+  end
   
   describe ".create_db" do
     
@@ -43,6 +54,17 @@ describe XapianDb do
       FileUtils.rm_rf temp_dir
     end
     
+  end
+
+  describe ".search(expression)" do
+    
+    it "should delegate the search to the current database" do
+      XapianDb.setup do |config|
+        config.database :memory
+      end
+      XapianDb.search("Something").should be_a_kind_of(XapianDb::Resultset)
+    end
+
   end
   
 end
