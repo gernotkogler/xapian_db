@@ -7,11 +7,10 @@ describe XapianDb do
   describe ".setup(&block)" do
     
     it "should delegate the setup to the config class" do
-      db = XapianDb.create_db
       XapianDb.setup do |config|
-        config.database = db
+        config.database :memory
       end
-      XapianDb::Config.database.should be_equal(db)
+      XapianDb.database.should be_a_kind_of XapianDb::InMemoryDatabase
     end
 
   end
@@ -60,9 +59,8 @@ describe XapianDb do
   describe ".search(expression)" do
     
     it "should delegate the search to the current database" do
-      db = XapianDb.create_db
       XapianDb.setup do |config|
-        config.database = db
+        config.database :memory
       end
       XapianDb.search("Something").should be_a_kind_of(XapianDb::Resultset)
     end

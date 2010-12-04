@@ -16,24 +16,23 @@ module XapianDb
       if File.exist?(config_file_path)
         db_config = YAML::load_file config_file_path
         env_config = db_config[Rails.env]
-        @database_path = env_config["database"]
+        database_path = env_config["database"] || ":memory:"
+        adapter       = env_config["adapter"]  || "active_record"
+        writer        = env_config["writer"]   || "direct"
       else
         # Set the default database path
-        Rails.env == "test" ? @database_path = ":memory:" : @database_path = "db/xapian_db/#{Rails.env}"
+        Rails.env == "test" ? database_path = ":memory:" : database_path = "db/xapian_db/#{Rails.env}"
       end
       
       # Do the configuration
       XapianDb::Config.setup do |config|
-        if @database_path == ":memory:"
-          config.database = XapianDb.create_db
+        if database_path == ":memory:"
+          config.database :memory
         else
-          unless File.exist?(@database_path)
-            temp = XapianDb.create_db :path => @database_path
-            temp = nil
-            GC.start # Release the write lock on the database
-          end
-          config.database = XapianDb.open_db :path => @database_path
+          config.database database_path
         end
+        config.adapter adapter.to_sym  
+        config.writer writer
       end
       
     end

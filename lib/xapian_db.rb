@@ -30,6 +30,11 @@ module XapianDb
     end
   end
   
+  # Access he configured database
+  def self.database
+    XapianDb::Config.database
+  end
+  
   # Query the database
   def self.search(expression)
     XapianDb::Config.database.search(expression)
@@ -41,6 +46,7 @@ require File.dirname(__FILE__) + '/xapian_db/config'
 require File.dirname(__FILE__) + '/xapian_db/adapters/generic_adapter'
 require File.dirname(__FILE__) + '/xapian_db/adapters/datamapper_adapter'
 require File.dirname(__FILE__) + '/xapian_db/adapters/active_record_adapter'
+require File.dirname(__FILE__) + '/xapian_db/index_writers/direct_writer'
 require File.dirname(__FILE__) + '/xapian_db/database'
 require File.dirname(__FILE__) + '/xapian_db/document_blueprint'
 require File.dirname(__FILE__) + '/xapian_db/indexer'

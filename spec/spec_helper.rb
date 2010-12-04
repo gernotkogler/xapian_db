@@ -26,7 +26,6 @@ RSpec.configure do |config|
   # instead of true.
   # config.use_transactional_fixtures = true
   config.before(:each) do
-    XapianDb::DocumentBlueprint.default_adapter = XapianDb::Adapters::GenericAdapter
     XapianDb::Adapters::GenericAdapter.unique_key do
       "#{self.class}-#{self.id}"
     end

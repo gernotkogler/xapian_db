@@ -9,9 +9,13 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 describe XapianDb::Adapters::ActiveRecordAdapter do
 
   before :each do
-    @db = XapianDb.create_db
-    XapianDb::DocumentBlueprint.default_adapter = XapianDb::Adapters::ActiveRecordAdapter
-    XapianDb::Adapters::ActiveRecordAdapter.database = @db
+    XapianDb.setup do |config|
+      config.database :memory
+      config.adapter :active_record
+      config.writer  :direct
+    end
+
+
     XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
       blueprint.index :name
     end
@@ -61,16 +65,16 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
   describe "the after save hook" do
     it "should (re)index the object" do
       @object.save
-      @db.search("Kogler").paginate.size.should == 1
+      XapianDb.search("Kogler").paginate.size.should == 1
     end
   end
 
   describe "the after destroy hook" do
     it "should remove the object from the index" do
       @object.save
-      @db.search("Kogler").paginate.size.should == 1
+      XapianDb.search("Kogler").paginate.size.should == 1
       @object.destroy
-      @db.search("Kogler").paginate.size.should == 0
+      XapianDb.search("Kogler").paginate.size.should == 0
     end
   end
 
@@ -78,7 +82,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     
     it "should return the object that is linked with the document" do
       @object.save
-      doc = @db.search("Kogler").paginate.first
+      doc = XapianDb.search("Kogler").paginate.first
       # Since we do not have identity map in active_record, we can only
       # compare the ids, not the objects
       doc.indexed_object.id.should == @object.id
@@ -89,16 +93,16 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
   describe ".rebuild_xapian_index" do
     it "should (re)index all objects of this class" do
       @object.save
-      @db.search("Kogler").size.should == 1
+      XapianDb.search("Kogler").size.should == 1
 
       # We reopen the in memory database to destroy the index
-      @db = XapianDb.create_db
-      XapianDb::Adapters::ActiveRecordAdapter.database = @db
-      @db.search("Kogler").size.should == 0
+      XapianDb.setup do |config|
+        config.database :memory
+      end
+      XapianDb.search("Kogler").size.should == 0
             
       ActiveRecordObject.rebuild_xapian_index
-      @db.commit
-      @db.search("Kogler").size.should == 1
+      XapianDb.search("Kogler").size.should == 1
     end
   end
     
