@@ -17,18 +17,12 @@ module XapianDb
         yield @config if block_given?
       end
       
-      def database
-        @config._database
-      end
-      
-      def adapter
-        @config._adapter
-      end
-
-      def writer
-        @config._writer
-      end
-                
+      # Install delegates for the config instance variables
+      [:database, :adapter, :writer].each do |attr|
+        define_method attr do
+          @config.nil? ? nil : @config.instance_variable_get("@_#{attr}")
+        end
+      end                
     end  
 
     # ---------------------------------------------------------------------------------   
