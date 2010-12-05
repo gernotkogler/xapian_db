@@ -64,8 +64,9 @@ module XapianDb
           end
         end
       end
-      # Let the adpater add its document helper methods (if any)
-      XapianDb::Config.adapter.add_doc_helper_methods_to(@accessors_module)
+      # Let the adapter add its document helper methods (if any)
+      adapter = XapianDb::Config.adapter || XapianDb::Adapters::GenericAdapter
+      adapter.add_doc_helper_methods_to(@accessors_module)
       @accessors_module
     end
           
