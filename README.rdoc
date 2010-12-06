@@ -23,8 +23,8 @@ So I started to rethink fulltext indexing again. I looked for something that
 * is framework and database agnostic and works with pure POROS (plain old ruby objects)
 * is configurable anywhere, not just inside the model classes; I think that index configurations should not be part of the domain model 
 * supports document configuration at the class level, not the database level; each class has its own document structure
-* integrates with popular Ruby / Rails ORMs like ActiveRecord or Datamapper through an extensible plugin architecture
-* returns rich document objects that do not necessarily need a database roundtrip to render the search results (but know how to deliver the underlying object, if needed)
+* integrates with popular Ruby / Rails ORMs like ActiveRecord or Datamapper through a plugin architecture
+* returns rich document objects that do not necessarily need a database roundtrip to render the search results (but know how to get the underlying object, if needed)
 * updates the index realtime (no scheduled reindexing jobs)
 * supports all major features of a full text indexer, namely wildcards!!
 
@@ -32,7 +32,9 @@ I tried hard but I couldn't find such a thing so I decided to write it, based on
 
 == Getting started
 
-=== 1. Install Xapian if not already installed
+If you want to use xapian_db in a Rails app, you need Rails 3 or newer. 
+
+=== Install Xapian if not already installed
 
 To use xapian_db, make sure you have the Xapian library and ruby bindings installed. At the time of this writing, the newest release of Xapian was 1.2.3. You might 
 want to adjust the URLs below to load the most current release of Xapian. 
@@ -55,3 +57,96 @@ A future release of xapian_db might include the Xapian binaries and make this st
   ./configure --prefix=/usr/local XAPIAN_CONFIG=/usr/local/bin/xapian-config
   make
   sudo make install
+
+The following steps assume that you are unsing xapina_db within a Rails app. The gem has an
+example in the examples folder that shows how you can use xapian_db without Rails.
+  
+=== Configure your databases
+
+Without a config file, xapian_db creates the database in the db folder for development and production 
+environments. If you are in the test environment, xapian_db creates an in memory database. 
+It assumes you are using ActiveRecord.
+
+You can override these defaults by placing a config file named 'xapian_db.yml' into your config folder. Here's an example:
+
+  # XapianDb configuration
+  defaults: &defaults
+    adapter: datamapper # Avaliable adapters: :active_record, :datamapper
+
+  development:
+    database: db/xapian_db/development 
+    <<: *defaults
+  
+  test:
+    database: ":memory:" # Use an in memory database for tests
+    <<: *defaults
+  
+  production:
+    database: db/xapian_db/production
+    <<: *defaults
+
+=== Configure an index blueprint
+
+In order to get your models indexed, you must configure a document blueprint for each class you want to index:
+
+  XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+    blueprint.attribute :name, :weight => 10
+    blueprint.attribute :first_name
+  end
+
+The example above assumes that you have a class <code>Person</code> with the methods <code>name</code> and <code>first_name</code>.
+Attributes will get indexed and are stored in the documents. You will be able to access the name and the first name in your search results.
+
+If you want to index additional data but do not need access to it from a search result, use the index method:  
+
+  blueprint.index :remarks, :weight => 5
+  
+You can place this configuration anywhere, e.g. in an initializer.  
+
+=== Update the index
+
+xapian_db injects some helper methods into your configured model classes that update the index automatically
+for you when you create, save or destroy models. If you already have models that should now go into the index, 
+use the method <code>rebuild_xapian_index</code>:
+
+  Person.rebuild_xapian_index
+  
+=== Query the index
+
+A simple query looks like this:
+
+  results = XapianDb.search("Foo")
+
+You can use wildcards and boolean operators:
+
+  results = XapianDb.search("Fo*" OR "Baz")
+
+You can query attributes:
+
+  results = XapianDb.search("name:Foo")
+
+=== Process the results
+
+<code>XapianDb.search</code> returns a resultset object. You can access the number of hits directly:
+
+  result.size # Very fast, does not load the resulting documents
+  
+To access the found documents, get a page from the resultset:
+
+  page = result.paginate                              # Get the first page with 10 documents
+  page = result.paginate(:page => 2, :per_page => 20) # Get the second page page with documents 21-40
+
+Now you can access the documents:
+
+  doc = page.first
+  puts doc.domain_class       # Get the type of the indexed object, e.g. "Person"
+  puts doc.name               # We can access the configured attributes
+  person = doc.indexed_object # Access the object behind this doc (lazy loaded)
+
+
+== What to expect from the next releases
+
+* multi language support (spelling correction, stop words)
+* facet support
+* will_paginate support
+* asynchronous index writer based on {resque}[https://github.com/defunkt/resque] for production environments
