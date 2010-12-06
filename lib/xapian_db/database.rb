@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-# Singleton class representing a Xapian database.
 # @author Gernot Kogler
 
 module XapianDb

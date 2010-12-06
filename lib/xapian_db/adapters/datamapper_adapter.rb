@@ -1,7 +1,10 @@
 # encoding: utf-8
 
-# Adapter for datamapper. To use it, simply set it as the
-# default for any DocumentBlueprint or a specific DocumentBlueprint
+# Adapter for ActiveRecord. To use it, configure it like this:
+#   XapianDb::Config.setup do |config|
+#     config.adapter :datamapper
+#   end
+# @author Gernot Kogler
 
 module XapianDb
   module Adapters
@@ -47,7 +50,7 @@ module XapianDb
              # Implement access to the indexed object
              define_method :indexed_object do
                return @indexed_object unless @indexed_object.nil? 
-               # retrieve the object id from data
+               # retrieve the class and id from data
                klass_name, id = data.split("-")
                klass = Kernel.const_get(klass_name)
                @indexed_object = klass.get(id.to_i)

@@ -35,7 +35,7 @@ module XapianDb
         return [] unless @blueprints
         return @searchable_prefixes unless @searchable_prefixes.nil?
         prefixes = []
-        @blueprints.each do |klass, blueprint|
+        @blueprints.values.each do |blueprint|
           prefixes << blueprint.searchable_prefixes
         end
         @searchable_prefixes = prefixes.flatten.compact.uniq
@@ -50,7 +50,7 @@ module XapianDb
     
     # Return an array of all configured text methods in this blueprint
     def searchable_prefixes
-      @prefixes ||= indexed_methods.map{|method_name, options| method_name}
+      @prefixes ||= indexed_methods.keys
     end
     
     # Lazily build and return a module that implements accessors for each field
@@ -58,6 +58,7 @@ module XapianDb
       return @accessors_module unless @accessors_module.nil?
       @accessors_module = Module.new
       
+      # Add the accessor for the indexed class
       @accessors_module.instance_eval do
         define_method :domain_class do
           self.values[0].value

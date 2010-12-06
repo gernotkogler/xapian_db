@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-# The resultset holds a Xapian::Query object and allows paged access
+# The resultset encapsulates a Xapian::Query object and allows paged access
 # to the found documents.
 # author Gernot Kogler
 

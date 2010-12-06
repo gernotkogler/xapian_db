@@ -1,7 +1,10 @@
 # encoding: utf-8
 
-# Adapter for ActiveRecord. To use it, simply set it as the
-# default for any DocumentBlueprint or a specific DocumentBlueprint
+# Adapter for ActiveRecord. To use it, configure it like this:
+#   XapianDb::Config.setup do |config|
+#     config.adapter :active_record
+#   end
+# @author Gernot Kogler
 
 module XapianDb
   module Adapters
@@ -35,18 +38,6 @@ module XapianDb
 
              # Add a method to reindex all models of this class
              define_singleton_method(:rebuild_xapian_index) do
-               # db = XapianDb::Adapters::ActiveRecordAdapter.database
-               # # First, delete all docs of this class
-               # db.delete_docs_of_class(klass)
-               # obj_count = klass.count
-               # puts "Reindexing #{obj_count} objects..."
-               # pbar = ProgressBar.new("Status", obj_count)
-               # klass.all.each do |obj|
-               #   doc = @@blueprint.indexer.build_document_for(obj)
-               #   db.store_doc(doc)
-               #   pbar.inc
-               # end
-               # db.commit
                XapianDb::Config.writer.reindex_class(klass)
              end
            end
@@ -59,7 +50,7 @@ module XapianDb
              # Implement access to the indexed object
              define_method :indexed_object do
                return @indexed_object unless @indexed_object.nil? 
-               # retrieve the object id from data
+               # retrieve the class and id from data
                klass_name, id = data.split("-")
                klass = Kernel.const_get(klass_name)
                @indexed_object = klass.find(id.to_i)
