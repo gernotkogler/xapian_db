@@ -58,7 +58,7 @@ A future release of xapian_db might include the Xapian binaries and make this st
   make
   sudo make install
 
-The following steps assume that you are unsing xapina_db within a Rails app. The gem has an
+The following steps assume that you are using xapian_db within a Rails app. The gem has an
 example in the examples folder that shows how you can use xapian_db without Rails.
   
 === Configure your databases
