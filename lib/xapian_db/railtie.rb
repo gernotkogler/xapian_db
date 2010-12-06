@@ -17,11 +17,13 @@ module XapianDb
         db_config = YAML::load_file config_file_path
         env_config = db_config[Rails.env]
         database_path = env_config["database"] || ":memory:"
-        adapter       = env_config["adapter"]  || "active_record"
-        writer        = env_config["writer"]   || "direct"
+        adapter       = env_config["adapter"]  || :active_record
+        writer        = env_config["writer"]   || :direct
       else
-        # Set the default database path
+        # No config file, set the defaults
         Rails.env == "test" ? database_path = ":memory:" : database_path = "db/xapian_db/#{Rails.env}"
+        adapter = :active_record
+        writer  = :direct
       end
       
       # Do the configuration
@@ -32,7 +34,7 @@ module XapianDb
           config.database database_path
         end
         config.adapter adapter.to_sym  
-        config.writer writer
+        config.writer writer.to_sym
       end
       
     end
