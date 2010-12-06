@@ -57,6 +57,13 @@ module XapianDb
     def accessors_module
       return @accessors_module unless @accessors_module.nil?
       @accessors_module = Module.new
+      
+      @accessors_module.instance_eval do
+        define_method :domain_class do
+          self.values[0].value
+        end
+      end
+      
       @attributes.each_with_index do |field, index|
         @accessors_module.instance_eval do
           define_method field do
