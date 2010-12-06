@@ -144,7 +144,7 @@ Now you can access the documents:
   person = doc.indexed_object # Access the object behind this doc (lazy loaded)
 
 
-== What to expect from the next releases
+== What to expect from future releases
 
 * multi language support (spelling correction, stop words)
 * facet support
