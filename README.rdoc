@@ -2,7 +2,7 @@
 
 == What's in the box?
 
-XapianDb is a ruby gem that combines features of nosql databases and fultext indexing into one piece. The result: Rich documents and very fast queries.
+XapianDb is a ruby gem that combines features of nosql databases and fulltext indexing into one piece. The result: Rich documents and very fast queries.
 It is based on {Xapian}[http://xapian.org/], an efficient and powerful indexing library.
 The gem is in very early development and not production ready yet.
 

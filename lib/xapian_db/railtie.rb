@@ -1,12 +1,12 @@
 # encoding: utf-8
 
-# Configuration for a rails app
-# @author Gernot Kogler
-
 require 'xapian_db'
 require 'rails'
 
 module XapianDb
+
+  # Configuration for a rails app
+  # @author Gernot Kogler
   class Railtie < ::Rails::Railtie
 
     config.before_configuration do
@@ -25,7 +25,7 @@ module XapianDb
         adapter = :active_record
         writer  = :direct
       end
-      
+
       # Do the configuration
       XapianDb::Config.setup do |config|
         if database_path == ":memory:"
@@ -33,11 +33,11 @@ module XapianDb
         else
           config.database database_path
         end
-        config.adapter adapter.to_sym  
+        config.adapter adapter.to_sym
         config.writer writer.to_sym
       end
-      
+
     end
-    
+
   end
 end

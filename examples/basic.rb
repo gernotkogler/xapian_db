@@ -14,13 +14,13 @@ db = XapianDb.create_db
 # 2: Define a class which should get indexed; we define a class that
 # could be an ActiveRecord or Datamapper Domain class
 class People
-  
+
   attr_accessor :id, :name, :first_name
-  
+
   def initialize(data)
     @id, @name, @first_name = data[:id], data[:name], data[:first_name]
   end
-  
+
 end
 
 # 3: Configure the generic adapter with a unique key expression
@@ -32,15 +32,15 @@ end
 # the structure of all documents for our class. Attribute values can
 # be accessed later for each retrieved doc. Attributes are indexed
 # by default.
-XapianDb::DocumentBlueprint.setup(People) do |blueprint|
+XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
   blueprint.attribute :name
   blueprint.attribute :first_name
 end
 
 # 5: Let's create some objects
-person_1 = People.new(:id => 1, :name => "Kogler", :first_name => "Gernot")
-person_2 = People.new(:id => 2, :name => "Frey",   :first_name => "Daniel")
-person_3 = People.new(:id => 3, :name => "Garaio", :first_name => "Thomas")
+person_1 = Person.new(:id => 1, :name => "Kogler", :first_name => "Gernot")
+person_2 = Person.new(:id => 2, :name => "Frey",   :first_name => "Daniel")
+person_3 = Person.new(:id => 3, :name => "Garaio", :first_name => "Thomas")
 
 # 6: Now add them to the database
 blueprint = XapianDb::DocumentBlueprint.blueprint_for(People)

@@ -1,45 +1,65 @@
+# encoding: utf-8
+
 require 'digest/sha1'
-require 'rubygems'
 require 'xapian'
 require 'yaml'
 require 'progressbar'
 
+# This is the top level module of xapian_db. It allows you to
+# configure XapianDB, create / open databases and perform
+# searches.
+
+# @author Gernot Kogler
+
 module XapianDb
 
-  # Configure XapianDb
+  # Global configuration for XapianDb. See {XapianDb::Config.setup}
+  # for available options
   def self.setup(&block)
     XapianDb::Config.setup(&block)
   end
-  
-  # Create a database. Overwrites an existing database on disk, if
-  # option :in_memory is set to false.
+
+  # Create a database
+  # @param [Hash] options
+  # @option options [String] :path A path to the file system. If no path is
+  #   given, creates an in memory database. <b>Overwrites an existing database!</b>
+  # @return [XapianDb::Database]
   def self.create_db(options = {})
-    if options[:path] 
-      PersistentDatabase.new(:path => options[:path], :create => true) 
+    if options[:path]
+      PersistentDatabase.new(:path => options[:path], :create => true)
     else
       InMemoryDatabase.new
     end
   end
 
-  # Open a database.
+  # Open a database
+  # @param [Hash] options
+  # @option options [String] :path A path to the file system. If no path is
+  #   given, creates an in memory database. If a path is given, then database
+  #   must exist.
+  # @return [XapianDb::Database]
   def self.open_db(options = {})
-    if options[:path] 
-      PersistentDatabase.new(:path => options[:path], :create => false) 
+    if options[:path]
+      PersistentDatabase.new(:path => options[:path], :create => false)
     else
       InMemoryDatabase.new
     end
   end
-  
-  # Access he configured database
+
+  # Access the configured database. See {XapianDb::Config.setup}
+  # for instructions on how to configure a database
+  # @return [XapianDb::Database]
   def self.database
     XapianDb::Config.database
   end
-  
-  # Query the database
+
+  # Query the configured database.
+  # See {XapianDb::Database#search} for options
+  # @return [XapianDb::Resultset]
   def self.search(expression)
     XapianDb::Config.database.search(expression)
   end
-  
+
 end
 
 require File.dirname(__FILE__) + '/xapian_db/config'
