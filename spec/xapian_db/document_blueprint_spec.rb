@@ -137,7 +137,7 @@ describe XapianDb::DocumentBlueprint do
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
 
       @doc = Xapian::Document.new
-      @doc.add_value(0, "Object")
+      @doc.add_value(0, "IndexedObject")
       @doc.add_value(1, 1.to_yaml)
       @doc.add_value(2, "Kogler".to_yaml)
       @doc.add_value(3, Date.today.to_yaml)
@@ -156,6 +156,10 @@ describe XapianDb::DocumentBlueprint do
 
     it "adds accessor methods that can handle nil" do
       @doc.empty_field.should be_nil
+    end
+
+    it "adds an accessor method for the class of the indexed object" do
+      @doc.domain_class.should == "IndexedObject"
     end
 
     it "adds accessor methods that deserialize values using YAML" do
