@@ -5,7 +5,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe XapianDb::Config do
 
   describe ".setup(&block)" do
-    
+
     describe ".database" do
       it "accepts a in memory database" do
         XapianDb::Config.setup do |config|
@@ -27,15 +27,15 @@ describe XapianDb::Config do
       it "reopens the database if it already exists" do
         db_path = "/tmp/xapian_db"
         FileUtils.rm_rf db_path
-        
+
         XapianDb::Config.setup do |config|
           config.database db_path
         end
-        
+
         # Put a doc into the database
         doc = Xapian::Document.new
         XapianDb.database.store_doc(doc).should be_true
-        
+
         # Now reopen the database
         XapianDb::Config.setup do |config|
           config.database db_path
@@ -44,7 +44,7 @@ describe XapianDb::Config do
       end
 
     end
-  
+
     describe ".adapter" do
       it "accepts a generic adapter" do
         XapianDb::Config.setup do |config|
@@ -88,7 +88,30 @@ describe XapianDb::Config do
         end}.should raise_error
       end
 
-    end    
+    end
+
+    describe ".language" do
+      it "accepts the english name of a language" do
+        XapianDb::Config.setup do |config|
+          config.language :german
+        end
+        XapianDb::Config.stemmer.should be_a_kind_of Xapian::Stem
+      end
+
+      it "accepts the iso code of a language" do
+        XapianDb::Config.setup do |config|
+          config.language :de
+        end
+        XapianDb::Config.stemmer.should be_a_kind_of Xapian::Stem
+      end
+
+      it "raises an invalid argument error if an unsupported language is applied" do
+        lambda{XapianDb::Config.setup do |config|
+          config.language :swiss_german
+        end}.should raise_error "InvalidArgumentError: Language code swiss_german unknown"
+      end
+
+    end
   end
-  
+
 end

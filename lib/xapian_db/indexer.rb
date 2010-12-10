@@ -48,8 +48,7 @@ module XapianDb
       term_generator.document = @xapian_doc
       # TODO: make this configurable globally and per document
       # (retrieve the language from the object, if configured)
-      stemmer = Xapian::Stem.new("english")
-      term_generator.stemmer = stemmer
+      term_generator.stemmer = XapianDb::Config.stemmer if XapianDb::Config.stemmer
       # TODO: Configure and enable these features
       # tg.stopper = stopper if stopper
       # tg.stemmer = stemmer

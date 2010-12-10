@@ -16,7 +16,7 @@ describe XapianDb::Indexer do
         blueprint.index :text
         blueprint.index :array
       end
-      
+
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       @obj       = IndexedObject.new(1)
       @obj.stub!(:text).and_return("Some Text")
@@ -24,7 +24,7 @@ describe XapianDb::Indexer do
       @obj.stub!(:array).and_return([1, "two", Date.today])
       @doc       = @blueprint.indexer.build_document_for(@obj)
     end
-        
+
     it "creates a Xapian::Document from an configured object" do
       XapianDb::Indexer.new(@blueprint).build_document_for(@obj).should be_a_kind_of(Xapian::Document)
     end
@@ -43,10 +43,10 @@ describe XapianDb::Indexer do
     end
 
     it "adds terms for the configured methods" do
-      @doc.terms.map(&:term).should include("some") 
-      @doc.terms.map(&:term).should include("text") 
-      @doc.terms.map(&:term).should include("1") # from the array field 
-      @doc.terms.map(&:term).should include("two") # from the array field 
+      @doc.terms.map(&:term).should include("some")
+      @doc.terms.map(&:term).should include("text")
+      @doc.terms.map(&:term).should include("1") # from the array field
+      @doc.terms.map(&:term).should include("two") # from the array field
     end
 
     it "handles fields with nil values" do
@@ -56,7 +56,22 @@ describe XapianDb::Indexer do
     it "handles fields with an array as the value" do
       @doc.values[4].value.should == [1, "two", Date.today].to_yaml
     end
-    
+
+    it "uses a stemmer if configured" do
+      XapianDb.setup do |config|
+        config.language :none
+      end
+      @obj.stub!(:text).and_return("kochen")
+      doc = @blueprint.indexer.build_document_for(@obj)
+      doc.terms.map(&:term).should_not include "Zkoch"
+
+      XapianDb.setup do |config|
+        config.language :de
+      end
+      doc = @blueprint.indexer.build_document_for(@obj)
+      doc.terms.map(&:term).should include "Zkoch"
+    end
+
   end
-    
+
 end
