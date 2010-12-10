@@ -13,7 +13,6 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Xapian-DB", "--main", "README.rdoc"]
 
   s.required_rubygems_version = ">=1.3.6"
-  s.add_dependency('progressbar', '>= 0.9.0')
 
   s.add_development_dependency "rspec", ">= 2.1.0"
   s.add_development_dependency "simplecov", ">= 0.3.2"

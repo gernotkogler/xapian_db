@@ -4,6 +4,8 @@ Features:
   - Moved the per_page option from Resultset.paginate to Database.search
   - Added support for language settings (global and dynamic per object)
   - Added support for xapian stemmers
+  - Removed the dependency to progressbar (but it is still used if available)
+  - Made the rebuild_xapian_index method silent by default (use :verbose => true to get status infos)
 
 ##0.3.1 (December 6th, 2010)
 

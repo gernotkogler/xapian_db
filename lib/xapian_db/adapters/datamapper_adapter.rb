@@ -44,8 +44,8 @@ module XapianDb
              end
 
              # Add a method to reindex all models of this class
-             define_singleton_method(:rebuild_xapian_index) do
-               XapianDb::Config.writer.reindex_class(self)
+             define_singleton_method(:rebuild_xapian_index) do |options={}|
+               XapianDb::Config.writer.reindex_class(self, options)
              end
            end
 

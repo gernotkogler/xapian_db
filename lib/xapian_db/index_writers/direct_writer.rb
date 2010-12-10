@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-# This writer writes changes directly to the open database. 
+# This writer writes changes directly to the open database.
 # Use the direct writer only for single process environments
 # (one single rails app server, e.g. one mongrel).
 # For multi process environemnts you should use a writer that
@@ -9,12 +9,13 @@
 
 module XapianDb
   module IndexWriters
-    
+
     class DirectWriter
-      
+
       class << self
-        
+
         # Update an object in the index
+        # @param [Object] obj An instance of a class with a blueprint configuration
         def index(obj)
           blueprint = XapianDb::DocumentBlueprint.blueprint_for(obj.class)
           doc = blueprint.indexer.build_document_for(obj)
@@ -23,30 +24,41 @@ module XapianDb
         end
 
         # Remove an object from the index
+        # @param [Object] obj An instance of a class with a blueprint configuration
         def unindex(obj)
           XapianDb.database.delete_doc_with_unique_term(obj.xapian_id)
           XapianDb.database.commit
         end
 
         # Reindex all objects of a given class
-        def reindex_class(klass)
+        # @param [Class] klass The class to reindex
+        # @param [Hash] options Options for reindexing
+        # @option options [Boolean] :verbose (false) Should the reindexing give status informations?
+        def reindex_class(klass, options={})
+          opts = {:verbose => false}.merge(options)
           # First, delete all docs of this class
           XapianDb.database.delete_docs_of_class(klass)
           blueprint = XapianDb::DocumentBlueprint.blueprint_for(klass)
-          obj_count = klass.count
-          puts "Reindexing #{obj_count} objects..."
-          pbar = ProgressBar.new("Status", obj_count)
-          klass.all.each do |obj| 
+          show_progressbar = false
+          if opts[:verbose]
+            if defined?(ProgressBar)
+              show_progressbar = true
+            end
+            obj_count = klass.count
+            puts "Reindexing #{obj_count} objects..."
+            pbar = ProgressBar.new("Status", obj_count) if show_progressbar
+          end
+          klass.all.each do |obj|
             doc = blueprint.indexer.build_document_for(obj)
             XapianDb.database.store_doc(doc)
-            pbar.inc
+            pbar.inc if show_progressbar
           end
           XapianDb.database.commit
         end
-        
+
       end
-      
-    end 
-    
+
+    end
+
   end
 end

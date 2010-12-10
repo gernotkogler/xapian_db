@@ -3,7 +3,6 @@
 require 'digest/sha1'
 require 'xapian'
 require 'yaml'
-require 'progressbar'
 
 # This is the top level module of xapian_db. It allows you to
 # configure XapianDB, create / open databases and perform
