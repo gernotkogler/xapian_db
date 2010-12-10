@@ -7,6 +7,11 @@ describe XapianDb::Indexer do
   describe ".xapian_document" do
 
     before :each do
+
+      XapianDb.setup do |config|
+        config.language :none
+      end
+
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :text
@@ -57,17 +62,31 @@ describe XapianDb::Indexer do
       @doc.values[4].value.should == [1, "two", Date.today].to_yaml
     end
 
-    it "uses a stemmer if configured" do
-      XapianDb.setup do |config|
-        config.language :none
-      end
+    it "uses a stemmer if globally configured" do
       @obj.stub!(:text).and_return("kochen")
       doc = @blueprint.indexer.build_document_for(@obj)
       doc.terms.map(&:term).should_not include "Zkoch"
 
+      # Now we set the language to german and test the generated terms
       XapianDb.setup do |config|
         config.language :de
       end
+      doc = @blueprint.indexer.build_document_for(@obj)
+      doc.terms.map(&:term).should include "Zkoch"
+    end
+
+    it "uses a stemmer for the object's language if defined in the blueprint" do
+      @obj.stub!(:text).and_return("kochen")
+      doc = @blueprint.indexer.build_document_for(@obj)
+      doc.terms.map(&:term).should_not include "Zkoch"
+
+      # Now we configure the blueprint with a language
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.language_method :lang_cd
+        blueprint.index :text
+      end
+      @obj.stub!(:lang_cd).and_return("de")
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       doc = @blueprint.indexer.build_document_for(@obj)
       doc.terms.map(&:term).should include "Zkoch"
     end

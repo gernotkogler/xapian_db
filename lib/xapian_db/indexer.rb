@@ -46,9 +46,7 @@ module XapianDb
     def index_text
       term_generator = Xapian::TermGenerator.new
       term_generator.document = @xapian_doc
-      # TODO: make this configurable globally and per document
-      # (retrieve the language from the object, if configured)
-      term_generator.stemmer = XapianDb::Config.stemmer if XapianDb::Config.stemmer
+      term_generator.stemmer  = get_stemmer
       # TODO: Configure and enable these features
       # tg.stopper = stopper if stopper
       # tg.stemmer = stemmer
@@ -70,6 +68,20 @@ module XapianDb
           end
         end
       end
+    end
+
+    private
+
+    # Configure the stemmer to use
+    def get_stemmer
+      # Do we have a language config on the blueprint?
+      if @blueprint.lang_method
+        lang = @obj.send @blueprint.lang_method
+        return Xapian::Stem.new(lang.to_s)
+      end
+      # Do we have a gloabl stemmer?
+      return XapianDb::Config.stemmer if XapianDb::Config.stemmer
+      return Xapian::Stem.new("none") # No language config
     end
 
   end

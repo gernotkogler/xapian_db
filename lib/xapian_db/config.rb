@@ -98,7 +98,7 @@ module XapianDb
     #   XapianDb::Config.setup do |config|
     #     config.language :de
     #   end
-    # see http://xapian.org/docs/apidoc/html/classXapian_1_1Stem.html for supported languaes
+    # see http://xapian.org/docs/apidoc/html/classXapian_1_1Stem.html for supported languages
     def language(lang)
       @_stemmer = Xapian::Stem.new(lang.to_s)
     end

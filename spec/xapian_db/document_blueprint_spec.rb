@@ -5,7 +5,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe XapianDb::DocumentBlueprint do
 
   describe ".searchable_prefixes" do
-    
+
     it "should return an array of all method names configured to be indexed" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :id
@@ -33,7 +33,7 @@ describe XapianDb::DocumentBlueprint do
       load File.expand_path(File.dirname(__FILE__) + '/../../lib/xapian_db/document_blueprint.rb')
       XapianDb::DocumentBlueprint.searchable_prefixes.should == []
     end
-    
+
   end
 
   describe ".setup (singleton)" do
@@ -48,7 +48,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
   end
-  
+
   describe ".adapter=" do
     it "sets the adpater for the configured class" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
@@ -57,15 +57,24 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).adapter.should == DemoAdapter
     end
   end
-  
+
+  describe "language_method" do
+    it "sets the method name to retrieve a language from an object" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.language_method :lang_cd
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).lang_method.should == :lang_cd
+    end
+  end
+
   describe ".attribute" do
-    
+
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id
       end
     end
-    
+
     it "adds an attribute to the blueprint" do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes.should include(:id)
     end
@@ -91,13 +100,13 @@ describe XapianDb::DocumentBlueprint do
   end
 
   describe ".index" do
-    
+
     before :all do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :id
       end
     end
-    
+
     it "adds an indexed value to the blueprint" do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods[:id].should be
     end
@@ -114,9 +123,9 @@ describe XapianDb::DocumentBlueprint do
     end
 
   end
-  
+
   describe ".accessors_module" do
-    
+
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id
@@ -126,7 +135,7 @@ describe XapianDb::DocumentBlueprint do
         blueprint.attribute :array
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-      
+
       @doc = Xapian::Document.new
       @doc.add_value(0, "Object")
       @doc.add_value(1, 1.to_yaml)
@@ -136,7 +145,7 @@ describe XapianDb::DocumentBlueprint do
       @doc.add_value(5, [1, "two", Date.today].to_yaml)
       @doc.extend @blueprint.accessors_module
     end
-    
+
     it "builds an accessor module for the blueprint" do
       @blueprint.accessors_module.should be_a_kind_of Module
     end
@@ -156,7 +165,7 @@ describe XapianDb::DocumentBlueprint do
     it "adds accessor methods that deserialize arrays using YAML" do
       @doc.array.should == [1, "two", Date.today]
     end
-    
-  end  
-  
+
+  end
+
 end

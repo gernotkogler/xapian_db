@@ -6,9 +6,12 @@ module XapianDb
   # for a given class.
   # @example A simple document blueprint configuration for the class Person
   #   XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
-  #     blueprint.attribute :name, :weight => 10
-  #     blueprint.attribute :first_name
-  #     blueprint.index     :remarks
+  #     # Our Person class has a method lang_cd. We use this method to
+  #     # index each person with its language
+  #     blueprint.language_method :lang_cd
+  #     blueprint.attribute       :name, :weight => 10
+  #     blueprint.attribute       :first_name
+  #     blueprint.index           :remarks
   #   end
   # @author Gernot Kogler
   class DocumentBlueprint
@@ -20,6 +23,7 @@ module XapianDb
 
       # Configure the blueprint for a class.
       # Available options:
+      # - language_method (see {#language_method} for details)
       # - adapter (see {#adapter} for details)
       # - attribute (see {#attribute} for details)
       # - index (see {#index} for details)
@@ -98,6 +102,10 @@ module XapianDb
     # Blueprint DSL methods
     # ---------------------------------------------------------------------------------
 
+    # The name of the method that returns a Xapian compliant language code. The
+    # configured class must implement this method.
+    attr_reader :lang_method
+
     # Collection of the configured attribute methods
     # @return [Array<Symbol>] The names of the configured attribute methods
     attr_reader :attributes
@@ -116,6 +124,13 @@ module XapianDb
     def initialize
       @attributes = []
       @indexed_methods = {}
+    end
+
+    # Set the name of the method to get the language for an indexed object
+    # @param [Symbol] lang The method name. The method must return a language supported
+    #   by Xapian (see http://xapian.org/docs/apidoc/html/classXapian_1_1Stem.html for supported languages)
+    def language_method(lang)
+      @lang_method = lang
     end
 
     # Add an attribute to the blueprint. Attributes will be stored in the xapian documents an can be
