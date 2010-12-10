@@ -106,6 +106,22 @@ describe XapianDb::Indexer do
       doc.terms.map(&:term).should include "Zkoch"
     end
 
+    it "can handle nil values for the object's language if a language method is defined in the blueprint" do
+      XapianDb.setup do |config|
+        config.language :de
+      end
+
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.language_method :lang_cd
+        blueprint.index :text
+      end
+      @obj.stub!(:lang_cd).and_return(nil)
+      @obj.stub!(:text).and_return("kochen")
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      doc = @blueprint.indexer.build_document_for(@obj)
+      doc.terms.map(&:term).should include "Zkoch"
+    end
+
   end
 
 end

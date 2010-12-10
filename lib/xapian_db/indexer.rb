@@ -93,8 +93,8 @@ module XapianDb
     def get_stemmer
       # Do we have a language config on the blueprint?
       if @blueprint.lang_method
-        lang = @obj.send(@blueprint.lang_method).to_sym
-        return Xapian::Stem.new(LANGUAGE_MAP[lang].to_s) if LANGUAGE_MAP.has_key?(lang)
+        lang = @obj.send(@blueprint.lang_method)
+        return Xapian::Stem.new(LANGUAGE_MAP[lang.to_sym].to_s) if lang && LANGUAGE_MAP.has_key?(lang.to_sym)
       end
       # Do we have a global stemmer?
       return XapianDb::Config.stemmer if XapianDb::Config.stemmer
