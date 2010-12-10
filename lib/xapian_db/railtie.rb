@@ -35,6 +35,7 @@ module XapianDb
         end
         config.adapter adapter.to_sym
         config.writer writer.to_sym
+        config.language(env_config["language"]) if env_config["language"]
       end
 
     end
