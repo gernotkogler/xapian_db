@@ -1,7 +1,7 @@
 ##0.3.2 (December 6st, 2010)
 
 Features:
-
+  - Moved the per_page option from Resultset.paginate to Database.search
   - Added support for language settings
   - Added support for xapian stemmers
   - Added support for language dependent stop words
