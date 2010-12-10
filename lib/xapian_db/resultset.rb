@@ -17,38 +17,40 @@ module XapianDb
 
     # Constructor
     # @param [Xapian::Enquire] enquiry a Xapian query result (see http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html)
-    def initialize(enquiry)
+    # @param [Hash] options
+    # @option options [Integer] :per_page (10) How many docs per page?
+    def initialize(enquiry, options)
       @enquiry = enquiry
       # By passing 0 as the max parameter to the mset method,
       # we only get statistics about the query, no results
-      @size = enquiry.mset(0, 0).matches_estimated
+      @size     = enquiry.mset(0, 0).matches_estimated
+      @per_page = options[:per_page]
     end
 
     # Paginate the result
     # @param [Hash] opts Options for the persistent database
     # @option opts [Integer] :page (1) The page to access
-    # @option opts [Integer] :per_page (10) How many documents per page?
-    # @return [Array<Xapian::Document>] The documents in this page
     def paginate(opts={})
-      options = {:page => 1, :per_page => 10}.merge(opts)
-      offset = (options[:page] - 1) * options[:per_page]
-      return [] if offset > @size
-      build_page(offset, options[:per_page])
+      options = {:page => 1}.merge(opts)
+      build_page(options[:page])
     end
 
     private
 
     # Build a page of Xapian documents
-    def build_page(offset, count)
+    # @return [Array<Xapian::Document>] An array of xapian documents
+    def build_page(page)
       docs = []
-      result_window = @enquiry.mset(offset, count)
+      offset = (page - 1) * @per_page
+      return [] if offset > @size
+      result_window = @enquiry.mset(offset, @per_page)
       result_window.matches.each do |match|
         docs << decorate(match.document)
       end
       docs
     end
 
-    # Decorate a Xapian document with field accessors
+    # Decorate a Xapian document with field accessors for each configured attribute
     def decorate(document)
       klass_name = document.values[0].value
       blueprint  = XapianDb::DocumentBlueprint.blueprint_for(Kernel.const_get(klass_name))
