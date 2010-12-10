@@ -13,7 +13,7 @@ db = XapianDb.create_db
 
 # 2: Define a class which should get indexed; we define a class that
 # could be an ActiveRecord or Datamapper Domain class
-class People
+class Person
 
   attr_accessor :id, :name, :first_name
 
@@ -43,7 +43,7 @@ person_2 = Person.new(:id => 2, :name => "Frey",   :first_name => "Daniel")
 person_3 = Person.new(:id => 3, :name => "Garaio", :first_name => "Thomas")
 
 # 6: Now add them to the database
-blueprint = XapianDb::DocumentBlueprint.blueprint_for(People)
+blueprint = XapianDb::DocumentBlueprint.blueprint_for(Person)
 db.store_doc(blueprint.indexer.build_document_for(person_1))
 db.store_doc(blueprint.indexer.build_document_for(person_2))
 db.store_doc(blueprint.indexer.build_document_for(person_3))
