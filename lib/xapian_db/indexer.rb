@@ -7,6 +7,24 @@ module XapianDb
   # @author Gernot Kogler
   class Indexer
 
+    # Supported languages and mapping to the stemmer to use
+    LANGUAGE_MAP = {:da => :danish,
+                    :nl => :dutch,
+                    :en => :english,
+                    :fi => :finnish,
+                    :fr => :french,
+                    :de => :german2, # Normalises umlauts and ß
+                    :hu => :hungarian,
+                    :it => :italian,
+                    :nb => :norwegian,
+                    :nn => :norwegian,
+                    :no => :norwegian,
+                    :pt => :portuguese,
+                    :ro => :romanian,
+                    :ru => :russian,
+                    :es => :spanish,
+                    :sv => :swedish,
+                    :tr => :turkish}
     # Constructor
     # @param [XapianDb::DocumentBlueprint] document_blueprint The blueprint to use
     def initialize(document_blueprint)
@@ -49,7 +67,6 @@ module XapianDb
       term_generator.stemmer  = get_stemmer
       # TODO: Configure and enable these features
       # tg.stopper = stopper if stopper
-      # tg.stemmer = stemmer
       # tg.set_flags Xapian::TermGenerator::FLAG_SPELLING if db.spelling
 
       # Always index the class and the primary key
@@ -76,10 +93,10 @@ module XapianDb
     def get_stemmer
       # Do we have a language config on the blueprint?
       if @blueprint.lang_method
-        lang = @obj.send @blueprint.lang_method
-        return Xapian::Stem.new(lang.to_s)
+        lang = @obj.send(@blueprint.lang_method).to_sym
+        return Xapian::Stem.new(LANGUAGE_MAP[lang].to_s) if LANGUAGE_MAP.has_key?(lang)
       end
-      # Do we have a gloabl stemmer?
+      # Do we have a global stemmer?
       return XapianDb::Config.stemmer if XapianDb::Config.stemmer
       return Xapian::Stem.new("none") # No language config
     end

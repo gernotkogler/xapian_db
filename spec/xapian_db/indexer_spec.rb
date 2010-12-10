@@ -91,6 +91,21 @@ describe XapianDb::Indexer do
       doc.terms.map(&:term).should include "Zkoch"
     end
 
+    it "defaults to the global language if object's language is not supported" do
+      XapianDb.setup do |config|
+        config.language :de
+      end
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.language_method :lang_cd
+        blueprint.index :text
+      end
+      @obj.stub!(:lang_cd).and_return("no_support")
+      @obj.stub!(:text).and_return("kochen")
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      doc = @blueprint.indexer.build_document_for(@obj)
+      doc.terms.map(&:term).should include "Zkoch"
+    end
+
   end
 
 end
