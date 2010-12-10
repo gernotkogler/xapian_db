@@ -1,4 +1,4 @@
-##0.3.2 (December 6th, 2010)
+##0.3.2 (December 10th, 2010)
 
 Features:
   - Moved the per_page option from Resultset.paginate to Database.search
