@@ -1,18 +1,17 @@
-##0.3.2 (December 6st, 2010)
+##0.3.2 (December 6th, 2010)
 
 Features:
   - Moved the per_page option from Resultset.paginate to Database.search
-  - Added support for language settings
+  - Added support for language settings (global and dynamic per object)
   - Added support for xapian stemmers
-  - Added support for language dependent stop words
 
-##0.3.1 (December 6st, 2010)
+##0.3.1 (December 6th, 2010)
 
 Bugfixes:
 
   - Fixed the gemspec
 
-##0.3.0 (December 4st, 2010)
+##0.3.0 (December 4th, 2010)
 
 Features:
   - Rails integration with configuration file (config/xapian_db.yml) and automatic setup
