@@ -40,18 +40,23 @@ module XapianDb
           XapianDb.database.delete_docs_of_class(klass)
           blueprint = XapianDb::DocumentBlueprint.blueprint_for(klass)
           show_progressbar = false
+          obj_count = klass.count
           if opts[:verbose]
             if defined?(ProgressBar)
               show_progressbar = true
             end
-            obj_count = klass.count
             puts "Reindexing #{obj_count} objects..."
             pbar = ProgressBar.new("Status", obj_count) if show_progressbar
           end
-          klass.all.each do |obj|
-            doc = blueprint.indexer.build_document_for(obj)
-            XapianDb.database.store_doc(doc)
-            pbar.inc if show_progressbar
+
+          # Process the objects in batches to reduce the memory footprint
+          nr_of_batches = (obj_count / 1000) + 1
+          nr_of_batches.times do |batch|
+            klass.all(:offset => batch * 1000, :limit => 1000) .each do |obj|
+              doc = blueprint.indexer.build_document_for(obj)
+              XapianDb.database.store_doc(doc)
+              pbar.inc if show_progressbar
+            end
           end
           XapianDb.database.commit
         end
