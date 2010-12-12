@@ -7,24 +7,6 @@ module XapianDb
   # @author Gernot Kogler
   class Indexer
 
-    # Supported languages and mapping to the stemmer to use
-    LANGUAGE_MAP = {:da => :danish,
-                    :nl => :dutch,
-                    :en => :english,
-                    :fi => :finnish,
-                    :fr => :french,
-                    :de => :german2, # Normalises umlauts and ß
-                    :hu => :hungarian,
-                    :it => :italian,
-                    :nb => :norwegian,
-                    :nn => :norwegian,
-                    :no => :norwegian,
-                    :pt => :portuguese,
-                    :ro => :romanian,
-                    :ru => :russian,
-                    :es => :spanish,
-                    :sv => :swedish,
-                    :tr => :turkish}
     # Constructor
     # @param [XapianDb::DocumentBlueprint] document_blueprint The blueprint to use
     def initialize(document_blueprint)

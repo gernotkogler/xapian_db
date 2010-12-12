@@ -12,6 +12,25 @@ require 'yaml'
 
 module XapianDb
 
+  # Supported languages
+  LANGUAGE_MAP = {:da => :danish,
+                  :nl => :dutch,
+                  :en => :english,
+                  :fi => :finnish,
+                  :fr => :french,
+                  :de => :german2, # Normalises umlauts and ß
+                  :hu => :hungarian,
+                  :it => :italian,
+                  :nb => :norwegian,
+                  :nn => :norwegian,
+                  :no => :norwegian,
+                  :pt => :portuguese,
+                  :ro => :romanian,
+                  :ru => :russian,
+                  :es => :spanish,
+                  :sv => :swedish,
+                  :tr => :turkish}
+
   # Global configuration for XapianDb. See {XapianDb::Config.setup}
   # for available options
   def self.setup(&block)
@@ -62,6 +81,7 @@ module XapianDb
 end
 
 require File.dirname(__FILE__) + '/xapian_db/config'
+require File.dirname(__FILE__) + '/xapian_db/repositories/stemmer'
 require File.dirname(__FILE__) + '/xapian_db/adapters/generic_adapter'
 require File.dirname(__FILE__) + '/xapian_db/adapters/datamapper_adapter'
 require File.dirname(__FILE__) + '/xapian_db/adapters/active_record_adapter'
