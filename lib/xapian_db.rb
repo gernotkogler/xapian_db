@@ -80,17 +80,10 @@ module XapianDb
 
 end
 
-require File.dirname(__FILE__) + '/xapian_db/config'
-require File.dirname(__FILE__) + '/xapian_db/repositories/stemmer'
-require File.dirname(__FILE__) + '/xapian_db/adapters/generic_adapter'
-require File.dirname(__FILE__) + '/xapian_db/adapters/datamapper_adapter'
-require File.dirname(__FILE__) + '/xapian_db/adapters/active_record_adapter'
-require File.dirname(__FILE__) + '/xapian_db/index_writers/direct_writer'
-require File.dirname(__FILE__) + '/xapian_db/database'
-require File.dirname(__FILE__) + '/xapian_db/document_blueprint'
-require File.dirname(__FILE__) + '/xapian_db/indexer'
-require File.dirname(__FILE__) + '/xapian_db/query_parser'
-require File.dirname(__FILE__) + '/xapian_db/resultset'
+Dir.glob("#{File.dirname(__FILE__)}/xapian_db/*.rb").each {|file| require file}
+Dir.glob("#{File.dirname(__FILE__)}/xapian_db/repositories/*.rb").each {|file| require file}
+Dir.glob("#{File.dirname(__FILE__)}/xapian_db/adapters/*.rb").each {|file| require file}
+Dir.glob("#{File.dirname(__FILE__)}/xapian_db/index_writers/*.rb").each {|file| require file}
 
 # Configure XapianDB if we are in a Rails app
 require File.dirname(__FILE__) + '/xapian_db/railtie' if defined?(Rails)
