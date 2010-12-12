@@ -11,7 +11,7 @@ module XapianDb
       class << self
 
         # Get or build the stopper for a language
-        # @param [String] iso_cd The iso code for the language (:en, :de ...)
+        # @param [Symbol, String] iso_cd The iso code for the language (:en, :de ...)
         # @return [Xapian::SimpleStopper] The Stopper for this lanugage
         def stopper_for(iso_cd)
           @stoppers ||= {}
@@ -26,12 +26,12 @@ module XapianDb
             raise ArgumentError.new "Language #{iso_cd} is not supported by XapianDb (remember to use the language iso codes)"
           end
 
-          # Let's build the stopper
+          # build the stopper
           stopper = Xapian::SimpleStopper.new
           stopwords_file = File.join(File.dirname(__FILE__), '../stopwords', "#{iso_cd}.txt")
           open(stopwords_file, "r") do |file|
-            while word = file.gets
-              stopper.add word
+            file.each do |word|
+              stopper.add word.chomp
             end
           end
           @stoppers[key] = stopper

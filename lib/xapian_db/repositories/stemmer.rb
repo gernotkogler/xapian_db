@@ -11,7 +11,7 @@ module XapianDb
       class << self
 
         # Get or build the stemmer for a language
-        # @param [String] iso_cd The iso code for the language (:en, :de ...)
+        # @param [Symbol, String] iso_cd The iso code for the language (:en, :de ...)
         # @return [Xapian::Stem] The Stemmer for this lanugage
         def stemmer_for(iso_cd)
           @stemmers ||= {}

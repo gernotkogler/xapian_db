@@ -44,12 +44,16 @@ module XapianDb
 
     # Index all configured text methods
     def index_text
+      setup_language_helpers
       term_generator = Xapian::TermGenerator.new
       term_generator.document = @xapian_doc
-      term_generator.stemmer  = get_stemmer
+      term_generator.stemmer  = @stemmer unless @stemmer.nil?
+      term_generator.stopper  = @stopper unless @stopper.nil?
+
       # TODO: Configure and enable these features
-      # tg.stopper = stopper if stopper
       # tg.set_flags Xapian::TermGenerator::FLAG_SPELLING if db.spelling
+      # Problem: We need to pass a database to the indexer for spelling.
+      # I need to think about the refactoring for this
 
       # Always index the class and the primary key
       @xapian_doc.add_term("C#{@obj.class}")
@@ -71,18 +75,22 @@ module XapianDb
 
     private
 
-    # Configure the stemmer to use
-    def get_stemmer
+    # Configure the stemmer and stopper to use
+    def setup_language_helpers
       # Do we have a language config on the blueprint?
       if @blueprint.lang_method
         lang = @obj.send(@blueprint.lang_method)
         if lang && LANGUAGE_MAP.has_key?(lang.to_sym)
-          return XapianDb::Repositories::Stemmer.stemmer_for lang.to_sym
+          @stemmer = XapianDb::Repositories::Stemmer.stemmer_for lang.to_sym
+          @stopper = XapianDb::Repositories::Stopper.stopper_for lang.to_sym
+          return
         end
       end
-      # Do we have a global stemmer?
-      return XapianDb::Config.stemmer if XapianDb::Config.stemmer
-      return Xapian::Stem.new("none") # No language config
+
+      # Use the global config
+      @stemmer = XapianDb::Config.stemmer
+      @stopper = XapianDb::Config.stopper
+
     end
 
   end

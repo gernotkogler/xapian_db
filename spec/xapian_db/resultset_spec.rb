@@ -42,7 +42,7 @@ describe XapianDb::Resultset do
       @result.paginate(:page => 1, :per_page => 10).first.should be_a_kind_of(Xapian::Document)
     end
 
-    it "should decorate the returned Xapian documents with field accessors" do
+    it "should decorate the returned Xapian documents with attribute accessors" do
       doc = @result.paginate(:page => 1, :per_page => 10).first
       doc.respond_to?(:name).should be_true
       doc.name.should == @name

@@ -92,16 +92,25 @@ describe XapianDb::Config do
 
     describe ".language" do
 
-      it "accepts the iso code of a language" do
+      it "creates a stemmer and a stopper for a supported language" do
         XapianDb::Config.setup do |config|
           config.language :de
         end
         XapianDb::Config.stemmer.should be_a_kind_of Xapian::Stem
+        XapianDb::Config.stopper.should be_a_kind_of Xapian::SimpleStopper
+      end
+
+      it "does not create a stopper for the argument :none" do
+        XapianDb::Config.setup do |config|
+          config.language :none
+        end
+        XapianDb::Config.stemmer.should be_a_kind_of Xapian::Stem
+        XapianDb::Config.stopper.should_not be
       end
 
       it "raises an invalid argument error if an unsupported language is applied" do
         lambda{XapianDb::Config.setup do |config|
-          config.language :swiss_german
+          config.language :not_supported
         end}.should raise_error ArgumentError
       end
 

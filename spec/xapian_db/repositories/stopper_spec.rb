@@ -22,6 +22,11 @@ describe XapianDb::Repositories::Stopper do
       lambda {XapianDb::Repositories::Stopper.stopper_for(:not_supported)}.should raise_error ArgumentError
     end
 
+    it "creates a stopper thata contains the stop words for its language" do
+      stopper = XapianDb::Repositories::Stopper.stopper_for(:de)
+      stopper.call("und").should be_true
+    end
+
   end
 
 end

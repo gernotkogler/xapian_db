@@ -30,7 +30,7 @@ module XapianDb
       end
 
       # Install delegates for the config instance variables
-      [:database, :adapter, :writer, :stemmer].each do |attr|
+      [:database, :adapter, :writer, :stemmer, :stopper].each do |attr|
         define_method attr do
           @config.nil? ? nil : @config.instance_variable_get("@_#{attr}")
         end
@@ -42,7 +42,7 @@ module XapianDb
     # ---------------------------------------------------------------------------------
 
     #
-    attr_reader :_database, :_adapter, :_writer, :_stemmer
+    attr_reader :_database, :_adapter, :_writer, :_stemmer, :_stopper
 
     # Set the global database to use
     # @param [String] path The path to the database. Either apply a file sytem path or :memory
@@ -95,7 +95,9 @@ module XapianDb
     #   end
     # see {LANGUAGE_MAP} for supported languages
     def language(lang)
-      @_stemmer = XapianDb::Repositories::Stemmer.stemmer_for lang.to_sym
+      key = lang.to_sym
+      @_stemmer = XapianDb::Repositories::Stemmer.stemmer_for key
+      key == :none ? @_stopper = nil : @_stopper = XapianDb::Repositories::Stopper.stopper_for(key)
     end
 
     private
