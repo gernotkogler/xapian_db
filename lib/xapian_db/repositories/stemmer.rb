@@ -22,8 +22,8 @@ module XapianDb
           return @stemmers[key] unless @stemmers[key].nil?
 
           # Do we support this language?
-          unless LANGUAGE_MAP.keys.include?(key)
-            raise ArgumentError.new "Language #{iso_cd} is not supported by XapianDb (remeber to use the language iso codes)"
+          unless (LANGUAGE_MAP.keys + [:none]).include?(key)
+            raise ArgumentError.new "Language #{iso_cd} is not supported by XapianDb (remember to use the language iso codes)"
           end
 
           # Let's build the stemmer

@@ -87,20 +87,15 @@ module XapianDb
       @_writer = XapianDb::IndexWriters.const_get("#{camelize(type.to_s)}Writer")
     end
 
-    # Set the language
-    # @param [Symbol] lang The language; either apply the english name of the language
-    #   or the two letter IS639 code
-    # @example Use the english name of the language
-    #   XapianDb::Config.setup do |config|
-    #     config.language :german
-    #   end
-    # @example Use the iso code of the language
+    # Set the language.
+    # @param [Symbol] lang The language; apply the two letter ISO639 code for the language
+    # @example
     #   XapianDb::Config.setup do |config|
     #     config.language :de
     #   end
-    # see http://xapian.org/docs/apidoc/html/classXapian_1_1Stem.html for supported languages
+    # see {LANGUAGE_MAP} for supported languages
     def language(lang)
-      @_stemmer = Xapian::Stem.new(lang.to_s)
+      @_stemmer = XapianDb::Repositories::Stemmer.stemmer_for lang.to_sym
     end
 
     private

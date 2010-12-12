@@ -91,12 +91,6 @@ describe XapianDb::Config do
     end
 
     describe ".language" do
-      it "accepts the english name of a language" do
-        XapianDb::Config.setup do |config|
-          config.language :german
-        end
-        XapianDb::Config.stemmer.should be_a_kind_of Xapian::Stem
-      end
 
       it "accepts the iso code of a language" do
         XapianDb::Config.setup do |config|
@@ -108,7 +102,7 @@ describe XapianDb::Config do
       it "raises an invalid argument error if an unsupported language is applied" do
         lambda{XapianDb::Config.setup do |config|
           config.language :swiss_german
-        end}.should raise_error "InvalidArgumentError: Language code swiss_german unknown"
+        end}.should raise_error ArgumentError
       end
 
     end

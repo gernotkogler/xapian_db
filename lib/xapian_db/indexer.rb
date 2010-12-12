@@ -76,7 +76,9 @@ module XapianDb
       # Do we have a language config on the blueprint?
       if @blueprint.lang_method
         lang = @obj.send(@blueprint.lang_method)
-        return Xapian::Stem.new(LANGUAGE_MAP[lang.to_sym].to_s) if lang && LANGUAGE_MAP.has_key?(lang.to_sym)
+        if lang && LANGUAGE_MAP.has_key?(lang.to_sym)
+          return XapianDb::Repositories::Stemmer.stemmer_for lang.to_sym
+        end
       end
       # Do we have a global stemmer?
       return XapianDb::Config.stemmer if XapianDb::Config.stemmer

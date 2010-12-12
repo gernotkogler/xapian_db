@@ -102,7 +102,7 @@ module XapianDb
     # Blueprint DSL methods
     # ---------------------------------------------------------------------------------
 
-    # The name of the method that returns a Xapian compliant language code. The
+    # The name of the method that returns an iso language code. The
     # configured class must implement this method.
     attr_reader :lang_method
 
@@ -127,8 +127,8 @@ module XapianDb
     end
 
     # Set the name of the method to get the language for an indexed object
-    # @param [Symbol] lang The method name. The method must return a language supported
-    #   by Xapian (see http://xapian.org/docs/apidoc/html/classXapian_1_1Stem.html for supported languages)
+    # @param [Symbol] lang The method name. The method must return an iso language code (:en, :de, ...)
+    #   see LANGUAGE_MAP for the supported lanugaes
     def language_method(lang)
       @lang_method = lang
     end
