@@ -80,10 +80,9 @@ module XapianDb
 
 end
 
-Dir.glob("#{File.dirname(__FILE__)}/xapian_db/*.rb").each {|file| require file}
-Dir.glob("#{File.dirname(__FILE__)}/xapian_db/repositories/*.rb").each {|file| require file}
-Dir.glob("#{File.dirname(__FILE__)}/xapian_db/adapters/*.rb").each {|file| require file}
-Dir.glob("#{File.dirname(__FILE__)}/xapian_db/index_writers/*.rb").each {|file| require file}
+do_not_require = %w(update_stopwords.rb railtie.rb)
+files = Dir.glob("#{File.dirname(__FILE__)}/**/*.rb").reject{|path| do_not_require.include?(File.basename(path))}
+files.each {|file| require file}
 
 # Configure XapianDB if we are in a Rails app
 require File.dirname(__FILE__) + '/xapian_db/railtie' if defined?(Rails)
