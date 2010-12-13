@@ -140,6 +140,10 @@ You can query attributes:
 
   results = XapianDb.search("name:Foo")
 
+You can query objects of a specific class:
+
+  results = Person.search("name:Foo")
+
 === Process the results
 
 <code>XapianDb.search</code> returns a resultset object. You can access the number of hits directly:
@@ -160,7 +164,7 @@ To access the found documents, get a page from the resultset:
 Now you can access the documents:
 
   doc = page.first
-  puts doc.domain_class       # Get the type of the indexed object, e.g. "Person"
+  puts doc.indexed_class       # Get the type of the indexed object, e.g. "Person"
   puts doc.name               # We can access the configured attributes
   person = doc.indexed_object # Access the object behind this doc (lazy loaded)
 

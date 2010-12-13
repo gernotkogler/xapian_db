@@ -52,15 +52,18 @@ module XapianDb
       if @stemmer
         term_generator.stemmer  = @stemmer
         term_generator.stopper  = @stopper unless @stopper.nil?
-        # Enable the creation of a spelling index if the database is not in memory
-        if @database.is_a? XapianDb::PersistentDatabase
-          term_generator.set_flags Xapian::TermGenerator::FLAG_SPELLING if @database.is_a? XapianDb::PersistentDatabase
-        end
+        # Enable the creation of a spelling dictionary if the database is not in memory
+        term_generator.set_flags Xapian::TermGenerator::FLAG_SPELLING if @database.is_a? XapianDb::PersistentDatabase
       end
 
-      # Always index the class and the primary key
-      @xapian_doc.add_term("C#{@obj.class}")
+      # Index the primary key as a unique term
       @xapian_doc.add_term("Q#{@obj.xapian_id}")
+
+      # Index the class with the field name
+      term_generator.index_text("#{@obj.class}".downcase, 1, "XINDEXED_CLASS")
+      # term_generator.index_text("#{@obj.class}".downcase)
+      @xapian_doc.add_term("C#{@obj.class}")
+
 
       @blueprint.indexed_methods.each do |method, options|
         value = @obj.send(method)

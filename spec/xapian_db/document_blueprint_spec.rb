@@ -154,7 +154,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "adds an accessor method for the class of the indexed object" do
-      @doc.domain_class.should == "IndexedObject"
+      @doc.indexed_class.should == "IndexedObject"
     end
 
     it "adds accessor methods that deserialize values using YAML" do

@@ -79,8 +79,10 @@ module XapianDb
 
 end
 
-do_not_require = %w(update_stopwords.rb railtie.rb)
+do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb)
 files = Dir.glob("#{File.dirname(__FILE__)}/**/*.rb").reject{|path| do_not_require.include?(File.basename(path))}
+# Require the base adapter first
+require "#{File.dirname(__FILE__)}/xapian_db/adapters/base_adapter"
 files.each {|file| require file}
 
 # Configure XapianDB if we are in a Rails app

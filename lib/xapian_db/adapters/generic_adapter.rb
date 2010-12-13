@@ -10,7 +10,7 @@ module XapianDb
     # This adapter does the following:
     # - adds the instance method <code>xapian_id</code> to an indexed class
     # @author Gernot Kogler
-    class GenericAdapter
+    class GenericAdapter < BaseAdapter
 
       class << self
 
@@ -27,6 +27,10 @@ module XapianDb
         # @param [Class] klass The class to add the helper methods to
         def add_class_helper_methods_to(klass)
           raise "Unique key is not configured for generic adapter!" if @unique_key_block.nil?
+
+          # Add the helpers from the base class
+          super klass
+
           expression = @unique_key_block
           klass.instance_eval do
             define_method(:xapian_id) do

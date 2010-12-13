@@ -17,10 +17,10 @@ describe XapianDb::Adapters::DatamapperAdapter do
     XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
       blueprint.index :name
     end
-    
+
     @object = DatamapperObject.new(1, "Kogler")
   end
-  
+
   describe ".add_class_helper_methods_to(klass)" do
 
     it "adds the method 'xapian_id' to the configured class" do
@@ -39,24 +39,28 @@ describe XapianDb::Adapters::DatamapperAdapter do
       DatamapperObject.should respond_to(:rebuild_xapian_index)
     end
 
+    it "adds the helper methods from the base class" do
+      ActiveRecordObject.should respond_to(:search)
+    end
+
   end
 
   describe ".add_doc_helper_methods_to(obj)" do
-    
+
     it "adds the method 'indexed_object' to the object" do
       mod = Module.new
       XapianDb::Adapters::DatamapperAdapter.add_doc_helper_methods_to(mod)
       mod.instance_methods.should include(:indexed_object)
     end
-    
+
   end
-  
+
   describe ".xapian_id" do
     it "returns a unique id composed of the class name and the id" do
       @object.xapian_id.should == "#{@object.class}-#{@object.id}"
     end
   end
-  
+
   describe "the after save hook" do
     it "should (re)index the object" do
       @object.save
@@ -74,15 +78,15 @@ describe XapianDb::Adapters::DatamapperAdapter do
   end
 
   describe ".indexed_object" do
-    
+
     it "should return the object that is linked with the document" do
       @object.save
       doc = XapianDb.search("Kogler").paginate.first
       doc.indexed_object.should be_equal(@object)
     end
-    
+
   end
-  
+
   describe ".rebuild_xapian_index" do
     it "should (re)index all objects of this class" do
       @object.save
@@ -93,10 +97,10 @@ describe XapianDb::Adapters::DatamapperAdapter do
         config.database :memory
       end
       XapianDb.search("Kogler").size.should == 0
-            
+
       DatamapperObject.rebuild_xapian_index
       XapianDb.search("Kogler").size.should == 1
     end
   end
-    
+
 end

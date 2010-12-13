@@ -15,13 +15,16 @@ module XapianDb
     # - adds the instance method <code>indexed_object</code> to the module that will be included
     #   in every found xapian document
     # @author Gernot Kogler
-     class DatamapperAdapter
+     class DatamapperAdapter < BaseAdapter
 
        class << self
 
          # Implement the class helper methods
          # @param [Class] klass The class to add the helper methods to
          def add_class_helper_methods_to(klass)
+
+           # Add the helpers from the base class
+           super klass
 
            klass.instance_eval do
              # define the method to retrieve a unique key

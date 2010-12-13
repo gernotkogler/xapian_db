@@ -53,6 +53,8 @@ module XapianDb
           prefixes << blueprint.searchable_prefixes
         end
         @searchable_prefixes = prefixes.flatten.compact.uniq
+        # We can always do a field search on the name of the indexed class
+        @searchable_prefixes << "indexed_class"
       end
 
     end
@@ -75,7 +77,7 @@ module XapianDb
 
       # Add the accessor for the indexed class
       @accessors_module.instance_eval do
-        define_method :domain_class do
+        define_method :indexed_class do
           self.values[0].value
         end
       end
