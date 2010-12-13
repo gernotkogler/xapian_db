@@ -1,14 +1,13 @@
 # encoding: utf-8
 
-require 'digest/sha1'
-require 'xapian'
-require 'yaml'
-
 # This is the top level module of xapian_db. It allows you to
 # configure XapianDB, create / open databases and perform
 # searches.
 
 # @author Gernot Kogler
+
+require 'xapian'
+require 'yaml'
 
 module XapianDb
 
