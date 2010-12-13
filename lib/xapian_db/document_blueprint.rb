@@ -13,6 +13,15 @@ module XapianDb
   #     blueprint.attribute       :first_name
   #     blueprint.index           :remarks
   #   end
+  # @example A document blueprint configuration with a complex attribute for the class Person
+  #   XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+  #     # Our Person class has a method lang_cd. We use this method to
+  #     # index each person with its language
+  #     blueprint.language_method :lang_cd
+  #     blueprint.attribute       :complex, :weight => 10 do
+  #       # add some logic here to evaluate the value of 'complex'
+  #     end
+  #   end
   # @author Gernot Kogler
   class DocumentBlueprint
 
@@ -82,7 +91,7 @@ module XapianDb
         end
       end
 
-      @attributes_collection.each_with_index do |field, index|
+      @attributes_hash.keys.each_with_index do |field, index|
         @accessors_module.instance_eval do
           define_method field do
             YAML::load(self.values[index+1].value)
@@ -105,7 +114,7 @@ module XapianDb
 
     # Collection of the configured attribute methods
     # @return [Array<Symbol>] The names of the configured attribute methods
-    attr_reader :attributes_collection
+    attr_reader :attributes_hash
 
     # Collection of the configured index methods
     # @return [Hash<Symbol, IndexOptions>] A hashtable containing all index methods as
@@ -119,7 +128,7 @@ module XapianDb
 
     # Construct the blueprint
     def initialize
-      @attributes_collection = []
+      @attributes_hash = {}
       @indexed_methods_hash = {}
     end
 
@@ -136,20 +145,34 @@ module XapianDb
     # @param [Hash] options
     # @option options [Integer] :weight (1) The weight for this attribute.
     # @option options [Boolean] :index (true) Should the attribute be indexed?
-    # @todo Make sure the name does not collide with a method name of Xapian::Document since
-    def attribute(name, options={})
+    # @example For complex attribute configurations you may pass a block:
+    #   XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+    #     blueprint.attribute :complex do
+    #       if @id == 1
+    #         "One"
+    #       else
+    #         "Not one"
+    #       end
+    #     end
+    #   end
+    # @todo Make sure the name does not collide with a method name of Xapian::Document
+    def attribute(name, options={}, &block)
       opts = {:index => true}.merge(options)
-      @attributes_collection << name
-      self.index(name, opts) if opts[:index]
+      if block_given?
+        @attributes_hash[name] = block
+      else
+        @attributes_hash[name] = nil
+      end
+      self.index(name, opts, &block) if opts[:index]
     end
 
     # Add list of attributes to the blueprint. Attributes will be stored in the xapian documents an can be
     # accessed from a search result.
     # @param [Array] attributes An array of method names that deliver the values for the attributes
-    # @todo Make sure the name does not collide with a method name of Xapian::Document since
+    # @todo Make sure the name does not collide with a method name of Xapian::Document
     def attributes(*attributes)
       attributes.each do |attr|
-        @attributes_collection << attr
+        @attributes_hash[attr] = nil
         self.index attr
       end
     end
@@ -158,14 +181,14 @@ module XapianDb
     # @param [String] name The name of the method that delivers the value for the index
     # @param [Hash] options
     # @option options [Integer] :weight (1) The weight for this indexed value
-    def index(*args)
+    def index(*args, &block)
       case args.size
         when 1
-          @indexed_methods_hash[args.first] = IndexOptions.new(:weight => 1)
+          @indexed_methods_hash[args.first] = IndexOptions.new(:weight => 1, :block => block)
         when 2
           # Is it a method name with options?
           if args.last.is_a? Hash
-            @indexed_methods_hash[args.first] = IndexOptions.new(args.last)
+            @indexed_methods_hash[args.first] = IndexOptions.new(args.last.merge(:block => block))
           else
             add_indexes_from args
           end
@@ -178,19 +201,20 @@ module XapianDb
     class IndexOptions
 
       # The weight for the indexed value
-      attr_accessor :weight
+      attr_accessor :weight, :block
 
       # Constructor
       # @param [Hash] options
       # @option options [Integer] :weight (1) The weight for the indexed value
       def initialize(options)
         @weight = options[:weight] || 1
+        @block  = options[:block]
       end
     end
 
     private
 
-    # Add index configurations from an array;
+    # Add index configurations from an array
     def add_indexes_from(array)
       array.each do |arg|
         @indexed_methods_hash[arg] = IndexOptions.new(:weight => 1)

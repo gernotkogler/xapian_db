@@ -127,6 +127,45 @@ describe XapianDb::Indexer do
       doc.terms.map(&:term).should include "Zkoch"
     end
 
+    it "evaluates a block for an attribute if specified" do
+      XapianDb.setup do |config|
+        config.language :de
+      end
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :complex do
+          if @id == 0
+            "zero"
+          else
+            "not zero"
+          end
+        end
+      end
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @indexer = XapianDb::Indexer.new(@db, @blueprint)
+      doc = @indexer.build_document_for(@obj)
+      doc.values[1].value.should == "not zero".to_yaml
+      (doc.terms.map(&:term) & %w(not zero)).should == %w(not zero)
+    end
+
+    it "evaluates a block for an index method if specified" do
+      XapianDb.setup do |config|
+        config.language :de
+      end
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :complex do
+          if @id == 0
+            "zero"
+          else
+            "not zero"
+          end
+        end
+      end
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @indexer = XapianDb::Indexer.new(@db, @blueprint)
+      doc = @indexer.build_document_for(@obj)
+      (doc.terms.map(&:term) & %w(not zero)).should == %w(not zero)
+    end
+
   end
 
 end

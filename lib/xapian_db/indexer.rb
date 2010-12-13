@@ -36,8 +36,12 @@ module XapianDb
       @xapian_doc.add_value(0, @obj.class.name)
 
       pos = 1
-      @blueprint.attributes_collection.each do |attribute, options|
-        value = @obj.send(attribute)
+      @blueprint.attributes_hash.each do |attribute, block|
+        if block
+          value = @obj.instance_eval(&block)
+        else
+          value = @obj.send(attribute)
+        end
         @xapian_doc.add_value(pos, value.to_yaml)
         pos += 1
       end
@@ -66,7 +70,11 @@ module XapianDb
 
 
       @blueprint.indexed_methods_hash.each do |method, options|
-        value = @obj.send(method)
+        if options.block
+          value = @obj.instance_eval(&options.block)
+        else
+          value = @obj.send(method)
+        end
         unless value.nil?
           values = value.is_a?(Array) ? value : [value]
           values.each do |value|

@@ -71,7 +71,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "adds an attribute to the blueprint" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_collection.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_hash.keys.should include(:id)
     end
 
     it "adds the attribute to the indexed methods by default" do
@@ -92,6 +92,19 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash[:id].weight.should == 10
     end
 
+    it "accepts a block to specify complex attribute evaluation" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :complex do
+          if @id == 1
+            "One"
+          else
+            "Not one"
+          end
+        end
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_hash.keys.should include(:complex)
+    end
+
   end
 
   describe ".attributes" do
@@ -100,14 +113,14 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attributes :id
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_collection.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_hash.keys.should include(:id)
     end
 
     it "allows to declare multiple attributes in a single statement (but without options)" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attributes :id, :name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_collection.should include(:id, :name)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_hash.keys.should include(:id, :name)
     end
 
   end

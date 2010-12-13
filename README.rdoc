@@ -125,6 +125,18 @@ If you want to declare multiple attributes or indexes with default options, you 
 
 Note that you cannot add options using this mass declaration syntax (e.g. <code>blueprint.attributes :name, :weight => 10, :first_name</code> is not valid).
 
+Use blocks for complex evaluations of attributes or indexed values:
+
+  XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+    blueprint.attribute :complex do
+      if @id == 1
+        "One"
+      else
+        "Not one"
+      end
+    end
+  end
+
 You can place this configuration anywhere, e.g. in an initializer.
 
 === Update the index
@@ -134,6 +146,12 @@ for you when you create, save or destroy models. If you already have models that
 use the method <code>rebuild_xapian_index</code>:
 
   Person.rebuild_xapian_index
+
+To get info about the reindex process, use the verbose option:
+
+  Person.rebuild_xapian_index :verbose => true
+
+In verbose mode, XapianDb will use the progressbar gem if available.
 
 === Query the index
 
