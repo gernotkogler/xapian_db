@@ -60,6 +60,7 @@ module XapianDb
       enquiry       = Xapian::Enquire.new(reader)
       enquiry.query = query
       opts[:spelling_suggestion] = @query_parser.spelling_suggestion
+      opts[:db_size]             = self.size
       Resultset.new(enquiry, opts)
     end
 
