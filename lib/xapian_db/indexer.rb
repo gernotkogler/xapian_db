@@ -36,7 +36,7 @@ module XapianDb
       @xapian_doc.add_value(0, @obj.class.name)
 
       pos = 1
-      @blueprint.attributes.each do |attribute, options|
+      @blueprint.attributes_collection.each do |attribute, options|
         value = @obj.send(attribute)
         @xapian_doc.add_value(pos, value.to_yaml)
         pos += 1
@@ -65,7 +65,7 @@ module XapianDb
       @xapian_doc.add_term("C#{@obj.class}")
 
 
-      @blueprint.indexed_methods.each do |method, options|
+      @blueprint.indexed_methods_hash.each do |method, options|
         value = @obj.send(method)
         unless value.nil?
           values = value.is_a?(Array) ? value : [value]

@@ -66,7 +66,7 @@ module XapianDb
     # Return an array of all configured text methods in this blueprint
     # @return [Array<String>] All searchable prefixes
     def searchable_prefixes
-      @prefixes ||= indexed_methods.keys
+      @prefixes ||= indexed_methods_hash.keys
     end
 
     # Lazily build and return a module that implements accessors for each field
@@ -82,7 +82,7 @@ module XapianDb
         end
       end
 
-      @attributes.each_with_index do |field, index|
+      @attributes_collection.each_with_index do |field, index|
         @accessors_module.instance_eval do
           define_method field do
             YAML::load(self.values[index+1].value)
@@ -105,12 +105,12 @@ module XapianDb
 
     # Collection of the configured attribute methods
     # @return [Array<Symbol>] The names of the configured attribute methods
-    attr_reader :attributes
+    attr_reader :attributes_collection
 
     # Collection of the configured index methods
     # @return [Hash<Symbol, IndexOptions>] A hashtable containing all index methods as
     #   keys and IndexOptions as values
-    attr_reader :indexed_methods
+    attr_reader :indexed_methods_hash
 
     # Set / read a custom adapter.
     # Use this configuration option if you need a specific adapter for an indexed class.
@@ -119,8 +119,8 @@ module XapianDb
 
     # Construct the blueprint
     def initialize
-      @attributes = []
-      @indexed_methods = {}
+      @attributes_collection = []
+      @indexed_methods_hash = {}
     end
 
     # Set the name of the method to get the language for an indexed object
@@ -139,8 +139,19 @@ module XapianDb
     # @todo Make sure the name does not collide with a method name of Xapian::Document since
     def attribute(name, options={})
       opts = {:index => true}.merge(options)
-      @attributes << name
+      @attributes_collection << name
       self.index(name, opts) if opts[:index]
+    end
+
+    # Add list of attributes to the blueprint. Attributes will be stored in the xapian documents an can be
+    # accessed from a search result.
+    # @param [Array] attributes An array of method names that deliver the values for the attributes
+    # @todo Make sure the name does not collide with a method name of Xapian::Document since
+    def attributes(*attributes)
+      attributes.each do |attr|
+        @attributes_collection << attr
+        self.index attr
+      end
     end
 
     # Add an indexed value to the blueprint. Indexed values are not accessible from a search result.
@@ -148,7 +159,7 @@ module XapianDb
     # @param [Hash] options
     # @option options [Integer] :weight (1) The weight for this indexed value
     def index(name, options={})
-      @indexed_methods[name] = IndexOptions.new(options)
+      @indexed_methods_hash[name] = IndexOptions.new(options)
     end
 
     # Options for an indexed method

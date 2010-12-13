@@ -71,25 +71,43 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "adds an attribute to the blueprint" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_collection.should include(:id)
     end
 
     it "adds the attribute to the indexed methods by default" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash.should include(:id)
     end
 
     it "does not index the attribute if the :index option ist set to false " do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id, :index => false
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods.should_not include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash.should_not include(:id)
     end
 
     it "allows to specify a weight for the attribute" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id, :weight=> 10
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods[:id].weight.should == 10
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash[:id].weight.should == 10
+    end
+
+  end
+
+  describe ".attributes" do
+
+    it "allows to declare one single attribute" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attributes :id
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_collection.should include(:id)
+    end
+
+    it "allows to declare multiple attributes in a single statement (but without options)" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attributes :id, :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_collection.should include(:id, :name)
     end
 
   end
@@ -103,18 +121,18 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "adds an indexed value to the blueprint" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods[:id].should be
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash[:id].should be
     end
 
     it "defaults the weight option to 1" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods[:id].weight.should == 1
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash[:id].weight.should == 1
     end
 
     it "accepts weight as an option" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :id, :weight => 10
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods[:id].weight.should == 10
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash[:id].weight.should == 10
     end
 
   end
@@ -159,9 +177,6 @@ describe XapianDb::DocumentBlueprint do
 
     it "adds accessor methods that deserialize values using YAML" do
       @doc.date_of_birth.should == Date.today
-    end
-
-    it "adds accessor methods that deserialize arrays using YAML" do
       @doc.array.should == [1, "two", Date.today]
     end
 

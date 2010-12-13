@@ -3,7 +3,7 @@
 module XapianDb
   module Adapters
 
-    # base class for orm adapters.
+    # base class for all adapters.
     # This adapter does the following:
     # - adds the class method <code>search(expression)</code> to an indexed class
     # @author Gernot Kogler
