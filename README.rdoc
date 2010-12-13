@@ -116,6 +116,15 @@ you can configure the blueprint to use the language of the object when indexing:
 
 The method must return the iso code for the language (:en, :de, ...) as a symbol or a string. Don't worry if you have languages in your database that are not supported by Xapian. If the language is not supported, XapianDb will fall back to the global language configuration or none, if you haven't configured one.
 
+If you want to declare multiple attributes or indexes with default options, you can do this in one statement:
+
+  XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+    blueprint.attributes :name, :first_name, :profession
+    blueprint.index      :notes, :remarks, :cv
+  end
+
+Note that you cannot add options using this mass declaration syntax (e.g. <code>blueprint.attributes :name, :weight => 10, :first_name</code> is not valid).
+
 You can place this configuration anywhere, e.g. in an initializer.
 
 === Update the index

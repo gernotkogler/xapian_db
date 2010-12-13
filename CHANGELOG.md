@@ -3,6 +3,7 @@
 Features:
 
   - Perform searches on indexed classes to restrict the results to objects of a specific class
+  - Allow to specify multiple blueprint attributes and index methods in one statement (without specifying options)
 
 ##0.3.3 (December 13th, 2010)
 

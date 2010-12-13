@@ -135,6 +135,13 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash[:id].weight.should == 10
     end
 
+    it "allows to declare multiple methods (but without options)" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id, :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash[:id].weight.should == 1
+    end
+
   end
 
   describe ".accessors_module" do

@@ -158,8 +158,20 @@ module XapianDb
     # @param [String] name The name of the method that delivers the value for the index
     # @param [Hash] options
     # @option options [Integer] :weight (1) The weight for this indexed value
-    def index(name, options={})
-      @indexed_methods_hash[name] = IndexOptions.new(options)
+    def index(*args)
+      case args.size
+        when 1
+          @indexed_methods_hash[args.first] = IndexOptions.new(:weight => 1)
+        when 2
+          # Is it a method name with options?
+          if args.last.is_a? Hash
+            @indexed_methods_hash[args.first] = IndexOptions.new(args.last)
+          else
+            add_indexes_from args
+          end
+        else # multiple arguments
+          add_indexes_from args
+      end
     end
 
     # Options for an indexed method
@@ -173,6 +185,15 @@ module XapianDb
       # @option options [Integer] :weight (1) The weight for the indexed value
       def initialize(options)
         @weight = options[:weight] || 1
+      end
+    end
+
+    private
+
+    # Add index configurations from an array;
+    def add_indexes_from(array)
+      array.each do |arg|
+        @indexed_methods_hash[arg] = IndexOptions.new(:weight => 1)
       end
     end
 
