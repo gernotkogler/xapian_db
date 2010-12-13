@@ -114,8 +114,7 @@ you can configure the blueprint to use the language of the object when indexing:
     blueprint.language_method :language
   end
 
-Don't worry if you have languages in your database that are not supported by Xapian. If the language is not supported, XapianDb
-will fall back to the global language configuration or none, if you haven't configured one.
+The method must return the iso code for the language (:en, :de, ...) as a symbol or a string. Don't worry if you have languages in your database that are not supported by Xapian. If the language is not supported, XapianDb will fall back to the global language configuration or none, if you haven't configured one.
 
 You can place this configuration anywhere, e.g. in an initializer.
 
@@ -145,7 +144,13 @@ You can query attributes:
 
 <code>XapianDb.search</code> returns a resultset object. You can access the number of hits directly:
 
-  result.size # Very fast, does not load the resulting documents
+  results.size # Very fast, does not load the resulting documents
+
+If you use a persistent database, the resultset may contain a spelling correction:
+
+  # Assuming you have at least one document containing "mouse"
+  results = XapianDb.search("moose")
+  results.corrected_query # "mouse"
 
 To access the found documents, get a page from the resultset:
 
@@ -162,7 +167,6 @@ Now you can access the documents:
 
 == What to expect from future releases
 
-* multi language support (spelling correction, stop words)
 * facet support
 * will_paginate support
 * asynchronous index writer based on {resque}[https://github.com/defunkt/resque] for production environments

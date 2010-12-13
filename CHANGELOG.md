@@ -1,3 +1,17 @@
+##0.3.3 (December 13th, 2010)
+
+Features:
+
+  - Support for multi language stop words. The implementation was inspired by John Leachs xapian-fu gem
+  - Support for query spelling correction (similar to Google's 'did you mean...'). This feature is only
+    available for persistent databases (due to a limitation of Xapian)
+
+Changes:
+
+  - Languages must be configured by the iso language code (:en, :de, ...). No more support for the english
+    language names (:english, :german, ...)
+  - Reduced the memory footprint when reindexing large tables
+
 ##0.3.2 (December 10th, 2010)
 
 Features:
