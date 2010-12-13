@@ -20,7 +20,7 @@ class PersistentObject
       @objects.size
     end
 
-    def all
+    def all(options={})
       @objects
     end
 
