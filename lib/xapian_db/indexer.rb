@@ -65,18 +65,17 @@ module XapianDb
 
       # Index the class with the field name
       term_generator.index_text("#{@obj.class}".downcase, 1, "XINDEXED_CLASS")
-      # term_generator.index_text("#{@obj.class}".downcase)
       @xapian_doc.add_term("C#{@obj.class}")
 
 
       @blueprint.indexed_methods_hash.each do |method, options|
         if options.block
-          value = @obj.instance_eval(&options.block)
+          obj = @obj.instance_eval(&options.block)
         else
-          value = @obj.send(method)
+          obj = @obj.send(method)
         end
-        unless value.nil?
-          values = value.is_a?(Array) ? value : [value]
+        unless obj.nil?
+          values = get_values_to_index_from obj
           values.each do |value|
             # Add value with field name
             term_generator.index_text(value.to_s.downcase, options.weight, "X#{method.upcase}")
@@ -105,6 +104,20 @@ module XapianDb
       @stemmer = XapianDb::Config.stemmer
       @stopper = XapianDb::Config.stopper
 
+    end
+
+    # Get the values to index from an object
+    def get_values_to_index_from(obj)
+
+      # if it's an array, that's fine
+      return obj if obj.is_a? Array
+
+      # if the object responds to attributes and attributes is a hash,
+      # we use the attributes values (works well for active_record and datamapper objects)
+      return obj.attributes.values if obj.respond_to?(:attributes) && obj.attributes.is_a?(Hash)
+
+      # The object is unkown and will be indexed by its to_s method
+      return [obj]
     end
 
   end

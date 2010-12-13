@@ -118,9 +118,9 @@ describe XapianDb::DocumentBlueprint do
 
     it "allows to declare multiple attributes in a single statement (but without options)" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.attributes :id, :name
+        blueprint.attributes :id, :name, :first_name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_hash.keys.should include(:id, :name)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attributes_hash.keys.should include(:id, :name, :first_name)
     end
 
   end
@@ -148,11 +148,21 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash[:id].weight.should == 10
     end
 
-    it "allows to declare multiple methods (but without options)" do
+    it "allows to declare two methods (can distinguish this from a method with an options hash)" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :id, :name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash[:id].weight.should == 1
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash.keys.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash.keys.should include(:name)
+    end
+
+    it "allows to declare multiple methods (but without options)" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id, :name, :first_name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash.keys.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash.keys.should include(:name)
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_methods_hash.keys.should include(:first_name)
     end
 
   end
