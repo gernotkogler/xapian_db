@@ -178,9 +178,21 @@ module XapianDb
     end
 
     # Add an indexed value to the blueprint. Indexed values are not accessible from a search result.
-    # @param [String] name The name of the method that delivers the value for the index
-    # @param [Hash] options
-    # @option options [Integer] :weight (1) The weight for this indexed value
+    # @param [Array] args An array of arguments; you can pass a method name, an array of method names
+    #   or a method name and an options hash.
+    # @param [Block] &block An optional block for complex configurations
+    # Avaliable options:
+    # - :weight (default: 1) The weight for this indexed value
+    # @example Simple index declaration
+    #   blueprint.index :name
+    # @example Index declaration with options
+    #   blueprint.index :name, :weight => 10
+    # @example Mass index declaration
+    #   blueprint.index :name, :first_name, :profession
+    # @example Index declaration with a block
+    #   blueprint.index :complex, :weight => 10 do
+    #     # add some logic here to calculate the value for 'complex'
+    #   end
     def index(*args, &block)
       case args.size
         when 1
