@@ -42,11 +42,6 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of(XapianDb::DocumentBlueprint)
     end
 
-    it "adds an indexer to the blueprint" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject)
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexer.should be_a_kind_of(XapianDb::Indexer)
-    end
-
   end
 
   describe ".adapter=" do

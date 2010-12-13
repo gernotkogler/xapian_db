@@ -59,6 +59,8 @@ module XapianDb
       query         = @query_parser.parse(expression)
       enquiry       = Xapian::Enquire.new(reader)
       enquiry.query = query
+      opts[:corrected_query] = @query_parser.corrected_query
+      puts "CORRECTED: #{@query_parser.corrected_query}"
       Resultset.new(enquiry, opts)
     end
 

@@ -11,6 +11,7 @@ describe XapianDb::Indexer do
       XapianDb.setup do |config|
         config.language :none
       end
+      @db = XapianDb.create_db
 
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :id
@@ -27,11 +28,12 @@ describe XapianDb::Indexer do
       @obj.stub!(:text).and_return("Some Text")
       @obj.stub!(:no_value).and_return(nil)
       @obj.stub!(:array).and_return([1, "two", Date.today])
-      @doc       = @blueprint.indexer.build_document_for(@obj)
+      @indexer = XapianDb::Indexer.new(@db, @blueprint)
+      @doc     = @indexer.build_document_for(@obj)
     end
 
     it "creates a Xapian::Document from an configured object" do
-      XapianDb::Indexer.new(@blueprint).build_document_for(@obj).should be_a_kind_of(Xapian::Document)
+      @indexer.build_document_for(@obj).should be_a_kind_of(Xapian::Document)
     end
 
     it "inserts the xapian_id into the data property of the Xapian::Document" do
@@ -64,20 +66,20 @@ describe XapianDb::Indexer do
 
     it "uses a stemmer if globally configured" do
       @obj.stub!(:text).and_return("kochen")
-      doc = @blueprint.indexer.build_document_for(@obj)
+      doc = @indexer.build_document_for(@obj)
       doc.terms.map(&:term).should_not include "Zkoch"
 
       # Now we set the language to german and test the generated terms
       XapianDb.setup do |config|
         config.language :de
       end
-      doc = @blueprint.indexer.build_document_for(@obj)
+      doc = @indexer.build_document_for(@obj)
       doc.terms.map(&:term).should include "Zkoch"
     end
 
     it "uses a stemmer for the object's language if defined in the blueprint" do
       @obj.stub!(:text).and_return("kochen")
-      doc = @blueprint.indexer.build_document_for(@obj)
+      doc = @indexer.build_document_for(@obj)
       doc.terms.map(&:term).should_not include "Zkoch"
 
       # Now we configure the blueprint with a language
@@ -87,7 +89,8 @@ describe XapianDb::Indexer do
       end
       @obj.stub!(:lang_cd).and_return("de")
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-      doc = @blueprint.indexer.build_document_for(@obj)
+      @indexer = XapianDb::Indexer.new(@db, @blueprint)
+      doc = @indexer.build_document_for(@obj)
       doc.terms.map(&:term).should include "Zkoch"
     end
 
@@ -102,7 +105,8 @@ describe XapianDb::Indexer do
       @obj.stub!(:lang_cd).and_return("no_support")
       @obj.stub!(:text).and_return("kochen")
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-      doc = @blueprint.indexer.build_document_for(@obj)
+      @indexer = XapianDb::Indexer.new(@db, @blueprint)
+      doc = @indexer.build_document_for(@obj)
       doc.terms.map(&:term).should include "Zkoch"
     end
 
@@ -118,7 +122,8 @@ describe XapianDb::Indexer do
       @obj.stub!(:lang_cd).and_return(nil)
       @obj.stub!(:text).and_return("kochen")
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-      doc = @blueprint.indexer.build_document_for(@obj)
+      @indexer = XapianDb::Indexer.new(@db, @blueprint)
+      doc = @indexer.build_document_for(@obj)
       doc.terms.map(&:term).should include "Zkoch"
     end
 

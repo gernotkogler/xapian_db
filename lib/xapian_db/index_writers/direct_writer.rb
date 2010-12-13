@@ -18,7 +18,8 @@ module XapianDb
         # @param [Object] obj An instance of a class with a blueprint configuration
         def index(obj)
           blueprint = XapianDb::DocumentBlueprint.blueprint_for(obj.class)
-          doc = blueprint.indexer.build_document_for(obj)
+          indexer   = XapianDb::Indexer.new(XapianDb.database, blueprint)
+          doc       = indexer.build_document_for(obj)
           XapianDb.database.store_doc(doc)
           XapianDb.database.commit
         end
@@ -39,6 +40,7 @@ module XapianDb
           # First, delete all docs of this class
           XapianDb.database.delete_docs_of_class(klass)
           blueprint = XapianDb::DocumentBlueprint.blueprint_for(klass)
+          indexer   = XapianDb::Indexer.new(XapianDb.database, blueprint)
           show_progressbar = false
           obj_count = klass.count
           if opts[:verbose]
@@ -53,7 +55,7 @@ module XapianDb
           nr_of_batches = (obj_count / 1000) + 1
           nr_of_batches.times do |batch|
             klass.all(:offset => batch * 1000, :limit => 1000) .each do |obj|
-              doc = blueprint.indexer.build_document_for(obj)
+              doc = indexer.build_document_for(obj)
               XapianDb.database.store_doc(doc)
               pbar.inc if show_progressbar
             end

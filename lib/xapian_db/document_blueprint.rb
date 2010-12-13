@@ -30,7 +30,6 @@ module XapianDb
       def setup(klass, &block)
         @blueprints ||= {}
         blueprint = DocumentBlueprint.new
-        blueprint.indexer = Indexer.new(blueprint)
         yield blueprint if block_given? # configure the blueprint through the block
         @blueprints[klass] = blueprint
         @adapter = blueprint.adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
@@ -61,10 +60,6 @@ module XapianDb
     # ---------------------------------------------------------------------------------
     # Instance methods
     # ---------------------------------------------------------------------------------
-
-    # Set / get the indexer
-    # @return [XapianDb::Indexer]
-    attr_accessor :indexer
 
     # Return an array of all configured text methods in this blueprint
     # @return [Array<String>] All searchable prefixes

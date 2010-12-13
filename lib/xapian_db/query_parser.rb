@@ -6,6 +6,10 @@ module XapianDb
   # @author Gernot Kogler
   class QueryParser
 
+    # The spelling corrected query (if a language is configured)
+    # @return [String]
+    attr_reader :corrected_query
+
     # Constructor
     # @param [XapianDb::Database] database The database to query
     def initialize(database)
@@ -13,9 +17,10 @@ module XapianDb
 
       # Set the parser options
       @query_flags = 0
-      @query_flags |= Xapian::QueryParser::FLAG_WILDCARD         # enable wildcards
-      @query_flags |= Xapian::QueryParser::FLAG_BOOLEAN          # enable boolean operators
-      @query_flags |= Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE # enable case insensitive boolean operators
+      @query_flags |= Xapian::QueryParser::FLAG_WILDCARD            # enable wildcards
+      @query_flags |= Xapian::QueryParser::FLAG_BOOLEAN             # enable boolean operators
+      @query_flags |= Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE    # enable case insensitive boolean operators
+      @query_flags |= Xapian::QueryParser::FLAG_SPELLING_CORRECTION # enable spelling corrections
     end
 
     # Parse an expression
@@ -24,12 +29,18 @@ module XapianDb
       parser            = Xapian::QueryParser.new
       parser.database   = @db.reader
       parser.default_op = Xapian::Query::OP_AND # Could be made configurable
-      # TODO: Setup stopper, stemmer, defaults and fields
+      if XapianDb::Config.stemmer
+        parser.stemmer           = XapianDb::Config.stemmer
+        parser.stemming_strategy = Xapian::QueryParser::STEM_SOME
+        parser.stopper           = XapianDb::Config.stopper
+      end
 
       # Add the searchable prefixes to allow searches by field
       # (like "name:Kogler")
       XapianDb::DocumentBlueprint.searchable_prefixes.each{|prefix| parser.add_prefix(prefix.to_s.downcase, "X#{prefix.to_s.upcase}") }
-      parser.parse_query(expression, @query_flags)
+      query = parser.parse_query(expression, @query_flags)
+      @corrected_query = parser.get_corrected_query_string
+      query
     end
 
   end

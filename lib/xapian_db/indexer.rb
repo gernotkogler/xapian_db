@@ -8,9 +8,10 @@ module XapianDb
   class Indexer
 
     # Constructor
+    # @param [XapianDb::Database] database The database to use (needed to build a spelling index)
     # @param [XapianDb::DocumentBlueprint] document_blueprint The blueprint to use
-    def initialize(document_blueprint)
-      @document_blueprint = document_blueprint
+    def initialize(database, document_blueprint)
+      @database, @document_blueprint = database, document_blueprint
     end
 
     # Build the document for an object. The object must respond to 'xapian_id'.
@@ -46,14 +47,16 @@ module XapianDb
     def index_text
       setup_language_helpers
       term_generator = Xapian::TermGenerator.new
+      term_generator.database = @database.writer
       term_generator.document = @xapian_doc
-      term_generator.stemmer  = @stemmer unless @stemmer.nil?
-      term_generator.stopper  = @stopper unless @stopper.nil?
-
-      # TODO: Configure and enable these features
-      # tg.set_flags Xapian::TermGenerator::FLAG_SPELLING if db.spelling
-      # Problem: We need to pass a database to the indexer for spelling.
-      # I need to think about the refactoring for this
+      if @stemmer
+        term_generator.stemmer  = @stemmer
+        term_generator.stopper  = @stopper unless @stopper.nil?
+        # Enable the creation of a spelling index if the database is not in memory
+        if @database.is_a? XapianDb::PersistentDatabase
+          term_generator.set_flags Xapian::TermGenerator::FLAG_SPELLING if @database.is_a? XapianDb::PersistentDatabase
+        end
+      end
 
       # Always index the class and the primary key
       @xapian_doc.add_term("C#{@obj.class}")
