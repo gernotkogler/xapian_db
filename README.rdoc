@@ -161,7 +161,7 @@ A simple query looks like this:
 
 You can use wildcards and boolean operators:
 
-  results = XapianDb.search("Fo*" OR "Baz")
+  results = XapianDb.search("fo* or baz")
 
 You can query attributes:
 
@@ -170,6 +170,10 @@ You can query attributes:
 You can query objects of a specific class:
 
   results = Person.search("name:Foo")
+
+If you want to override the default of 10 docs per page, pass the :per_page argument:
+
+  results = Person.search("name:Foo", :per_page => 20)
 
 === Process the results
 
@@ -185,13 +189,13 @@ If you use a persistent database, the resultset may contain a spelling correctio
 
 To access the found documents, get a page from the resultset:
 
-  page = result.paginate                              # Get the first page with 10 documents
-  page = result.paginate(:page => 2, :per_page => 20) # Get the second page page with documents 21-40
+  page = result.paginate            # Get the first page
+  page = result.paginate :page => 2 # Get the second page
 
 Now you can access the documents:
 
   doc = page.first
-  puts doc.indexed_class       # Get the type of the indexed object, e.g. "Person"
+  puts doc.indexed_class      # Get the type of the indexed object as a string, e.g. "Person"
   puts doc.name               # We can access the configured attributes
   person = doc.indexed_object # Access the object behind this doc (lazy loaded)
 
