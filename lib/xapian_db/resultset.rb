@@ -17,19 +17,19 @@ module XapianDb
 
     # The spelling corrected query (if a language is configured)
     # @return [String]
-    attr_reader :corrected_query
+    attr_reader :spelling_suggestion
 
     # Constructor
     # @param [Xapian::Enquire] enquiry a Xapian query result (see http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html)
     # @param [Hash] options
     # @option options [Integer] :per_page (10) How many docs per page?
-    # @option options [String] :corrected_query (nil) The spelling corrected query (if a language is configured)
+    # @option options [String] :spelling_suggestion (nil) The spelling corrected query (if a language is configured)
     def initialize(enquiry, options)
       @enquiry = enquiry
       # By passing 0 as the max parameter to the mset method,
       # we only get statistics about the query, no results
       @size            = enquiry.mset(0, 0).matches_estimated
-      @corrected_query = options[:corrected_query]
+      @spelling_suggestion = options[:spelling_suggestion]
       @per_page = options[:per_page]
     end
 

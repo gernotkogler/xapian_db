@@ -14,8 +14,8 @@ describe XapianDb::QueryParser do
       XapianDb::QueryParser.new(@db).parse("foo").should be_a_kind_of(Xapian::Query)
     end
 
-    it "responds to corrected_query" do
-      XapianDb::QueryParser.new(@db).should respond_to(:corrected_query)
+    it "responds to spelling_suggestion" do
+      XapianDb::QueryParser.new(@db).should respond_to(:spelling_suggestion)
     end
 
   end

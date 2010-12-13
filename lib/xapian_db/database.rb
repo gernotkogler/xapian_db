@@ -59,7 +59,7 @@ module XapianDb
       query         = @query_parser.parse(expression)
       enquiry       = Xapian::Enquire.new(reader)
       enquiry.query = query
-      opts[:corrected_query] = @query_parser.corrected_query
+      opts[:spelling_suggestion] = @query_parser.spelling_suggestion
       Resultset.new(enquiry, opts)
     end
 

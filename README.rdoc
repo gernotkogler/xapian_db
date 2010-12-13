@@ -185,7 +185,7 @@ If you use a persistent database, the resultset may contain a spelling correctio
 
   # Assuming you have at least one document containing "mouse"
   results = XapianDb.search("moose")
-  results.corrected_query # "mouse"
+  results.spelling_suggestion # "mouse"
 
 To access the found documents, get a page from the resultset:
 

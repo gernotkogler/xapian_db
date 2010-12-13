@@ -206,7 +206,7 @@ describe XapianDb::Database do
       db.commit
       db.size.should == 1
       result = db.search "Halo Naachbar"
-      result.corrected_query.should == "hallo nachbar"
+      result.spelling_suggestion.should == "hallo nachbar"
 
       # clean up
       FileUtils.rm_rf test_db

@@ -8,7 +8,7 @@ module XapianDb
 
     # The spelling corrected query (if a language is configured)
     # @return [String]
-    attr_reader :corrected_query
+    attr_reader :spelling_suggestion
 
     # Constructor
     # @param [XapianDb::Database] database The database to query
@@ -39,7 +39,7 @@ module XapianDb
       # (like "name:Kogler")
       XapianDb::DocumentBlueprint.searchable_prefixes.each{|prefix| parser.add_prefix(prefix.to_s.downcase, "X#{prefix.to_s.upcase}") }
       query = parser.parse_query(expression, @query_flags)
-      @corrected_query = parser.get_corrected_query_string
+      @spelling_suggestion = parser.get_corrected_query_string
       query
     end
 
