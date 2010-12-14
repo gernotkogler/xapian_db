@@ -77,6 +77,13 @@ module XapianDb
     XapianDb::Config.database.search(expression)
   end
 
+  # Get facets from the configured database.
+  # See {XapianDb::Database#facets} for options
+  # @return [Hash<Class, Integer>] A hash containing the classes and the hits per class
+  def self.facets(expression)
+    XapianDb::Config.database.facets(expression)
+  end
+
 end
 
 do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb)
