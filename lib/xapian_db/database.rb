@@ -66,7 +66,7 @@ module XapianDb
 
     # A very simple implementation of facets limited to the class facets.
     # @param [String] expression A valid search expression (see {#search} for examples).
-    # @return [Hash<String, Integer>] A hash containing the class names and the hits per class
+    # @return [Hash<Class, Integer>] A hash containing the classes and the hits per class
     def facets(expression)
       @query_parser        ||= QueryParser.new(self)
       query                = @query_parser.parse(expression)
@@ -78,7 +78,7 @@ module XapianDb
         class_name = match.document.values[0].value
         # We must add 1 to the collapse_count since collapse_count means
         # "how many other matches are there?"
-        facets[class_name] = match.collapse_count + 1
+        facets[Kernel.const_get(class_name)] = match.collapse_count + 1
       end
       facets
     end

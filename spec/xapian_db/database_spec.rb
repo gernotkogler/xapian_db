@@ -261,8 +261,8 @@ describe XapianDb::Database do
     it "should return a hash containing the class facets" do
       facets = XapianDb.database.facets "find me"
       facets.size.should == 2
-      facets["ClassA"].should == 1
-      facets["ClassB"].should == 1
+      facets[ClassA].should == 1
+      facets[ClassB].should == 1
     end
   end
 
