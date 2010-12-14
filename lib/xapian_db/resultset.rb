@@ -17,7 +17,7 @@ module XapianDb
 
     # The spelling corrected query (if a language is configured)
     # @return [String]
-    attr_reader :spelling_suggestion
+    attr_accessor :spelling_suggestion
 
     # Constructor
     # @param [Xapian::Enquire] enquiry a Xapian query result (see http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html)

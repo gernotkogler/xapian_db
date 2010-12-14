@@ -1,3 +1,9 @@
+##0.3.5 (December 14th, 2010)
+
+Bugfixes:
+
+  - removed the class scope expression from the spelling suggestion when searching on a class
+
 ##0.3.4 (December 14th, 2010)
 
 Features:
@@ -5,6 +11,9 @@ Features:
   - perform searches on indexed classes to scope the search to objects of a specific class
   - specify multiple blueprint attributes and index methods in one statement (without specifying options)
   - use blocks for complex attribute or index specifications
+
+Changes:
+
   - changed the implementation of Resultset.size to get more accurate estimations
   - changed the indexing of active_record or datamapper models when declared as attributes or indexes
     in a blueprint (indexes now all attributes of the object instead of using to_s)

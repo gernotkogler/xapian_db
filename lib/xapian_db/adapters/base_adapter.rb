@@ -20,7 +20,15 @@ module XapianDb
 
              # Add a method to search models of this class
              define_singleton_method(:search) do |expression|
-               XapianDb.database.search "indexed_class:#{klass.name.downcase} and (#{expression})"
+               class_scope = "indexed_class:#{klass.name.downcase}"
+               result = XapianDb.database.search "#{class_scope} and (#{expression})"
+
+               # Remove the class scope from the spelling suggestion (if any)
+               unless result.spelling_suggestion.empty?
+                 scope_length = "#{class_scope} and (".size
+                 result.spelling_suggestion = result.spelling_suggestion.slice scope_length..-2
+               end
+               result
              end
 
            end

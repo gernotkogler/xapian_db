@@ -32,7 +32,8 @@ describe XapianDb::Adapters::BaseAdapter do
 
       XapianDb.setup do |config|
         config.adapter  :generic
-        config.database :memory
+        config.database "/tmp/xapian_test"
+        config.language :en
       end
 
       XapianDb::DocumentBlueprint.setup(ClassA) do |blueprint|
@@ -52,10 +53,15 @@ describe XapianDb::Adapters::BaseAdapter do
       db.store_doc indexerA.build_document_for(@objA)
       @objB = ClassB.new(1, "find me classa")
       db.store_doc indexerB.build_document_for(@objB)
+      db.commit
 
       XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to ClassA
       XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to ClassB
 
+    end
+
+    after :all do
+      FileUtils.rm_rf "/tmp/xapiandb"
     end
 
     it "should only find objects of a given class" do
@@ -64,6 +70,13 @@ describe XapianDb::Adapters::BaseAdapter do
       result.size.should == 1
       result.paginate.first.indexed_class.should == "ClassA"
     end
+
+    it "should remove the class scope from a spelling suggestion" do
+      XapianDb.database.search("find me").size.should == 2
+      result = ClassA.search("find mee")
+      result.spelling_suggestion.should == "find me"
+    end
+
   end
 
 end
