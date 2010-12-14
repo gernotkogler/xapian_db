@@ -58,3 +58,10 @@ page = results.paginate(:page => 1)
 doc  = page.first
 puts "name: #{doc.name}"
 puts "first name: #{doc.first_name}"
+
+# Get all facets (classes) for a search expression
+facets = db.facets("Gernot")
+puts "facets:"
+facets.each do |class_name, count|
+  puts "#{class_name}: #{count} hits"
+end

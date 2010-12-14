@@ -215,6 +215,57 @@ describe XapianDb::Database do
 
   end
 
+  describe ".facets(expression)" do
+
+    before :all do
+
+      class ClassA
+        attr_reader :id, :text
+        def initialize(id, text)
+          @id, @text = id, text
+        end
+      end
+
+      class ClassB < ClassA
+      end
+
+      XapianDb.setup do |config|
+        config.adapter  :generic
+        config.database :memory
+        config.language :en
+      end
+
+      XapianDb::DocumentBlueprint.setup(ClassA) do |blueprint|
+        blueprint.index :text
+      end
+      XapianDb::DocumentBlueprint.setup(ClassB) do |blueprint|
+        blueprint.index :text
+      end
+
+      db = XapianDb.database
+      indexerA = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(ClassA)
+      indexerB = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(ClassB)
+
+      # We add the name of the other class to the index to make sure we do not find it
+      # only by the name of the class
+      @objA = ClassA.new(1, "find me classb")
+      db.store_doc indexerA.build_document_for(@objA)
+      @objB = ClassB.new(1, "find me classa")
+      db.store_doc indexerB.build_document_for(@objB)
+
+      XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to ClassA
+      XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to ClassB
+
+    end
+
+    it "should return a hash containing the class facets" do
+      facets = XapianDb.database.facets "find me"
+      facets.size.should == 2
+      facets["ClassA"].should == 1
+      facets["ClassB"].should == 1
+    end
+  end
+
 end
 
 describe XapianDb::InMemoryDatabase do
