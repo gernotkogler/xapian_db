@@ -171,21 +171,21 @@ describe XapianDb::DocumentBlueprint do
 
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.attribute :id
-        blueprint.attribute :name
+        blueprint.attribute :array
         blueprint.attribute :date_of_birth
         blueprint.attribute :empty_field
-        blueprint.attribute :array
+        blueprint.attribute :id
+        blueprint.attribute :name
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
 
       @doc = Xapian::Document.new
       @doc.add_value(0, "IndexedObject")
-      @doc.add_value(1, 1.to_yaml)
-      @doc.add_value(2, "Kogler".to_yaml)
-      @doc.add_value(3, Date.today.to_yaml)
-      @doc.add_value(4, nil.to_yaml)
-      @doc.add_value(5, [1, "two", Date.today].to_yaml)
+      @doc.add_value(1, [1, "two", Date.today].to_yaml)
+      @doc.add_value(2, Date.today.to_yaml)
+      @doc.add_value(3, nil.to_yaml)
+      @doc.add_value(4, 1.to_yaml)
+      @doc.add_value(5, "Kogler".to_yaml)
       @doc.extend @blueprint.accessors_module
     end
 

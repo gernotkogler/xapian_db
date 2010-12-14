@@ -36,7 +36,8 @@ module XapianDb
       @xapian_doc.add_value(0, @obj.class.name)
 
       pos = 1
-      @blueprint.attributes_hash.each do |attribute, block|
+      @blueprint.attributes_hash.keys.sort.each do |attribute|
+        block = @blueprint.attributes_hash[attribute]
         if block
           value = @obj.instance_eval(&block)
         else
@@ -68,7 +69,8 @@ module XapianDb
       @xapian_doc.add_term("C#{@obj.class}")
 
 
-      @blueprint.indexed_methods_hash.each do |method, options|
+      @blueprint.indexed_methods_hash.keys.sort.each do |method|
+        options = @blueprint.indexed_methods_hash[method]
         if options.block
           obj = @obj.instance_eval(&options.block)
         else

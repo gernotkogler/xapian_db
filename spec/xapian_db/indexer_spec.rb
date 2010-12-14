@@ -14,13 +14,13 @@ describe XapianDb::Indexer do
       @db = XapianDb.create_db
 
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.attribute :id
-        blueprint.attribute :text
-        blueprint.attribute :no_value
         blueprint.attribute :array
+        blueprint.attribute :id
+        blueprint.attribute :no_value
+        blueprint.attribute :text
 
-        blueprint.index :text
         blueprint.index :array
+        blueprint.index :text
       end
 
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
@@ -45,8 +45,8 @@ describe XapianDb::Indexer do
     end
 
     it "adds values for the configured methods" do
-      @doc.values[1].value.should == @obj.id.to_yaml
-      @doc.values[2].value.should == "Some Text".to_yaml
+      @doc.values[2].value.should == @obj.id.to_yaml
+      @doc.values[4].value.should == "Some Text".to_yaml
     end
 
     it "adds terms for the configured methods" do
@@ -61,7 +61,7 @@ describe XapianDb::Indexer do
     end
 
     it "handles fields with an array as the value" do
-      @doc.values[4].value.should == [1, "two", Date.today].to_yaml
+      @doc.values[1].value.should == [1, "two", Date.today].to_yaml
     end
 
     it "uses a stemmer if globally configured" do

@@ -91,7 +91,7 @@ module XapianDb
         end
       end
 
-      @attributes_hash.keys.each_with_index do |field, index|
+      @attributes_hash.keys.sort.each_with_index do |field, index|
         @accessors_module.instance_eval do
           define_method field do
             YAML::load(self.values[index+1].value)
