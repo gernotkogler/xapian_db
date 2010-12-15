@@ -1,8 +1,22 @@
-##0.3.5 (December 14th, 2010)
+##0.4.0 (December 15th, 2010)
+
+Features:
+
+  - Simple facets implementation. The only facet supported is the class name of the indexed objects
+  - Support for sorting (only for class searches, not for global searches)
+  - The result of a search can be used with will_paginate
 
 Bugfixes:
 
   - removed the class scope expression from the spelling suggestion when searching on a class
+  - keys of the attributes and index hashes are now sorted to be compatible with ruby 1.8 (which does
+    not preserve the order of the keys in a hash)
+  - Fixed the problem that blueprint configurations got lost after the first request in the development
+    env (Rails only). You should put your blueprints either into a class that is loaded by Rails or into
+    the file config/xapian_blueprints.rb wich is loaded automatically by XapianDb
+
+**Since the internal structure of the index has changed, you must reindex your objects if you come from an
+earlier version of XapianDb!**
 
 ##0.3.4 (December 14th, 2010)
 

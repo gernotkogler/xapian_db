@@ -137,7 +137,8 @@ Use blocks for complex evaluations of attributes or indexed values:
     end
   end
 
-You can place this configuration anywhere, e.g. in an initializer.
+place these configurations either into the corrsepondig class or - I prefer to have the index configurations outside
+the models - into the file config/xapian_blueprints.rb.
 
 === Update the index
 
@@ -157,23 +158,30 @@ In verbose mode, XapianDb will use the progressbar gem if available.
 
 A simple query looks like this:
 
-  results = XapianDb.search("Foo")
+  results = XapianDb.search "Foo"
 
 You can use wildcards and boolean operators:
 
-  results = XapianDb.search("fo* or baz")
+  results = XapianDb.search "fo* or baz"
 
 You can query attributes:
 
-  results = XapianDb.search("name:Foo")
+  results = XapianDb.search "name:Foo"
 
 You can query objects of a specific class:
 
-  results = Person.search("name:Foo")
+  results = Person.search "name:Foo"
 
 If you want to override the default of 10 docs per page, pass the :per_page argument:
 
-  results = Person.search("name:Foo", :per_page => 20)
+  results = Person.search "name:Foo", :per_page => 20
+
+On class queries you can specifiy order options:
+
+  results = Person.search "name:Foo", :order => :first_name
+  results = Person.search "Fo*", :order => [:name, :first_name], :sort_decending => true
+
+Please note that the order option is not avaliable for global searches (XapianDb.search...)
 
 === Process the results
 
@@ -189,8 +197,8 @@ If you use a persistent database, the resultset may contain a spelling correctio
 
 To access the found documents, get a page from the resultset:
 
-  page = result.paginate            # Get the first page
-  page = result.paginate :page => 2 # Get the second page
+  page = results.paginate            # Get the first page
+  page = results.paginate :page => 2 # Get the second page
 
 Now you can access the documents:
 
@@ -199,9 +207,25 @@ Now you can access the documents:
   puts doc.name               # We can access the configured attributes
   person = doc.indexed_object # Access the object behind this doc (lazy loaded)
 
+Use a search result with will_paginate in a view:
+
+  <%= will_paginate @results %>
+
+=== Facets
+
+If you want to implement a simple drilldown for your searches, you can use a facets query:
+
+  search_expression = "Foo"
+  facets = XapianDb.facets(search_expression)
+  facets.each do |klass, count|
+    puts "#{klass.name}: #{count} hits"
+
+    # This is how you would get all documents for the facet
+    # doc = klass.search search_expression
+  end
+
+Facet support in XapianDb is very limited. The only available facet is the class of the indexed objects. In many cases that's all that's needed. Therefore, it is very likely that I won't add more options for facets (since I'm not a fan of facets anyway). However, if you desperately need advanced facets, let me know. Or - even better - send me a pull request with a nice implementation ;-)
 
 == What to expect from future releases
 
-* facet support
-* will_paginate support
 * asynchronous index writer based on {resque}[https://github.com/defunkt/resque] for production environments
