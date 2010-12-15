@@ -72,6 +72,18 @@ module XapianDb
     # Instance methods
     # ---------------------------------------------------------------------------------
 
+    # Return the value index of an attribute. Needed to access the value of an attribute
+    # from a Xapian document.
+    # @param [String, Symbol] attribute_name The name of the attribute
+    # @return [Integer] The value index of the attribute
+    # @raise ArgumentError if the attribute name is unknown
+    def value_index_for(attribute_name)
+      index = @attributes_hash.keys.sort.index attribute_name.to_sym
+      raise ArgumentError.new("Attribute #{attribute_name} unknown") unless index
+      # We add 1 because value slot 0 is reserved for the class name
+      index + 1
+    end
+
     # Return an array of all configured text methods in this blueprint
     # @return [Array<String>] All searchable prefixes
     def searchable_prefixes

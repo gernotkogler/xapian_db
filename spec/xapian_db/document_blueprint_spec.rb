@@ -212,4 +212,24 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
+  describe ".value_index_for(attribute)" do
+
+    before :each do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :name
+        blueprint.attribute :first_name
+      end
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+    end
+
+    it "raises an argument error if the attribute name is unknown" do
+      lambda{@blueprint.value_index_for(:unknown)}.should raise_error ArgumentError
+    end
+
+    it "returns the value index of an attribute (to access the value from a Xapian:Document)" do
+      @blueprint.value_index_for(:name).should == 2
+    end
+
+  end
+
 end
