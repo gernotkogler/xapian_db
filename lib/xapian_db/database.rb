@@ -44,6 +44,10 @@ module XapianDb
     # @param [String] expression A valid search expression.
     # @param [Hash] options
     # @option options [Integer] :per_page (10) How many docs per page?
+    # @option options [Array<Integer>] :sort_indices (nil) An array of attribute indices to sort by. This
+    #   option is used internally by the search method implemented on configured classes. Do not use it
+    #   directly unless
+    #   you know what you do
     # @example Simple Query
     #   resultset = db.search("foo")
     # @example Wildcard Query
@@ -54,11 +58,21 @@ module XapianDb
     #   resultset = db.search("name:foo")
     # @return [XapianDb::Resultset] The resultset
     def search(expression, options={})
-      opts          = {:per_page => 10}.merge(options)
+      opts          = {:per_page => 10, :sort_decending => false}.merge(options)
       @query_parser ||= QueryParser.new(self)
       query         = @query_parser.parse(expression)
       enquiry       = Xapian::Enquire.new(reader)
       enquiry.query = query
+
+      if opts[:sort_indices]
+        raise ArgumentError.new("Sorting is available for class scoped searches only") unless expression =~ /^indexed_class:/
+        sorter = Xapian::MultiValueSorter.new
+        options[:sort_indices].each do |index|
+          sorter.add(index, opts[:sort_decending])
+        end
+        enquiry.set_sort_by_key_then_relevance(sorter)
+      end
+
       opts[:spelling_suggestion] = @query_parser.spelling_suggestion
       opts[:db_size]             = self.size
       Resultset.new(enquiry, opts)

@@ -213,6 +213,54 @@ describe XapianDb::Database do
 
     end
 
+    context "sorting" do
+
+      before :each do
+        XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+          blueprint.attribute :text
+          blueprint.attribute :text2
+        end
+        obj = IndexedObject.new(1)
+        obj.stub!(:text).and_return("same_sort")
+        obj.stub!(:text2).and_return("B text")
+        doc = @indexer.build_document_for(obj)
+        XapianDb.database.store_doc doc
+        obj2 = IndexedObject.new(2)
+        obj2.stub!(:text).and_return("same_sort")
+        obj2.stub!(:text2).and_return("A text")
+        doc = @indexer.build_document_for(obj2)
+        XapianDb.database.store_doc doc
+
+      end
+      it "does not accept the :sort_index option for a query that is not scoped to a class" do
+        lambda{XapianDb.search "text", :sort_indices => 1}.should raise_error ArgumentError
+      end
+
+      it "accepts the :sort_indices option for a query that is scoped to a class" do
+        result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => [2]
+        result.size.should == 2
+        page = result.paginate
+        page.first.text2.should == "A text"
+        page.last.text2.should == "B text"
+      end
+
+      it "accepts the :sort_decending option for a query that is scoped to a class" do
+        result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => [1], :sort_decending => true
+        result.size.should == 2
+        page = result.paginate
+        page.first.text2.should == "B text"
+        page.last.text2.should == "A text"
+      end
+
+      it "accepts multiple indiced for the :sort_indices option" do
+        result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => [1, 2]
+        result.size.should == 2
+        page = result.paginate
+        page.first.text2.should == "A text"
+        page.last.text2.should == "B text"
+      end
+
+    end
   end
 
   describe ".facets(expression)" do
