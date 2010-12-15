@@ -27,14 +27,12 @@ module XapianDb
                class_scope = "indexed_class:#{klass.name.downcase}"
 
                if options[:order]
-                 attr_names   = [options[:order]].flatten
-                 sort_indices = []
-                 blueprint    = XapianDb::DocumentBlueprint.blueprint_for klass
-                 sort_indices = attr_names.map {|attr_name| blueprint.value_index_for(attr_name)}
-               else
-                 sort_indices = nil
+                 attr_names             = [options[:order]].flatten
+                 blueprint              = XapianDb::DocumentBlueprint.blueprint_for klass
+                 sort_indices           = attr_names.map {|attr_name| blueprint.value_index_for(attr_name)}
+                 options[:sort_indices] = attr_names.map {|attr_name| blueprint.value_index_for(attr_name)}
                end
-               result = XapianDb.database.search "#{class_scope} and (#{expression})", :sort_indices => sort_indices, :sort_decending => options[:sort_decending]
+               result = XapianDb.database.search "#{class_scope} and (#{expression})", options
 
                # Remove the class scope from the spelling suggestion (if any)
                unless result.spelling_suggestion.empty?
