@@ -35,16 +35,14 @@ module XapianDb
       # We store the class name of the object at position 0
       @xapian_doc.add_value(0, @obj.class.name)
 
-      pos = 1
-      @blueprint.attributes_hash.keys.sort.each do |attribute|
-        block = @blueprint.attributes_hash[attribute]
+      @blueprint.attribute_names.each do |attribute|
+        block = @blueprint.block_for_attribute attribute
         if block
           value = @obj.instance_eval(&block)
         else
           value = @obj.send(attribute)
         end
-        @xapian_doc.add_value(pos, value.to_yaml)
-        pos += 1
+        @xapian_doc.add_value(@blueprint.value_index_for(attribute), value.to_yaml)
       end
     end
 
@@ -69,8 +67,26 @@ module XapianDb
       @xapian_doc.add_term("C#{@obj.class}")
 
 
-      @blueprint.indexed_methods_hash.keys.sort.each do |method|
-        options = @blueprint.indexed_methods_hash[method]
+      # @blueprint.indexed_methods_hash.keys.sort.each do |method|
+      #   options = @blueprint.indexed_methods_hash[method]
+      #   if options.block
+      #     obj = @obj.instance_eval(&options.block)
+      #   else
+      #     obj = @obj.send(method)
+      #   end
+      #   unless obj.nil?
+      #     values = get_values_to_index_from obj
+      #     values.each do |value|
+      #       # Add value with field name
+      #       term_generator.index_text(value.to_s.downcase, options.weight, "X#{method.upcase}")
+      #       # Add value without field name
+      #       term_generator.index_text(value.to_s.downcase)
+      #     end
+      #   end
+      # end
+
+      @blueprint.indexed_method_names.each do |method|
+        options = @blueprint.options_for_indexed_method method
         if options.block
           obj = @obj.instance_eval(&options.block)
         else
@@ -86,6 +102,7 @@ module XapianDb
           end
         end
       end
+
     end
 
     private

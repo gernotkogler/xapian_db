@@ -72,13 +72,39 @@ module XapianDb
     # Instance methods
     # ---------------------------------------------------------------------------------
 
+    # Get the names of all configured attributes sorted alphabetically
+    # @return [Array<Symbol>] The names of the attributes
+    def attribute_names
+      @attributes_hash.keys.sort
+    end
+
+    # Get the block associated with an attribute
+    # @param [Symbol] attribute The name of the attribute
+    # @return [Block] The block
+    def block_for_attribute(attribute)
+      @attributes_hash[attribute]
+    end
+
+    # Get the names of all configured index methods sorted alphabetically
+    # @return [Array<Symbol>] The names of the index_methods
+    def indexed_method_names
+      @indexed_methods_hash.keys.sort
+    end
+
+    # Get the options for an indexed method
+    # @param [Symbol] method The name of the method
+    # @return [IndexOptions] The options
+    def options_for_indexed_method(method)
+      @indexed_methods_hash[method]
+    end
+
     # Return the value index of an attribute. Needed to access the value of an attribute
     # from a Xapian document.
     # @param [String, Symbol] attribute_name The name of the attribute
     # @return [Integer] The value index of the attribute
     # @raise ArgumentError if the attribute name is unknown
     def value_index_for(attribute_name)
-      index = @attributes_hash.keys.sort.index attribute_name.to_sym
+      index = attribute_names.index attribute_name.to_sym
       raise ArgumentError.new("Attribute #{attribute_name} unknown") unless index
       # We add 1 because value slot 0 is reserved for the class name
       index + 1
@@ -87,7 +113,7 @@ module XapianDb
     # Return an array of all configured text methods in this blueprint
     # @return [Array<String>] All searchable prefixes
     def searchable_prefixes
-      @prefixes ||= indexed_methods_hash.keys
+      @prefixes ||= @indexed_methods_hash.keys
     end
 
     # Lazily build and return a module that implements accessors for each field
@@ -123,15 +149,6 @@ module XapianDb
     # The name of the method that returns an iso language code. The
     # configured class must implement this method.
     attr_reader :lang_method
-
-    # Collection of the configured attribute methods
-    # @return [Array<Symbol>] The names of the configured attribute methods
-    attr_reader :attributes_hash
-
-    # Collection of the configured index methods
-    # @return [Hash<Symbol, IndexOptions>] A hashtable containing all index methods as
-    #   keys and IndexOptions as values
-    attr_reader :indexed_methods_hash
 
     # Set / read a custom adapter.
     # Use this configuration option if you need a specific adapter for an indexed class.
@@ -178,8 +195,8 @@ module XapianDb
       self.index(name, opts, &block) if opts[:index]
     end
 
-    # Add list of attributes to the blueprint. Attributes will be stored in the xapian documents an can be
-    # accessed from a search result.
+    # Add a list of attributes to the blueprint. Attributes will be stored in the xapian documents ans
+    # can be accessed from a search result.
     # @param [Array] attributes An array of method names that deliver the values for the attributes
     # @todo Make sure the name does not collide with a method name of Xapian::Document
     def attributes(*attributes)

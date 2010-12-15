@@ -30,12 +30,7 @@ module XapianDb
                  attr_names   = [options[:order]].flatten
                  sort_indices = []
                  blueprint    = XapianDb::DocumentBlueprint.blueprint_for klass
-                 attr_names.each do |attr_name|
-                   attr_index = blueprint.attributes_hash.keys.sort.index(attr_name.to_sym)
-                   raise ArgumentError.new("Unknown attribute name #{attr_name} in order clause") if attr_index.nil?
-                   # We have to add 1 to the position of the index since value slot 0 is reserved for the class name
-                   sort_indices << attr_index + 1
-                 end
+                 sort_indices = attr_names.map {|attr_name| blueprint.value_index_for(attr_name)}
                else
                  sort_indices = nil
                end
