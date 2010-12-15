@@ -4,16 +4,27 @@ module XapianDb
 
   # The resultset encapsulates a Xapian::Query object and allows paged access
   # to the found documents.
+  # The resultset is compatible with will_paginate.
   # @example Process the first page of a resultsest
   #   resultset.paginate(:page => 1, :per_page => 10).each do |doc|
   #     # do something with the xapian document
   #   end
+  # @example Use the resultset and will_paginate in a view
+  #   <%= will_paginate resultset %>
   # @author Gernot Kogler
   class Resultset
 
     # The number of documents found
     # @return [Integer]
     attr_reader :size
+
+    # The number of pages
+    # @return [Integer]
+    attr_reader :total_pages
+
+    # The current page
+    # @return [Integer]
+    attr_reader :current_page
 
     # The spelling corrected query (if a language is configured)
     # @return [String]
@@ -29,15 +40,30 @@ module XapianDb
       # To get more accurate results, we pass the doc count to the mset method
       @size                = enquiry.mset(0, options[:db_size]).matches_estimated
       @spelling_suggestion = options[:spelling_suggestion]
-      @per_page = options[:per_page]
+      @per_page            = options[:per_page]
+      @total_pages         = (@size / @per_page.to_f).ceil
+      @current_page        = 1
     end
 
     # Paginate the result
     # @param [Hash] opts Options for the persistent database
     # @option opts [Integer] :page (1) The page to access
     def paginate(opts={})
-      options = {:page => 1}.merge(opts)
-      build_page(options[:page])
+      options       = {:page => 1}.merge(opts)
+      @current_page = options[:page].to_i
+      build_page(@current_page)
+    end
+
+    # The previous page number
+    # @return [Integer] The number of the previous page or nil, if we are at page 1
+    def previous_page
+      @current_page > 1 ? (@current_page - 1) : nil
+    end
+
+    # The next page number
+    # @return [Integer] The number of the next page or nil, if we are at the last page
+    def next_page
+      @current_page < @total_pages ? (@current_page + 1): nil
     end
 
     private
