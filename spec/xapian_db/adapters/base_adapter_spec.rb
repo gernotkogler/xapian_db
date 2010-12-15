@@ -77,6 +77,39 @@ describe XapianDb::Adapters::BaseAdapter do
       result.spelling_suggestion.should == "find me"
     end
 
+    context "sorting" do
+
+      before :each do
+        XapianDb::DocumentBlueprint.setup(ClassA) do |blueprint|
+          blueprint.attribute :text
+        end
+        indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(ClassA)
+        obj1 = ClassA.new(1, "B text")
+        XapianDb.database.store_doc indexer.build_document_for(obj1)
+        obj2 = ClassA.new(2, "A text")
+        XapianDb.database.store_doc indexer.build_document_for(obj2)
+        XapianDb.database.commit
+      end
+
+      it "should raise an argument erroro if the :order option contains an unknown attribute" do
+        lambda{ClassA.search "text", :order => :unkown}.should raise_error ArgumentError
+      end
+
+      it "should accept an :order option" do
+        result = ClassA.search "text", :order => :text
+        page = result.paginate
+        page.first.text.should == "A text"
+        page.last.text.should == "B text"
+      end
+
+      it "should accept an :sort_decending option" do
+        result = ClassA.search "text", :order => :text, :sort_decending => true
+        page = result.paginate
+        page.first.text.should == "B text"
+        page.last.text.should == "A text"
+      end
+
+    end
   end
 
 end

@@ -19,9 +19,27 @@ module XapianDb
            klass.class_eval do
 
              # Add a method to search models of this class
-             define_singleton_method(:search) do |expression|
+             # Options:
+             # - :order          (Array<Symbol>) Accepts an array of attribute names for sorting
+             # - :sort_decending (Boolean)       Allows to reverse the sorting
+             define_singleton_method(:search) do |expression, options={}|
+               options = {:sort_decending => false}.merge options
                class_scope = "indexed_class:#{klass.name.downcase}"
-               result = XapianDb.database.search "#{class_scope} and (#{expression})"
+
+               if options[:order]
+                 attr_names   = [options[:order]].flatten
+                 sort_indices = []
+                 blueprint    = XapianDb::DocumentBlueprint.blueprint_for klass
+                 attr_names.each do |attr_name|
+                   attr_index = blueprint.attributes_hash.keys.sort.index(attr_name.to_sym)
+                   raise ArgumentError.new("Unknown attribute name #{attr_name} in order clause") if attr_index.nil?
+                   # We have to add 1 to the position of the index since value slot 0 is reserved for the class name
+                   sort_indices << attr_index + 1
+                 end
+               else
+                 sort_indices = nil
+               end
+               result = XapianDb.database.search "#{class_scope} and (#{expression})", :sort_indices => sort_indices, :sort_decending => options[:sort_decending]
 
                # Remove the class scope from the spelling suggestion (if any)
                unless result.spelling_suggestion.empty?
