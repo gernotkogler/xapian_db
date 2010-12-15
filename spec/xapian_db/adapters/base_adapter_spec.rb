@@ -91,7 +91,7 @@ describe XapianDb::Adapters::BaseAdapter do
         XapianDb.database.commit
       end
 
-      it "should raise an argument erroro if the :order option contains an unknown attribute" do
+      it "should raise an argument error if the :order option contains an unknown attribute" do
         lambda{ClassA.search "text", :order => :unkown}.should raise_error ArgumentError
       end
 
