@@ -40,5 +40,11 @@ module XapianDb
 
     end
 
+    config.to_prepare do
+      # Load a blueprint config if there is one
+      blueprints_file_path = "#{Rails.root}/config/xapian_blueprints.rb"
+      load blueprints_file_path if File.exist?(blueprints_file_path)
+    end
+
   end
 end
