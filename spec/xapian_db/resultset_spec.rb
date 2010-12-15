@@ -33,19 +33,23 @@ describe XapianDb::Resultset do
   describe ".paginate(opts={})" do
 
     it "should return an empty array if the page parameters are beyond the resultset size" do
-      @result.paginate(:page => 2, :per_page => 10).should == []
+      @result.paginate(:page => 2).should == []
     end
 
     it "should return an array of Xapian documents if the page parameters are within the resultset size" do
-      @result.paginate(:page => 1, :per_page => 10).should be_a_kind_of(Array)
-      @result.paginate(:page => 1, :per_page => 10).size.should == 1
-      @result.paginate(:page => 1, :per_page => 10).first.should be_a_kind_of(Xapian::Document)
+      @result.paginate(:page => 1).should be_a_kind_of(Array)
+      @result.paginate(:page => 1).size.should == 1
+      @result.paginate(:page => 1).first.should be_a_kind_of(Xapian::Document)
     end
 
     it "should decorate the returned Xapian documents with attribute accessors" do
-      doc = @result.paginate(:page => 1, :per_page => 10).first
+      doc = @result.paginate(:page => 1).first
       doc.respond_to?(:name).should be_true
       doc.name.should == @name
+    end
+
+    it "accepts nil for the page number" do
+      @result.paginate(:page => nil).should be_a_kind_of(Array)
     end
 
   end

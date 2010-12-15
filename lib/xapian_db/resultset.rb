@@ -45,6 +45,7 @@ module XapianDb
     # Build a page of Xapian documents
     # @return [Array<Xapian::Document>] An array of xapian documents
     def build_page(page)
+      page.nil? ? page = 1 : page = page.to_i
       docs = []
       offset = (page - 1) * @per_page
       return [] if offset > @size
