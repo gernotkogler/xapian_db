@@ -30,11 +30,10 @@ describe XapianDb::Resultset do
     @result = XapianDb::Resultset.new(enquiry, :per_page => 10)
   end
 
-  describe ".paginate(opts={})" do
+  describe ".initialize()" do
+  end
 
-    it "should return an empty array if the page parameters are beyond the resultset size" do
-      @result.paginate(:page => 2).should == []
-    end
+  describe ".paginate(opts={})" do
 
     it "should return an array of Xapian documents if the page parameters are within the resultset size" do
       @result.paginate(:page => 1).should be_a_kind_of(Array)
@@ -50,6 +49,15 @@ describe XapianDb::Resultset do
 
     it "accepts nil for the page number" do
       @result.paginate(:page => nil).should be_a_kind_of(Array)
+      @result.current_page.should == 1
+    end
+
+    it "raises an argument error if the page option is smaller than 1" do
+      lambda{@result.paginate(:page => 0)}.should raise_error ArgumentError
+    end
+
+    it "raises an argument error if the page option is larger than total_pages" do
+      lambda{@result.paginate(:page => @result.total_pages + 1)}.should raise_error ArgumentError
     end
 
   end

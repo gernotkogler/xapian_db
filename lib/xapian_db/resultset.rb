@@ -46,11 +46,11 @@ module XapianDb
     end
 
     # Paginate the result
-    # @param [Hash] opts Options for the persistent database
-    # @option opts [Integer] :page (1) The page to access
-    def paginate(opts={})
-      options       = {:page => 1}.merge(opts)
-      @current_page = options[:page].to_i
+    # @param [Hash] options Options for the persistent database
+    # @option options [Integer] :page (1) The page to access
+    def paginate(options={})
+      @current_page = options[:page] ? options[:page].to_i : 1
+      raise ArgumentError.new("page #{current_page} does not exist") if @current_page < 1 || @current_page > @total_pages
       build_page(@current_page)
     end
 
@@ -71,7 +71,6 @@ module XapianDb
     # Build a page of Xapian documents
     # @return [Array<Xapian::Document>] An array of xapian documents
     def build_page(page)
-      page.nil? ? page = 1 : page = page.to_i
       docs = []
       offset = (page - 1) * @per_page
       return [] if offset > @size
