@@ -72,9 +72,13 @@ describe XapianDb::Adapters::BaseAdapter do
     end
 
     it "should remove the class scope from a spelling suggestion" do
-      XapianDb.database.search("find me").size.should == 2
       result = ClassA.search("find mee")
       result.spelling_suggestion.should == "find me"
+    end
+
+    it "should handle empty search expressions" do
+      ClassA.search(nil).size.should == 0
+      ClassA.search(" ").size.should == 0
     end
 
     context "sorting" do

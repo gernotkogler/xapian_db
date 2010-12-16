@@ -30,7 +30,15 @@ describe XapianDb::Resultset do
     @result = XapianDb::Resultset.new(enquiry, :per_page => 10)
   end
 
-  describe ".initialize()" do
+  describe ".initialize(enquiry, options)" do
+
+    it "creates a valid, empty result set if we pass nil for the enquiry" do
+      resultset = XapianDb::Resultset.new(nil, {})
+      resultset.size.should == 0
+      resultset.current_page.should == 1
+      resultset.total_pages.should == 0
+    end
+
   end
 
   describe ".paginate(opts={})" do

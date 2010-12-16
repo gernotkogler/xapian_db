@@ -26,6 +26,7 @@ module XapianDb
     # Parse an expression
     # @return [Xapian::Query] The query object (see http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html)
     def parse(expression)
+      return nil if expression.nil? || expression.strip.empty?
       parser            = Xapian::QueryParser.new
       parser.database   = @db.reader
       parser.default_op = Xapian::Query::OP_AND # Could be made configurable

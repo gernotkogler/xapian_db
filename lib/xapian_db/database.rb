@@ -61,9 +61,12 @@ module XapianDb
       opts          = {:per_page => 10, :sort_decending => false}.merge(options)
       @query_parser ||= QueryParser.new(self)
       query         = @query_parser.parse(expression)
+
+      # If we do not have a valid query we return an empty result set
+      return Resultset.new(nil, opts) unless query
+
       enquiry       = Xapian::Enquire.new(reader)
       enquiry.query = query
-
       if opts[:sort_indices]
         raise ArgumentError.new("Sorting is available for class scoped searches only") unless expression =~ /^indexed_class:/
         sorter = Xapian::MultiValueSorter.new

@@ -31,17 +31,22 @@ module XapianDb
     attr_accessor :spelling_suggestion
 
     # Constructor
-    # @param [Xapian::Enquire] enquiry a Xapian query result (see http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html)
+    # @param [Xapian::Enquire] enquiry a Xapian query result (see http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html).
+    #   Pass nil to get an empty result set.
     # @param [Hash] options
     # @option options [Integer] :per_page (10) How many docs per page?
     # @option options [String] :spelling_suggestion (nil) The spelling corrected query (if a language is configured)
     def initialize(enquiry, options)
       @enquiry = enquiry
-      # To get more accurate results, we pass the doc count to the mset method
-      @size                = enquiry.mset(0, options[:db_size]).matches_estimated
+      if @enquiry.nil?
+        @size = 0
+      else
+        # To get more accurate results, we pass the doc count to the mset method
+        @size = enquiry.mset(0, options[:db_size]).matches_estimated
+      end
       @spelling_suggestion = options[:spelling_suggestion]
       @per_page            = options[:per_page]
-      @total_pages         = (@size / @per_page.to_f).ceil
+      @total_pages         = @size == 0 ? 0 : (@size / @per_page.to_f).ceil
       @current_page        = 1
     end
 

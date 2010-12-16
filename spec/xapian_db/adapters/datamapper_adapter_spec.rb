@@ -71,9 +71,9 @@ describe XapianDb::Adapters::DatamapperAdapter do
   describe "the after destroy hook" do
     it "should remove the object from the index" do
       @object.save
-      XapianDb.search("Kogler").paginate.size.should == 1
+      XapianDb.search("Kogler").size.should == 1
       @object.destroy
-      XapianDb.search("Kogler").paginate.size.should == 0
+      XapianDb.search("Kogler").size.should == 0
     end
   end
 

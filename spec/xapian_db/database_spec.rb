@@ -173,6 +173,16 @@ describe XapianDb::Database do
       @doc       = @indexer.build_document_for(@obj)
     end
 
+    it "should return an empty resultset for nil as the search argument" do
+      XapianDb.database.store_doc(@doc).should be_true
+      XapianDb.database.search(nil).size.should == 0
+    end
+
+    it "should return an empty resultset for an empty string as the search argument" do
+      XapianDb.database.store_doc(@doc).should be_true
+      XapianDb.database.search(" ").size.should == 0
+    end
+
     it "should find a stored document" do
       XapianDb.database.store_doc(@doc).should be_true
       XapianDb.database.search("Some").size.should == 1

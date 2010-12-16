@@ -10,6 +10,14 @@ describe XapianDb::QueryParser do
 
   describe ".parse" do
 
+    it "returns nil if the search expression is nil" do
+      XapianDb::QueryParser.new(@db).parse(nil).should_not be
+    end
+
+    it "returns nil if the search expression is an empty string" do
+      XapianDb::QueryParser.new(@db).parse(" ").should_not be
+    end
+
     it "returns a Xapian::Query object" do
       XapianDb::QueryParser.new(@db).parse("foo").should be_a_kind_of(Xapian::Query)
     end

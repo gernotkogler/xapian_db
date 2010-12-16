@@ -23,6 +23,10 @@ module XapianDb
              # - :order          (Array<Symbol>) Accepts an array of attribute names for sorting
              # - :sort_decending (Boolean)       Allows to reverse the sorting
              define_singleton_method(:search) do |expression, options={}|
+
+               # return an empty search if no search expression is given
+               return XapianDb.database.search(nil) if expression.nil? || expression.strip.empty?
+
                options = {:sort_decending => false}.merge options
                class_scope = "indexed_class:#{klass.name.downcase}"
 
