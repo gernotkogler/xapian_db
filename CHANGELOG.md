@@ -1,3 +1,12 @@
+##0.4.1 (December 16th, 2010)
+
+Bugfixes:
+
+  - fixed the handling of invalid page arguments in resultset.paginate. Invalid page arguments return
+    an empty result set
+  - searches with an empty search expression do not raise an exception anymore and return an empty
+    resultset
+
 ##0.4.0 (December 15th, 2010)
 
 Features:
