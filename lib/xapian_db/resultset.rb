@@ -55,7 +55,7 @@ module XapianDb
     # @option options [Integer] :page (1) The page to access
     def paginate(options={})
       @current_page = options[:page] ? options[:page].to_i : 1
-      raise ArgumentError.new("page #{current_page} does not exist") if @current_page < 1 || @current_page > @total_pages
+      return [] if @current_page < 1 || @current_page > @total_pages
       build_page(@current_page)
     end
 

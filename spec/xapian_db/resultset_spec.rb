@@ -60,12 +60,12 @@ describe XapianDb::Resultset do
       @result.current_page.should == 1
     end
 
-    it "raises an argument error if the page option is smaller than 1" do
-      lambda{@result.paginate(:page => 0)}.should raise_error ArgumentError
+    it "returns an empty array if the page option is smaller than 1" do
+      @result.paginate(:page => 0).should == []
     end
 
-    it "raises an argument error if the page option is larger than total_pages" do
-      lambda{@result.paginate(:page => @result.total_pages + 1)}.should raise_error ArgumentError
+    it "returns an empty array if the page option is larger than total_pages" do
+      @result.paginate(:page => @result.total_pages + 1).should == []
     end
 
   end
