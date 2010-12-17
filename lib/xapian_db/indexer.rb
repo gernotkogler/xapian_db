@@ -66,25 +66,6 @@ module XapianDb
       term_generator.index_text("#{@obj.class}".downcase, 1, "XINDEXED_CLASS")
       @xapian_doc.add_term("C#{@obj.class}")
 
-
-      # @blueprint.indexed_methods_hash.keys.sort.each do |method|
-      #   options = @blueprint.indexed_methods_hash[method]
-      #   if options.block
-      #     obj = @obj.instance_eval(&options.block)
-      #   else
-      #     obj = @obj.send(method)
-      #   end
-      #   unless obj.nil?
-      #     values = get_values_to_index_from obj
-      #     values.each do |value|
-      #       # Add value with field name
-      #       term_generator.index_text(value.to_s.downcase, options.weight, "X#{method.upcase}")
-      #       # Add value without field name
-      #       term_generator.index_text(value.to_s.downcase)
-      #     end
-      #   end
-      # end
-
       @blueprint.indexed_method_names.each do |method|
         options = @blueprint.options_for_indexed_method method
         if options.block
