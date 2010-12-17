@@ -77,56 +77,6 @@ describe XapianDb::Indexer do
       doc.terms.map(&:term).should include "Zkoch"
     end
 
-    it "uses a stemmer for the object's language if defined in the blueprint" do
-      @obj.stub!(:text).and_return("kochen")
-      doc = @indexer.build_document_for(@obj)
-      doc.terms.map(&:term).should_not include "Zkoch"
-
-      # Now we configure the blueprint with a language
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.language_method :lang_cd
-        blueprint.index :text
-      end
-      @obj.stub!(:lang_cd).and_return("de")
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-      @indexer = XapianDb::Indexer.new(@db, @blueprint)
-      doc = @indexer.build_document_for(@obj)
-      doc.terms.map(&:term).should include "Zkoch"
-    end
-
-    it "defaults to the global language if object's language is not supported" do
-      XapianDb.setup do |config|
-        config.language :de
-      end
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.language_method :lang_cd
-        blueprint.index :text
-      end
-      @obj.stub!(:lang_cd).and_return("no_support")
-      @obj.stub!(:text).and_return("kochen")
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-      @indexer = XapianDb::Indexer.new(@db, @blueprint)
-      doc = @indexer.build_document_for(@obj)
-      doc.terms.map(&:term).should include "Zkoch"
-    end
-
-    it "can handle nil values for the object's language if a language method is defined in the blueprint" do
-      XapianDb.setup do |config|
-        config.language :de
-      end
-
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.language_method :lang_cd
-        blueprint.index :text
-      end
-      @obj.stub!(:lang_cd).and_return(nil)
-      @obj.stub!(:text).and_return("kochen")
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-      @indexer = XapianDb::Indexer.new(@db, @blueprint)
-      doc = @indexer.build_document_for(@obj)
-      doc.terms.map(&:term).should include "Zkoch"
-    end
-
     it "evaluates a block for an attribute if specified" do
       XapianDb.setup do |config|
         config.language :de

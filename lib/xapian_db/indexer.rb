@@ -52,13 +52,12 @@ module XapianDb
 
     # Index all configured text methods
     def index_text
-      setup_language_helpers
       term_generator = Xapian::TermGenerator.new
       term_generator.database = @database.writer
       term_generator.document = @xapian_doc
-      if @stemmer
-        term_generator.stemmer  = @stemmer
-        term_generator.stopper  = @stopper unless @stopper.nil?
+      if XapianDb::Config.stemmer
+        term_generator.stemmer  = XapianDb::Config.stemmer
+        term_generator.stopper  = XapianDb::Config.stopper if XapianDb::Config.stopper
         # Enable the creation of a spelling dictionary if the database is not in memory
         term_generator.set_flags Xapian::TermGenerator::FLAG_SPELLING if @database.is_a? XapianDb::PersistentDatabase
       end
@@ -91,24 +90,6 @@ module XapianDb
     end
 
     private
-
-    # Configure the stemmer and stopper to use
-    def setup_language_helpers
-      # Do we have a language config on the blueprint?
-      if @blueprint.lang_method
-        lang = @obj.send(@blueprint.lang_method)
-        if lang && LANGUAGE_MAP.has_key?(lang.to_sym)
-          @stemmer = XapianDb::Repositories::Stemmer.stemmer_for lang.to_sym
-          @stopper = XapianDb::Repositories::Stopper.stopper_for lang.to_sym
-          return
-        end
-      end
-
-      # Use the global config
-      @stemmer = XapianDb::Config.stemmer
-      @stopper = XapianDb::Config.stopper
-
-    end
 
     # Get the values to index from an object
     def get_values_to_index_from(obj)

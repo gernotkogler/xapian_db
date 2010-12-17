@@ -164,13 +164,6 @@ module XapianDb
       @indexed_methods_hash = {}
     end
 
-    # Set the name of the method to get the language for an indexed object
-    # @param [Symbol] lang The method name. The method must return an iso language code (:en, :de, ...)
-    #   see LANGUAGE_MAP for the supported lanugaes
-    def language_method(lang)
-      @lang_method = lang
-    end
-
     # Add an attribute to the blueprint. Attributes will be stored in the xapian documents an can be
     # accessed from a search result.
     # @param [String] name The name of the method that delivers the value for the attribute

@@ -53,15 +53,6 @@ describe XapianDb::DocumentBlueprint do
     end
   end
 
-  describe "language_method" do
-    it "sets the method name to retrieve a language from an object" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.language_method :lang_cd
-      end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).lang_method.should == :lang_cd
-    end
-  end
-
   describe ".attribute" do
 
     before :each do
