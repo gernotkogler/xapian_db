@@ -70,4 +70,20 @@ describe XapianDb::Resultset do
 
   end
 
+  describe ".previous_page" do
+
+    it "should return nil if we are at page 1" do
+      @result.paginate(:page => 1)
+      @result.previous_page.should_not be
+    end
+  end
+
+  describe ".next_page" do
+
+    it "should return nil if there are no more pages" do
+      @result.paginate(:page => 1)
+      @result.next_page.should_not be
+    end
+  end
+
 end

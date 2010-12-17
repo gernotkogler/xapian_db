@@ -52,6 +52,12 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
 
   describe ".add_doc_helper_methods_to(obj)" do
 
+    it "adds the method 'id' to the object" do
+      mod = Module.new
+      XapianDb::Adapters::ActiveRecordAdapter.add_doc_helper_methods_to(mod)
+      mod.instance_methods.should include(:id)
+    end
+
     it "adds the method 'indexed_object' to the object" do
       mod = Module.new
       XapianDb::Adapters::ActiveRecordAdapter.add_doc_helper_methods_to(mod)
@@ -82,6 +88,15 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
   end
 
+  describe ".id" do
+
+    it "should return the id of the object that is linked with the document" do
+      @object.save
+      doc = XapianDb.search("Kogler").paginate.first
+      doc.id.should == @object.id
+    end
+  end
+
   describe ".indexed_object" do
 
     it "should return the object that is linked with the document" do
@@ -91,7 +106,6 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       # compare the ids, not the objects
       doc.indexed_object.id.should == @object.id
     end
-
   end
 
   describe ".rebuild_xapian_index" do

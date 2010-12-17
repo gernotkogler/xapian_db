@@ -58,6 +58,15 @@ module XapianDb
          # @param [Module] a_module The module to add the helper methods to
          def add_doc_helper_methods_to(a_module)
            a_module.instance_eval do
+
+             # Implement access to the model id
+             define_method :id do
+               return @id unless @d.nil?
+               # retrieve the class and id from data
+               klass_name, id = data.split("-")
+               @id = id.to_i
+             end
+
              # Implement access to the indexed object
              define_method :indexed_object do
                return @indexed_object unless @indexed_object.nil?
