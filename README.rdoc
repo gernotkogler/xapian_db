@@ -58,8 +58,10 @@ A future release of xapian_db might include the Xapian binaries and make this st
   make
   sudo make install
 
-The following steps assume that you are using xapian_db within a Rails app. The gem has an
-example in the examples folder that shows how you can use xapian_db without Rails.
+For a first look, look at the examples in the examples folder. There's the simple ruby script basic.rb that shows the basic
+usage of XapianDB without rails. In the basic_rails folder you'll find a very simple Rails app unsing XapianDb.
+
+The following steps assume that you are using xapian_db within a Rails app.
 
 === Configure your databases
 
@@ -106,12 +108,6 @@ If you config a class that has a language property, e.g.
 
   class Person
     attr_reader :language
-  end
-
-you can configure the blueprint to use the language of the object when indexing:
-
-  XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
-    blueprint.language_method :language
   end
 
 The method must return the iso code for the language (:en, :de, ...) as a symbol or a string. Don't worry if you have languages in your database that are not supported by Xapian. If the language is not supported, XapianDb will fall back to the global language configuration or none, if you haven't configured one.

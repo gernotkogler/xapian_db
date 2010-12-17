@@ -1,3 +1,23 @@
+##0.4.2 (December 17th, 2010)
+
+Features:
+
+  - added a sample rails application to the repo
+  - added the id attribute for documents based on ActiveRecord and Datamapper objects
+
+Changes:
+
+  - removed the language_method option from the blueprint configuration since it gives
+    unpredictable results
+
+Bugfixes:
+
+  - fixed the initialization error in a Rails app ig there is no xapian_db.yml config file
+  - fixed the fallback to the global language when a model has an unsupported language and a
+    language method is configured in the blueprint
+  - fixed an issue with yaml deserialization of ActiveRecord objects (only the attributes hash
+    should be serialized)
+
 ##0.4.1 (December 16th, 2010)
 
 Bugfixes:
