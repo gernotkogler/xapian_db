@@ -1,0 +1,16 @@
+== Sample Rails & XapianDb Application
+
+This sample application demonstrates how to use XapianDb in a Rails application
+
+=== 1: Install the gems
+
+bundle install
+
+=== 2: Create the database with some random data to play
+
+rake db:migrate
+rake db:seeds # takes long since it generates a lot of records
+
+=== 3: Go and play :-)
+
+rails s

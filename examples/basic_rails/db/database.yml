@@ -1,0 +1,14 @@
+sqlite_defaults: &sqlite_defaults
+  adapter: sqlite3
+
+development:
+  database: "db/development.sqlite"
+  <<: *sqlite_defaults
+
+test:
+  database: ":memory:"
+  <<: *sqlite_defaults
+
+production:
+  database: "db/production.sqlite"
+  <<: *sqlite_defaults

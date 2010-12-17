@@ -1,0 +1,16 @@
+# default config
+defaults: &defaults
+  adapter: active_record
+  language: de
+
+development:
+  database: db/xapian_db/development
+  <<: *defaults
+
+test:
+  database: ":memory:"
+  <<: *defaults
+
+production:
+  database: db/xapian_db/production
+  <<: *defaults
