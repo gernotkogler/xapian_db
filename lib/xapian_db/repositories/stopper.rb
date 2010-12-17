@@ -21,14 +21,12 @@ module XapianDb
           # Do we already have a stopper for this language?
           return @stoppers[key] unless @stoppers[key].nil?
 
-          # Do we support this language?
-          unless (LANGUAGE_MAP.keys + [:none]).include?(key)
-            raise ArgumentError.new "Language #{iso_cd} is not supported by XapianDb (remember to use the language iso codes)"
-          end
-
           # build the stopper
           stopper = Xapian::SimpleStopper.new
           stopwords_file = File.join(File.dirname(__FILE__), '../stopwords', "#{iso_cd}.txt")
+
+          return nil unless File.exist? stopwords_file
+
           open(stopwords_file, "r") do |file|
             file.each do |word|
               stopper.add word.chomp

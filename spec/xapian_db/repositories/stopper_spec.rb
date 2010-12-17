@@ -18,13 +18,13 @@ describe XapianDb::Repositories::Stopper do
       XapianDb::Repositories::Stopper.stopper_for(:de).should be_equal stopper
     end
 
-    it "raises an argument error if the language is not supported" do
-      lambda {XapianDb::Repositories::Stopper.stopper_for(:not_supported)}.should raise_error ArgumentError
-    end
-
     it "creates a stopper thata contains the stop words for its language" do
       stopper = XapianDb::Repositories::Stopper.stopper_for(:de)
       stopper.call("und").should be_true
+    end
+
+    it "returns nil if there is no stop words file for the language" do
+      XapianDb::Repositories::Stopper.stopper_for(:nb).should_not be
     end
 
   end
