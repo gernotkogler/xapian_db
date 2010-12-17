@@ -129,13 +129,16 @@ module XapianDb
         end
       end
 
-      @attributes_hash.keys.sort.each_with_index do |field, index|
+      # Add an accessor for each attribute
+      attribute_names.each do |attribute|
+        index = value_index_for(attribute)
         @accessors_module.instance_eval do
-          define_method field do
-            YAML::load(self.values[index+1].value)
+          define_method attribute do
+            YAML::load(self.values[index].value)
           end
         end
       end
+
       # Let the adapter add its document helper methods (if any)
       adapter = @adapter || XapianDb::Config.adapter || XapianDb::Adapters::GenericAdapter
       adapter.add_doc_helper_methods_to(@accessors_module)
