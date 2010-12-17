@@ -42,7 +42,11 @@ module XapianDb
         else
           value = @obj.send(attribute)
         end
-        @xapian_doc.add_value(@blueprint.value_index_for(attribute), value.to_yaml)
+
+        # If we have an object that responds to attributes (e.g. an Active Record
+        # or a Datamapper model), we serialize only the attributes
+        yaml = value.respond_to?(:attributes) ? value.attributes.to_yaml : value.to_yaml
+        @xapian_doc.add_value(@blueprint.value_index_for(attribute), yaml)
       end
     end
 
