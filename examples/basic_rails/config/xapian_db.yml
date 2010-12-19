@@ -1,7 +1,8 @@
 # default config
 defaults: &defaults
-  adapter: active_record
+  adapter:  active_record
   language: de
+  writer:   direct
 
 development:
   database: db/xapian_db/development
@@ -12,5 +13,8 @@ test:
   <<: *defaults
 
 production:
+  # Make sure the beanstalk daemon and the beanstalk worker are running
   database: db/xapian_db/production
+  writer:   beanstalk
+  beanstalk_daemon: localhost:11300
   <<: *defaults

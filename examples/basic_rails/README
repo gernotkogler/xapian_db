@@ -2,15 +2,23 @@
 
 This sample application demonstrates how to use XapianDb in a Rails application
 
-=== 1: Install the gems
+=== Quick start
+
+==== 1: Install the gems
 
 bundle install
 
-=== 2: Create the database with some random data to play
+==== 2: Create the database with some random data to play
 
 rake db:migrate
 rake db:seeds # takes long since it generates a lot of records
 
-=== 3: Go and play :-)
+==== 3: Go and play :-)
 
 rails s
+
+=== Production environment
+
+The production environment is configured to use beanstalk as a queue to serialize
+index updates. Please refer to the XapianDb README to learn how to set up the
+prerequisites

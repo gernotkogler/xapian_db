@@ -1,3 +1,10 @@
+##0.5.0 (December 19th, 2010)
+
+Features:
+
+  - beanstalk based index writer for production environments (multiple app instances, e.g. mongrel clusters,
+    passenger...)
+
 ##0.4.2 (December 17th, 2010)
 
 Features:

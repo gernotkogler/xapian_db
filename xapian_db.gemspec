@@ -4,7 +4,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name         = %q{xapian_db}
-  s.version      = "0.4.2"
+  s.version      = "0.5.0"
   s.authors      = ["Gernot Kogler"]
   s.summary      = %q{Ruby library to use a Xapian db as a key/value store with high performance fulltext search}
   s.description  = %q{Ruby library to use a Xapian db as a key/value store with high performance fulltext search}
@@ -17,6 +17,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec", ">= 2.1.0"
   s.add_development_dependency "simplecov", ">= 0.3.2"
 
-   s.files         = Dir.glob("lib/**/*") + %w(LICENSE README.rdoc CHANGELOG.md)
+   s.files         = Dir.glob("lib/**/*") + Dir.glob("tasks/*") + %w(LICENSE README.rdoc CHANGELOG.md)
    s.require_path  = "lib"
 end

@@ -35,6 +35,13 @@ module XapianDb
           @config.nil? ? nil : @config.instance_variable_get("@_#{attr}")
         end
       end
+
+      # The beanstalk daemon url
+      define_method :beanstalk_daemon_url do
+        default_url = "localhost:11300"
+        return default_url if @config.nil?
+        @config.instance_variable_get("@_beanstalk_daemon_url") || default_url
+      end
     end
 
     # ---------------------------------------------------------------------------------
@@ -42,7 +49,7 @@ module XapianDb
     # ---------------------------------------------------------------------------------
 
     #
-    attr_reader :_database, :_adapter, :_writer, :_stemmer, :_stopper
+    attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_stemmer, :_stopper
 
     # Set the global database to use
     # @param [String] path The path to the database. Either apply a file sytem path or :memory
@@ -81,10 +88,16 @@ module XapianDb
     # Set the index writer
     # @param [Symbol] type The writer type; the following adapters are available:
     #   - :direct ({XapianDb::IndexWriters::DirectWriter})
-    #   More to come in a future release
+    #   - :beanstalk ({XapianDb::IndexWriters::BeanstalkWriter})
     def writer(type)
       # We try to guess the writer name
       @_writer = XapianDb::IndexWriters.const_get("#{camelize(type.to_s)}Writer")
+    end
+
+    # Set the url and port of the beanstalk daemon
+    # @param [Symbol] url The url of the beanstalk daemon; defaults to localhost:11300
+    def beanstalk_daemon_url(url)
+      @_beanstalk_daemon_url = url
     end
 
     # Set the language.

@@ -82,10 +82,35 @@ describe XapianDb::Config do
         XapianDb::Config.writer.should be_equal XapianDb::IndexWriters::DirectWriter
       end
 
+      it "accepts the beanstalk writer, if the beanstalk-client gem is installed" do
+        if defined? XapianDb::IndexWriters::BeanstalkWriter
+          XapianDb::Config.setup do |config|
+            config.writer :beanstalk
+          end
+          XapianDb::Config.writer.should be_equal XapianDb::IndexWriters::BeanstalkWriter
+        else
+          pending "cannot run this spec without the beanstalk-client gem installed"
+        end
+      end
+
       it "raises an error if the configured writer is unknown" do
         lambda{XapianDb::Config.setup do |config|
           config.writer :unknown
         end}.should raise_error
+      end
+
+    end
+
+    describe ".beanstalk_daemon" do
+      it "defaults to localhost:11300" do
+        XapianDb::Config.beanstalk_daemon_url.should == "localhost:11300"
+      end
+
+      it "accepts an url" do
+        XapianDb::Config.setup do |config|
+          config.beanstalk_daemon_url "localhost:9000"
+        end
+        XapianDb::Config.beanstalk_daemon_url.should == "localhost:9000"
       end
 
     end

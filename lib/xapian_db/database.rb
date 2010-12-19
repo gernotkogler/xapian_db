@@ -65,6 +65,8 @@ module XapianDb
       # If we do not have a valid query we return an empty result set
       return Resultset.new(nil, opts) unless query
 
+      Rails.logger.info "Executing XapianDb search: #{expression}" if defined?(Rails)
+
       enquiry       = Xapian::Enquire.new(reader)
       enquiry.query = query
       if opts[:sort_indices]

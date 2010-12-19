@@ -222,6 +222,59 @@ If you want to implement a simple drilldown for your searches, you can use a fac
 
 Facet support in XapianDb is very limited. The only available facet is the class of the indexed objects. In many cases that's all that's needed. Therefore, it is very likely that I won't add more options for facets (since I'm not a fan of facets anyway). However, if you desperately need advanced facets, let me know. Or - even better - send me a pull request with a nice implementation ;-)
 
-== What to expect from future releases
+== Production setup
 
-* asynchronous index writer based on {resque}[https://github.com/defunkt/resque] for production environments
+Since Xapian allows only one database instance to write to the index, the default setup of XapianDb will not work
+with multiple app instances trying to write to the same database (you will get lock errors).
+Therefore, XapianDb provides a solution based on beanstalk to overcome this.
+
+=== 1. Install beanstalkd
+
+Make sure you have the {beanstalk daemon}[http://kr.github.com/beanstalkd/] installed
+
+==== OSX
+
+The easiest way is to use macports or homebrew:
+
+  port install beanstalkd
+  brew install beanstalkd
+
+==== Debian (Lenny)
+
+  # Add backports to /etc/apt/sources.list:
+  deb http://ftp.de.debian.org/debian-backports lenny-backports main contrib non-free
+  deb-src http://ftp.de.debian.org/debian-backports lenny-backports main contrib non-free
+
+  sudo apt-get update
+  sudo apt-get -t lenny-backports install libevent-1.4-2
+  sudo apt-get -t lenny-backports install libevent-dev
+  cd /tmp
+  curl http://xph.us/dist/beanstalkd/beanstalkd-1.4.6.tar.gz | tar zx
+  cd beanstalkd-1.4.6/
+  ./configure
+  make
+  sudo make install
+
+=== 2. Add the beanstalk-client gem to your config
+
+  gem 'beanstalk-client' # Add this to your Gemfile
+  bundle install
+
+=== 3. Configure your production environment in config/xapian_db.yml
+
+  production:
+    database: db/xapian_db/production
+    writer:   beanstalk
+    beanstalk_daemon: localhost:11300
+
+=== 4. start the beanstalk daemon
+
+  beanstalk -d
+
+=== 5. start the beanstalk worker from within your Rails app root directory
+
+  rake RAILS_ENV=production xapian_db:beanstalk_worker
+
+<b>Important: Do not start multiple instances of this worker task!</b>
+
+
