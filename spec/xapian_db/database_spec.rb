@@ -262,7 +262,7 @@ describe XapianDb::Database do
         page.last.text2.should == "A text"
       end
 
-      it "accepts multiple indiced for the :sort_indices option" do
+      it "accepts multiple indices for the :sort_indices option" do
         result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => [1, 2]
         result.size.should == 2
         page = result.paginate
