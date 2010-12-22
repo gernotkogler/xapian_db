@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rspec", ">= 2.3.1"
   s.add_development_dependency "simplecov", ">= 0.3.7"
-  s.add_development_dependency "beanstalk-cient", ">= 1.1.0"
+  s.add_development_dependency "beanstalk-client", ">= 1.1.0"
 
    s.files         = Dir.glob("lib/**/*") + Dir.glob("tasks/*") + %w(LICENSE README.rdoc CHANGELOG.md)
    s.require_path  = "lib"
