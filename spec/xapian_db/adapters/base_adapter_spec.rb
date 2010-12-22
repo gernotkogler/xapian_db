@@ -114,6 +114,41 @@ describe XapianDb::Adapters::BaseAdapter do
       end
 
     end
+
+    describe ".facets(attribute, expression)" do
+
+      before :all do
+
+        XapianDb.setup do |config|
+          config.adapter  :generic
+          config.database :memory
+          config.language :en
+        end
+
+        XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+          blueprint.attribute :text
+        end
+
+        db = XapianDb.database
+        indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+        obj = IndexedObject.new(1)
+        obj.stub!(:text).and_return "Facet A"
+        db.store_doc indexer.build_document_for(obj)
+        obj = IndexedObject.new(2)
+        obj.stub!(:text).and_return "Facet B"
+        db.store_doc indexer.build_document_for(obj)
+        XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to IndexedObject
+      end
+
+      it "should return a hash containing the values of the attributes and their count" do
+        facets = IndexedObject.facets :text, "facet"
+        facets.size.should == 2
+        facets["Facet A"].should == 1
+        facets["Facet B"].should == 1
+      end
+
+    end
+
   end
 
 end

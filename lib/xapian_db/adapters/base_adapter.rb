@@ -46,6 +46,32 @@ module XapianDb
                result
              end
 
+             # Add a method to search atribute facets of this class
+             define_singleton_method(:facets) do |attr_name, expression|
+
+               # return an empty hash if no search expression is given
+               return {} if expression.nil? || expression.strip.empty?
+
+               class_scope = "indexed_class:#{klass.name.downcase}"
+               blueprint   = XapianDb::DocumentBlueprint.blueprint_for klass
+               value_index = blueprint.value_index_for attr_name.to_sym
+
+               query_parser        = QueryParser.new(XapianDb.database)
+               query                = query_parser.parse("#{class_scope} and (#{expression})")
+               enquiry              = Xapian::Enquire.new(XapianDb.database.reader)
+               enquiry.query        = query
+               enquiry.collapse_key = value_index
+               facets = {}
+               enquiry.mset(0, XapianDb.database.size).matches.each do |match|
+                 facet_value = YAML::load match.document.values[value_index].value
+                 # We must add 1 to the collapse_count since collapse_count means
+                 # "how many other matches are there?"
+                 facets[facet_value] = match.collapse_count + 1
+               end
+               facets
+
+             end
+
            end
          end
        end
