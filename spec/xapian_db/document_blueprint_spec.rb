@@ -96,6 +96,14 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:complex)
     end
 
+    it "throws an exception if the attribute name maps to a Xapian::Document method name" do
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:id)
+      lambda{XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :data
+      end}.should raise_error ArgumentError
+
+    end
+
   end
 
   describe ".attributes" do
@@ -114,6 +122,12 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:id, :name, :first_name)
     end
 
+    it "throws an exception if the attribute name maps to a Xapian::Document method name" do
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:id)
+      lambda{XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attributes :data
+      end}.should raise_error ArgumentError
+    end
   end
 
   describe ".index" do

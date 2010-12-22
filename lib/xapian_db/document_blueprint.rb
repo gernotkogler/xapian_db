@@ -182,6 +182,7 @@ module XapianDb
     #   end
     # @todo Make sure the name does not collide with a method name of Xapian::Document
     def attribute(name, options={}, &block)
+      raise ArgumentError.new("You cannot use #{name} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(name)
       opts = {:index => true}.merge(options)
       if block_given?
         @attributes_hash[name] = block
@@ -197,6 +198,7 @@ module XapianDb
     # @todo Make sure the name does not collide with a method name of Xapian::Document
     def attributes(*attributes)
       attributes.each do |attr|
+        raise ArgumentError.new("You cannot use #{attr} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(attr)
         @attributes_hash[attr] = nil
         self.index attr
       end
@@ -258,6 +260,11 @@ module XapianDb
       end
     end
 
+    # Check if the attribute name does not collide with a method name of Xapian::Document
+    def reserved_method_name?(attr_name)
+      @reserved_method_names ||= Xapian::Document.instance_methods
+      @reserved_method_names.include?(attr_name.to_sym)
+    end
   end
 
 end
