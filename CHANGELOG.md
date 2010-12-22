@@ -1,3 +1,13 @@
+##0.5.1 (December 22th, 2010)
+
+Features:
+
+  - simple facet support for indexed classes. Any attribute can be used in a facet search
+
+Fixes:
+
+  - attribute names that match a Xapian::Document method are not allowed
+
 ##0.5.0 (December 19th, 2010)
 
 Features:

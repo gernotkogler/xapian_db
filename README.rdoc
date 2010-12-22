@@ -2,9 +2,7 @@
 
 == What's in the box?
 
-XapianDb is a ruby gem that combines features of nosql databases and fulltext indexing into one piece. The result: Rich documents and very fast queries.
-It is based on {Xapian}[http://xapian.org/], an efficient and powerful indexing library.
-The gem is in very early development and not production ready yet.
+XapianDb is a ruby gem that combines features of nosql databases and fulltext indexing into one piece. The result: Rich documents and very fast queries. It is based on {Xapian}[http://xapian.org/], an efficient and powerful indexing library.
 
 XapianDb is inspired by {xapian-fu}[https://github.com/johnl/xapian-fu] and {xapit}[https://github.com/ryanb/xapit].
 Thank you John and Ryan for your great work. It helped me learning to understand the xapian library and I borrowed an idea
@@ -133,7 +131,7 @@ Use blocks for complex evaluations of attributes or indexed values:
     end
   end
 
-place these configurations either into the corrsepondig class or - I prefer to have the index configurations outside
+place these configurations either into the corresponding class or - I prefer to have the index configurations outside
 the models - into the file config/xapian_blueprints.rb.
 
 === Update the index
@@ -209,7 +207,7 @@ Use a search result with will_paginate in a view:
 
 === Facets
 
-If you want to implement a simple drilldown for your searches, you can use a facets query:
+If you want to implement a simple drilldown for your searches, you can use a global facets query:
 
   search_expression = "Foo"
   facets = XapianDb.facets(search_expression)
@@ -220,7 +218,15 @@ If you want to implement a simple drilldown for your searches, you can use a fac
     # doc = klass.search search_expression
   end
 
-Facet support in XapianDb is very limited. The only available facet is the class of the indexed objects. In many cases that's all that's needed. Therefore, it is very likely that I won't add more options for facets (since I'm not a fan of facets anyway). However, if you desperately need advanced facets, let me know. Or - even better - send me a pull request with a nice implementation ;-)
+A global facet search always groups the results by the class of the indexed objects. There is a class level facet query syntax available, too:
+
+  search_expression = "Foo"
+  facets = Person.facets(:name, search_expression)
+  facets.each do |name, count|
+    puts "#{name}: #{count} hits"
+  end
+
+At the class level, any attribute can be used for a facet query.
 
 == Production setup
 
