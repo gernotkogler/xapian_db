@@ -11,7 +11,7 @@ gem 'forgery'
 gem 'will_paginate'
 gem 'formtastic'
 gem 'beanstalk-client'
-gem 'xapian_db', '>= 0.5.1'
+gem 'xapian_db', '>= 0.5.2'
 
 # Use unicorn as the web server
 # gem 'unicorn'
