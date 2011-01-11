@@ -7,6 +7,8 @@
 
 -if @page.size > 0
   %h2 Results
+  -unless @result.spelling_suggestion.blank?
+    =link_to "Did you mean #{@result.spelling_suggestion} ?", people_path(:search => @result.spelling_suggestion)
   %ul
   -@page.each do |doc|
     %li

@@ -1,7 +1,7 @@
 # default config
 defaults: &defaults
   adapter:  active_record
-  language: de
+  language: en
   writer:   direct
 
 development:
