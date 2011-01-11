@@ -1,3 +1,9 @@
+##0.5.2 (January 11th, 2011)
+
+Features:
+
+  - xapian-core and xapian-ruby-bindings sources are now included and will be compiled and installed with the gem
+
 ##0.5.1 (December 22th, 2010)
 
 Features:

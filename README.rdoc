@@ -32,30 +32,6 @@ I tried hard but I couldn't find such a thing so I decided to write it, based on
 
 If you want to use xapian_db in a Rails app, you need Rails 3 or newer.
 
-=== Install Xapian if not already installed
-
-To use xapian_db, make sure you have the Xapian library and ruby bindings installed. At the time of this writing, the newest release of Xapian was 1.2.3. You might
-want to adjust the URLs below to load the most current release of Xapian.
-The example code works for OSX. On linux you might want to use wget instead of curl.
-
-A future release of xapian_db might include the Xapian binaries and make this step obsolete.
-
-==== Install Xapian
-  curl -O http://oligarchy.co.uk/xapian/1.2.3/xapian-core-1.2.3.tar.gz
-  tar xzvf xapian-core-1.2.3.tar.gz
-  cd xapian-core-1.2.3
-  ./configure --prefix=/usr/local
-  make
-  sudo make install
-
-==== Install ruby bindings for Xapian
-  curl -O http://oligarchy.co.uk/xapian/1.2.2/xapian-bindings-1.2.3.tar.gz
-  tar xzvf xapian-bindings-1.2.3.tar.gz
-  cd xapian-bindings-1.2.3
-  ./configure --prefix=/usr/local XAPIAN_CONFIG=/usr/local/bin/xapian-config
-  make
-  sudo make install
-
 For a first look, look at the examples in the examples folder. There's the simple ruby script basic.rb that shows the basic
 usage of XapianDB without rails. In the basic_rails folder you'll find a very simple Rails app unsing XapianDb.
 
@@ -101,14 +77,6 @@ Attributes will get indexed and are stored in the documents. You will be able to
 If you want to index additional data but do not need access to it from a search result, use the index method:
 
   blueprint.index :remarks, :weight => 5
-
-If you config a class that has a language property, e.g.
-
-  class Person
-    attr_reader :language
-  end
-
-The method must return the iso code for the language (:en, :de, ...) as a symbol or a string. Don't worry if you have languages in your database that are not supported by Xapian. If the language is not supported, XapianDb will fall back to the global language configuration or none, if you haven't configured one.
 
 If you want to declare multiple attributes or indexes with default options, you can do this in one statement:
 
