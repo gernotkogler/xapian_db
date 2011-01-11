@@ -28,6 +28,8 @@ So I started to rethink fulltext indexing again. I looked for something that
 
 I tried hard but I couldn't find such a thing so I decided to write it, based on the Xapian library.
 
+<b>If you have something to say about it, please post to the {Google  Group}[http://groups.google.com/group/xapian_db]</b>
+
 == Getting started
 
 If you want to use xapian_db in a Rails app, you need Rails 3 or newer.
