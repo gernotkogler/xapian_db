@@ -49,7 +49,14 @@ module XapianDb
       # Get the blueprint for a class
       # @return [DocumentBlueprint]
       def blueprint_for(klass)
-        @blueprints[klass] if @blueprints
+        if @blueprints
+          key = klass
+          while key != Object
+            return @blueprints[key] unless @blueprints[key].nil?
+            key = key.superclass
+          end
+        end
+        raise "Blueprint for class #{klass} is not defined"
       end
 
       # Return an array of all configured text methods in any blueprint

@@ -4,6 +4,29 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::DocumentBlueprint do
 
+  describe ".blueprint_for(klass)" do
+    before :each do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      class InheritedIndexedObject < IndexedObject; end
+    end
+
+    it "returns the blueprint for a class" do
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
+    end
+
+    it "returns the blueprint for the super class if no specific blueprint is configured" do
+      XapianDb::DocumentBlueprint.blueprint_for(InheritedIndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
+    end
+
+    it "raises an exception if there is no blueprint configuration for a class" do
+      lambda {XapianDb::DocumentBlueprint.blueprint_for(Object)}.should raise_error
+    end
+
+  end
+
   describe ".searchable_prefixes" do
 
     it "should return an array of all method names configured to be indexed" do
@@ -44,7 +67,7 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
-  describe ".adapter=" do
+  describe "#adapter=" do
     it "sets the adpater for the configured class" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.adapter = DemoAdapter
@@ -53,7 +76,7 @@ describe XapianDb::DocumentBlueprint do
     end
   end
 
-  describe ".attribute" do
+  describe "#attribute" do
 
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
@@ -106,7 +129,7 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
-  describe ".attributes" do
+  describe "#attributes" do
 
     it "allows to declare one single attribute" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
@@ -130,7 +153,7 @@ describe XapianDb::DocumentBlueprint do
     end
   end
 
-  describe ".index" do
+  describe "#index" do
 
     before :all do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
@@ -169,7 +192,7 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
-  describe ".accessors_module" do
+  describe "#accessors_module" do
 
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
@@ -214,7 +237,7 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
-  describe ".value_index_for(attribute)" do
+  describe "#value_index_for(attribute)" do
 
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
