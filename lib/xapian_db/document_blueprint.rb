@@ -32,7 +32,6 @@ module XapianDb
 
       # Configure the blueprint for a class.
       # Available options:
-      # - language_method (see {#language_method} for details)
       # - adapter (see {#adapter} for details)
       # - attribute (see {#attribute} for details)
       # - index (see {#index} for details)
