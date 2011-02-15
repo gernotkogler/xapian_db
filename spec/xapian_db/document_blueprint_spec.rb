@@ -5,23 +5,28 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe XapianDb::DocumentBlueprint do
 
   describe ".blueprint_for(klass)" do
-    before :each do
+
+    it "returns the blueprint for a class" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
+    end
+
+    it "returns the blueprint for the super class if no specific blueprint is configured" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
       end
       class InheritedIndexedObject < IndexedObject; end
-    end
-
-    it "returns the blueprint for a class" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
-    end
-
-    it "returns the blueprint for the super class if no specific blueprint is configured" do
-      XapianDb::DocumentBlueprint.blueprint_for(InheritedIndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
+      XapianDb::DocumentBlueprint.blueprint_for(InheritedIndexedObject).should == XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
     end
 
     it "raises an exception if there is no blueprint configuration for a class" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       lambda {XapianDb::DocumentBlueprint.blueprint_for(Object)}.should raise_error
     end
 
@@ -188,6 +193,52 @@ describe XapianDb::DocumentBlueprint do
         blueprint.index :id, :name, :first_name
       end
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_method_names.should include(:id, :name, :first_name)
+    end
+
+  end
+
+  describe "#ignore_if" do
+
+    it "accepts a block and stores the block as a Proc" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.ignore_if {
+          active == false
+        }
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).instance_variable_get(:@ignore_expression).should be_a_kind_of Proc
+    end
+  end
+
+  describe "#should_index? obj" do
+
+    it "should return true if no ignore expression is given" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      obj = IndexedObject.new 1
+      blueprint.should_index?(obj).should be_true
+    end
+
+    it "should return false if the ignore expression evaluates to true" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.ignore_if {id == 1}
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      obj = IndexedObject.new 1
+      blueprint.should_index?(obj).should be_false
+    end
+
+    it "should return true if the ignore expression evaluates to false" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.ignore_if {id == 2}
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      obj = IndexedObject.new 1
+      blueprint.should_index?(obj).should be_true
     end
 
   end

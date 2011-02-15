@@ -32,7 +32,6 @@ module XapianDb
 
       # Configure the blueprint for a class.
       # Available options:
-      # - language_method (see {#language_method} for details)
       # - adapter (see {#adapter} for details)
       # - attribute (see {#attribute} for details)
       # - index (see {#index} for details)
@@ -55,6 +54,7 @@ module XapianDb
             return @blueprints[key] unless @blueprints[key].nil?
             key = key.superclass
           end
+          raise "Blueprint for class #{klass} is not defined"
         end
         raise "Blueprint for class #{klass} is not defined"
       end
@@ -121,6 +121,13 @@ module XapianDb
     # @return [Array<String>] All searchable prefixes
     def searchable_prefixes
       @prefixes ||= @indexed_methods_hash.keys
+    end
+
+    # Should the object go into the index? Evaluates an ignore expression,
+    # if defined
+    def should_index? obj
+      return obj.instance_eval(&@ignore_expression) == false if @ignore_expression
+      true
     end
 
     # Lazily build and return a module that implements accessors for each field
@@ -241,6 +248,11 @@ module XapianDb
         else # multiple arguments
           add_indexes_from args
       end
+    end
+
+    # Add a block of code that evaluates if a model should not be indexed
+    def ignore_if &block
+      @ignore_expression = block
     end
 
     # Options for an indexed method
