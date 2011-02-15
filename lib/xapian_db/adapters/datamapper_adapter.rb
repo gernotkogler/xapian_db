@@ -38,7 +38,12 @@ module XapianDb
 
              # add the after save logic
              after :save do
-               XapianDb::Config.writer.index(self)
+               blueprint = XapianDb::DocumentBlueprint.blueprint_for klass
+               if blueprint.should_index?(self)
+                 XapianDb::Config.writer.index(self)
+               else
+                 XapianDb::Config.writer.unindex(self)
+               end
              end
 
              # add the after destroy logic

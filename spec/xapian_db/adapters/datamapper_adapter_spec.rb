@@ -72,6 +72,25 @@ describe XapianDb::Adapters::DatamapperAdapter do
       @object.save
       XapianDb.search("Kogler").paginate.size.should == 1
     end
+
+    it "should not index the object if an ignore expression in the blueprint is met" do
+      XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
+        blueprint.index :name
+        blueprint.ignore_if {name == "Kogler"}
+      end
+      @object.save
+      XapianDb.search("Kogler").paginate.size.should == 0
+    end
+
+    it "should index the object if an ignore expression in the blueprint is not met" do
+      XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
+        blueprint.index :name
+        blueprint.ignore_if {name == "not Kogler"}
+      end
+      @object.save
+      XapianDb.search("Kogler").paginate.size.should == 1
+    end
+
   end
 
   describe "the after destroy hook" do
@@ -115,6 +134,26 @@ describe XapianDb::Adapters::DatamapperAdapter do
       DatamapperObject.rebuild_xapian_index
       XapianDb.search("Kogler").size.should == 1
     end
+
+    it "should respect an ignore expression" do
+      @object.save
+      XapianDb.search("Kogler").size.should == 1
+
+      # We reopen the in memory database to destroy the index
+      XapianDb.setup do |config|
+        config.database :memory
+      end
+      XapianDb.search("Kogler").size.should == 0
+
+      XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
+        blueprint.index :name
+        blueprint.ignore_if {name == "Kogler"}
+      end
+
+      DatamapperObject.rebuild_xapian_index
+      XapianDb.search("Kogler").size.should == 0
+    end
+
   end
 
 end

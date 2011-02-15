@@ -192,6 +192,54 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
+  describe "#ignore_if" do
+
+    it "accepts a block and stores the block as a Proc" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.ignore_if {
+          active == false
+        }
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).instance_variable_get(:@ignore_expression).should be_a_kind_of Proc
+    end
+  end
+
+  describe "#should_index? obj" do
+
+    it "should return true if no ignore expression is given" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      obj = IndexedObject.new 1
+      blueprint.should_index?(obj).should be_true
+    end
+
+    it "should return false if the ignore expression evaluates to true" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.ignore_if {id == 1}
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      obj = IndexedObject.new 1
+      debugger
+      blueprint.should_index?(obj).should be_false
+    end
+
+    it "should return true if the ignore expression evaluates to false" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.ignore_if {id == 2}
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      obj = IndexedObject.new 1
+      debugger
+      blueprint.should_index?(obj).should be_true
+    end
+
+  end
+
   describe "#accessors_module" do
 
     before :each do

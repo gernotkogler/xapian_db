@@ -123,6 +123,13 @@ module XapianDb
       @prefixes ||= @indexed_methods_hash.keys
     end
 
+    # Should the object go into the index? Evaluates an ignore expression,
+    # if defined
+    def should_index? obj
+      return obj.instance_eval(&@ignore_expression) == false if @ignore_expression
+      true
+    end
+
     # Lazily build and return a module that implements accessors for each field
     # @return [Module] A module containing all accessor methods
     def accessors_module
@@ -241,6 +248,11 @@ module XapianDb
         else # multiple arguments
           add_indexes_from args
       end
+    end
+
+    # Add a block of code that evaluates if a model should not be indexed
+    def ignore_if &block
+      @ignore_expression = block
     end
 
     # Options for an indexed method

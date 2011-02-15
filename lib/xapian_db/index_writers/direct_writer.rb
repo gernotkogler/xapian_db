@@ -55,8 +55,12 @@ module XapianDb
           nr_of_batches = (obj_count / 1000) + 1
           nr_of_batches.times do |batch|
             klass.all(:offset => batch * 1000, :limit => 1000) .each do |obj|
-              doc = indexer.build_document_for(obj)
-              XapianDb.database.store_doc(doc)
+              if blueprint.should_index? obj
+                doc = indexer.build_document_for(obj)
+                XapianDb.database.store_doc(doc)
+              else
+                XapianDb.database.delete_doc_with_unique_term(obj.xapian_id)
+              end
               pbar.inc if show_progressbar
             end
           end
