@@ -55,6 +55,7 @@ module XapianDb
             return @blueprints[key] unless @blueprints[key].nil?
             key = key.superclass
           end
+          raise "Blueprint for class #{klass} is not defined"
         end
         raise "Blueprint for class #{klass} is not defined"
       end

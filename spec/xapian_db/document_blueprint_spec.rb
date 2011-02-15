@@ -5,23 +5,28 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe XapianDb::DocumentBlueprint do
 
   describe ".blueprint_for(klass)" do
-    before :each do
+
+    it "returns the blueprint for a class" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
+    end
+
+    it "returns the blueprint for the super class if no specific blueprint is configured" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
       end
       class InheritedIndexedObject < IndexedObject; end
-    end
-
-    it "returns the blueprint for a class" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
-    end
-
-    it "returns the blueprint for the super class if no specific blueprint is configured" do
-      XapianDb::DocumentBlueprint.blueprint_for(InheritedIndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
+      XapianDb::DocumentBlueprint.blueprint_for(InheritedIndexedObject).should == XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
     end
 
     it "raises an exception if there is no blueprint configuration for a class" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       lambda {XapianDb::DocumentBlueprint.blueprint_for(Object)}.should raise_error
     end
 
@@ -223,7 +228,6 @@ describe XapianDb::DocumentBlueprint do
       end
       blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       obj = IndexedObject.new 1
-      debugger
       blueprint.should_index?(obj).should be_false
     end
 
@@ -234,7 +238,6 @@ describe XapianDb::DocumentBlueprint do
       end
       blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       obj = IndexedObject.new 1
-      debugger
       blueprint.should_index?(obj).should be_true
     end
 
