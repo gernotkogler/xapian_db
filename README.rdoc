@@ -30,6 +30,11 @@ I tried hard but I couldn't find such a thing so I decided to write it, based on
 
 <b>If you have something to say about it, please post to the {Google  Group}[http://groups.google.com/group/xapian_db]</b>
 
+== Requirements
+
+* ruby 1.9.2 or better
+* rails 3.0 or better (if you want to use it with rails)
+
 == Getting started
 
 If you want to use xapian_db in a Rails app, you need Rails 3 or newer.

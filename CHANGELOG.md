@@ -1,3 +1,10 @@
+##0.5.3 (January 18th, 2011)
+
+Fixes:
+
+  - index blueprints can now handle inheritance. If a class does not have its own index blueprint,
+    xapian_db uses the index blueprint from its super class (if defined)
+
 ##0.5.2 (January 11th, 2011)
 
 Features:
@@ -35,7 +42,7 @@ Changes:
 
 Bugfixes:
 
-  - fixed the initialization error in a Rails app ig there is no xapian_db.yml config file
+  - fixed the initialization error in a Rails app if there is no xapian_db.yml config file
   - fixed the fallback to the global language when a model has an unsupported language and a
     language method is configured in the blueprint
   - fixed an issue with yaml deserialization of ActiveRecord objects (only the attributes hash
