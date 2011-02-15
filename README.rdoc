@@ -245,7 +245,7 @@ The easiest way is to use macports or homebrew:
 
 === 4. start the beanstalk daemon
 
-  beanstalk -d
+  beanstalkd -d
 
 === 5. start the beanstalk worker from within your Rails app root directory
 
