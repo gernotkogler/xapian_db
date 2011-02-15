@@ -28,7 +28,7 @@ So I started to rethink fulltext indexing again. I looked for something that
 
 I tried hard but I couldn't find such a thing so I decided to write it, based on the Xapian library.
 
-<b>If you have something to say about it, please post to the {Google  Group}[http://groups.google.com/group/xapian_db]</b>
+<b>If you found a bug or are looking for a missing feature, please post to the {Google  Group}[http://groups.google.com/group/xapian_db]</b>
 
 == Requirements
 
@@ -105,6 +105,14 @@ Use blocks for complex evaluations of attributes or indexed values:
       end
     end
   end
+
+You may add a filter expression to exclude objects from the index. This is handy to skip objects that are not active, for example:
+
+    XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+      blueprint.attributes :name, :first_name, :profession
+      blueprint.index      :notes, :remarks, :cv
+      blueprint.ignore_if {active == false}
+    end
 
 place these configurations either into the corresponding class or - I prefer to have the index configurations outside
 the models - into the file config/xapian_blueprints.rb.

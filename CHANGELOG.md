@@ -1,9 +1,10 @@
-##0.5.3 (January 18th, 2011)
+##0.5.3 (February 15th, 2011)
 
 Fixes:
 
   - index blueprints can now handle inheritance. If a class does not have its own index blueprint,
     xapian_db uses the index blueprint from its super class (if defined)
+  - Added an ignore option to the blueprint definition to filter out objects that should not go into the index
 
 ##0.5.2 (January 11th, 2011)
 
