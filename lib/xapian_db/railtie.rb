@@ -21,13 +21,13 @@ module XapianDb
       if File.exist?(config_file_path)
         db_config = YAML::load_file config_file_path
         env_config = db_config[Rails.env]
-        database_path    = env_config["database"] || ":memory:"
+        database_path    = File.expand_path(env_config["database"]) || ":memory:"
         adapter          = env_config["adapter"]  || :active_record
         writer           = env_config["writer"]   || :direct
         beanstalk_daemon = env_config["beanstalk_daemon"]
       else
         # No config file, set the defaults
-        Rails.env == "test" ? database_path = ":memory:" : database_path = "db/xapian_db/#{Rails.env}"
+        Rails.env == "test" ? database_path = ":memory:" : database_path = File.expand_path("db/xapian_db/#{Rails.env}")
         adapter          = :active_record
         writer           = :direct
         beanstalk_daemon = nil
