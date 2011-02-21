@@ -1,3 +1,9 @@
+##0.5.4 (February 15th, 2011)
+
+Fixes:
+
+  - relative database paths in the config file are resolved correctly when the Rails server is started as a daemon (-d)
+
 ##0.5.3 (February 15th, 2011)
 
 Fixes:
