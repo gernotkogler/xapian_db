@@ -30,8 +30,9 @@ module XapianDb
                options = {:sort_decending => false}.merge options
                class_scope = "indexed_class:#{klass.name.downcase}"
 
-               if options[:order]
-                 attr_names             = [options[:order]].flatten
+               order = options.delete :order
+               if order
+                 attr_names             = [order].flatten
                  blueprint              = XapianDb::DocumentBlueprint.blueprint_for klass
                  sort_indices           = attr_names.map {|attr_name| blueprint.value_index_for(attr_name)}
                  options[:sort_indices] = attr_names.map {|attr_name| blueprint.value_index_for(attr_name)}
@@ -39,7 +40,7 @@ module XapianDb
                result = XapianDb.database.search "#{class_scope} and (#{expression})", options
 
                # Remove the class scope from the spelling suggestion (if any)
-               unless result.spelling_suggestion.empty?
+               if result.spelling_suggestion
                  scope_length = "#{class_scope} and (".size
                  result.spelling_suggestion = result.spelling_suggestion.slice scope_length..-2
                end
