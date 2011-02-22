@@ -54,8 +54,7 @@ puts "Searching for Gernot..."
 results = db.search("Gernot")
 puts "We found #{results.size} documents"
 puts "And the first document looks like this:"
-page = results.paginate(:page => 1)
-doc  = page.first
+doc  = results.first
 puts "name: #{doc.name}"
 puts "first name: #{doc.first_name}"
 
