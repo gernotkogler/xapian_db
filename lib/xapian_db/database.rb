@@ -67,13 +67,17 @@ module XapianDb
 
       Rails.logger.info "Executing XapianDb search: #{expression}" if defined?(Rails)
 
-      enquiry       = Xapian::Enquire.new(reader)
-      enquiry.query = query
-      if opts[:sort_indices]
+      enquiry        = Xapian::Enquire.new(reader)
+      enquiry.query  = query
+      sort_indices   = opts.delete :sort_indices
+      sort_decending = opts.delete :sort_decending
+
+      if sort_indices
         raise ArgumentError.new("Sorting is available for class scoped searches only") unless expression =~ /^indexed_class:/
         sorter = Xapian::MultiValueSorter.new
+
         options[:sort_indices].each do |index|
-          sorter.add(index, opts[:sort_decending])
+          sorter.add(index, sort_decending)
         end
         enquiry.set_sort_by_key_then_relevance(sorter)
       end
