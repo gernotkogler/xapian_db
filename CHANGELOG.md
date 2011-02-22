@@ -1,8 +1,14 @@
-##0.5.4 (February 15th, 2011)
+##0.5.4 (February 22th, 2011)
 
 Fixes:
 
   - relative database paths in the config file are resolved correctly when the Rails server is started as a daemon (-d)
+
+Breaking Changes:
+
+  - the spelling suggestion of a query is now nil instead of an empty string if no suggestions were returned from xapian
+  - the resultset class (what you get back from a query) has been refactored for easier handling. See the README ("Process the results")
+    for details
 
 ##0.5.3 (February 15th, 2011)
 

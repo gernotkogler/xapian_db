@@ -149,22 +149,27 @@ You can query objects of a specific class:
 
   results = Person.search "name:Foo"
 
-If you want to override the default of 10 docs per page, pass the :per_page argument:
+If you want to paginate the result, pass the :per_page argument:
 
   results = Person.search "name:Foo", :per_page => 20
+
+If you want to limit the number of results, pass the :limit argument (handy if you use the query for autocompletion):
+
+    results = Person.search "name:Foo", :limit => 10
 
 On class queries you can specifiy order options:
 
   results = Person.search "name:Foo", :order => :first_name
   results = Person.search "Fo*", :order => [:name, :first_name], :sort_decending => true
 
-Please note that the order option is not avaliable for global searches (XapianDb.search...)
+Please note that the order option is not available for global searches (XapianDb.search...)
 
 === Process the results
 
 <code>XapianDb.search</code> returns a resultset object. You can access the number of hits directly:
 
-  results.size # Very fast, does not load the resulting documents
+  results.hits # Very fast, does not load the resulting documents; always returns the actual hit count
+               # even if a limit option was set in the query
 
 If you use a persistent database, the resultset may contain a spelling correction:
 
@@ -172,14 +177,9 @@ If you use a persistent database, the resultset may contain a spelling correctio
   results = XapianDb.search("moose")
   results.spelling_suggestion # "mouse"
 
-To access the found documents, get a page from the resultset:
+The results behave like an array:
 
-  page = results.paginate            # Get the first page
-  page = results.paginate :page => 2 # Get the second page
-
-Now you can access the documents:
-
-  doc = page.first
+  doc = results.first
   puts doc.indexed_class      # Get the type of the indexed object as a string, e.g. "Person"
   puts doc.name               # We can access the configured attributes
   person = doc.indexed_object # Access the object behind this doc (lazy loaded)
