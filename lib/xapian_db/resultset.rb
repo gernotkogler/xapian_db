@@ -62,9 +62,7 @@ module XapianDb
       raise ArgumentError.new "page #{@page} does not exist" if @hits > 0 && offset >= limit
 
       result_window = @enquiry.mset(offset, count)
-      result_window.matches.each do |match|
-        self << decorate(match.document)
-      end
+      self.replace result_window.matches.map{|match| decorate(match.document)}
       @current_page = page
     end
 
