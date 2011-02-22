@@ -12,11 +12,11 @@ module XapianDb
   # @example Use the resultset and will_paginate in a view
   #   <%= will_paginate resultset %>
   # @author Gernot Kogler
-  class Resultset
+  class Resultset < Array
 
-    # The number of documents found
+    # The number of hits
     # @return [Integer]
-    attr_reader :size
+    attr_reader :hits
 
     # The number of pages
     # @return [Integer]
@@ -34,29 +34,38 @@ module XapianDb
     # @param [Xapian::Enquire] enquiry a Xapian query result (see http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html).
     #   Pass nil to get an empty result set.
     # @param [Hash] options
-    # @option options [Integer] :per_page (10) How many docs per page?
+    # @option options [Integer] :db_size The current size (nr of docs) of the database
+    # @option options [Integer] :limit The maximum number of documents to retrieve
+    # @option options [Integer] :page (1) The page number to retrieve
+    # @option options [Integer] :per_page (10) How many docs per page? Ignored if a limit option is given
     # @option options [String] :spelling_suggestion (nil) The spelling corrected query (if a language is configured)
-    def initialize(enquiry, options)
-      @enquiry = enquiry
-      if @enquiry.nil?
-        @size = 0
-      else
-        # To get more accurate results, we pass the doc count to the mset method
-        @size = enquiry.mset(0, options[:db_size]).matches_estimated
-      end
-      @spelling_suggestion = options[:spelling_suggestion]
-      @per_page            = options[:per_page]
-      @total_pages         = @size == 0 ? 0 : (@size / @per_page.to_f).ceil
-      @current_page        = 1
-    end
+    def initialize(enquiry, options={})
 
-    # Paginate the result
-    # @param [Hash] options Options for the persistent database
-    # @option options [Integer] :page (1) The page to access
-    def paginate(options={})
-      @current_page = options[:page] ? options[:page].to_i : 1
-      return [] if @current_page < 1 || @current_page > @total_pages
-      build_page(@current_page)
+      @enquiry = enquiry
+      return build_empty_resultset if @enquiry.nil?
+
+      db_size              = options.delete :db_size
+      limit                = options.delete :limit
+      page                 = options.delete :page
+      per_page             = options.delete :per_page
+      @spelling_suggestion = options.delete :spelling_suggestion
+      raise ArgumentError.new "unsupported options for resultset: #{options}" if options.size > 0
+      raise ArgumentError.new "db_size option is required" unless db_size
+
+      @hits         = enquiry.mset(0, db_size).matches_estimated
+      limit       ||= @hits
+      per_page    ||= limit
+      @total_pages  = (limit / per_page.to_f).ceil
+      page = page.nil? ? 1 : page.to_i
+      offset = (page - 1) * per_page
+      count  = offset + per_page < limit ? per_page : limit - offset
+      raise ArgumentError.new "page #{@page} does not exist" if @hits > 0 && offset >= limit
+
+      result_window = @enquiry.mset(offset, count)
+      result_window.matches.each do |match|
+        self << decorate(match.document)
+      end
+      @current_page = page
     end
 
     # The previous page number
@@ -73,17 +82,12 @@ module XapianDb
 
     private
 
-    # Build a page of Xapian documents
-    # @return [Array<Xapian::Document>] An array of xapian documents
-    def build_page(page)
-      docs = []
-      offset = (page - 1) * @per_page
-      return [] if offset > @size
-      result_window = @enquiry.mset(offset, @per_page)
-      result_window.matches.each do |match|
-        docs << decorate(match.document)
-      end
-      docs
+    # Build an empty resultset
+    def build_empty_resultset
+      @hits         = 0
+      @total_pages  = 0
+      @current_page = 0
+      self
     end
 
     # Decorate a Xapian document with field accessors for each configured attribute

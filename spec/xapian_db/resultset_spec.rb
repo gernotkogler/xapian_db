@@ -6,66 +6,118 @@ describe XapianDb::Resultset do
 
   before :each do
 
-    @name = "Gernot"
-
-    # Mock a Xapian search result (Xapian::Enquire)
-    enquiry = mock(Xapian::Enquire)
-    mset    = mock(Xapian::MSet)
-    match   = mock(Xapian::Match)
-    doc     = Xapian::Document.new
-
-    match.stub!(:document).and_return(doc)
-    mset.stub!(:matches_estimated).and_return(1)
-    mset.stub!(:matches).and_return([match])
-    enquiry.stub!(:mset).and_return(mset)
-
-    doc.add_value(0, IndexedObject.name)
-    doc.add_value(1, @name)
-
     # Setup a blueprint
     XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
       blueprint.attribute :name
     end
 
-    @result = XapianDb::Resultset.new(enquiry, :per_page => 10)
+    @name = "Gernot"
+
+    # Mock a Xapian search result (Xapian::Enquire)
+    @enquiry = mock(Xapian::Enquire)
+    @mset    = mock(Xapian::MSet)
+
+    # Create 3 matches and docs to play with
+    @matches = []
+    3.times do |i|
+      match   = mock(Xapian::Match)
+      doc     = Xapian::Document.new
+      doc.add_value(0, IndexedObject.name)
+      doc.add_value(1, "#{@name}#{i}")
+      match.stub!(:document).and_return(doc)
+      @matches << match
+    end
+    @mset.stub!(:matches_estimated).and_return(@matches.size)
+    @mset.stub!(:matches).and_return(@matches)
+    @enquiry.stub!(:mset).and_return(@mset)
+
+  end
+
+  it "behaves like an array" do
+    resultset = XapianDb::Resultset.new(nil, {})
+    %w(size [] each).each do |method|
+      resultset.should respond_to(method)
+    end
   end
 
   describe ".initialize(enquiry, options)" do
 
     it "creates a valid, empty result set if we pass nil for the enquiry" do
       resultset = XapianDb::Resultset.new(nil, {})
-      resultset.size.should == 0
+      resultset.hits.should         == 0
+      resultset.size.should         == 0
+      resultset.current_page.should == 0
+      resultset.total_pages.should  == 0
+    end
+
+    it "raises an exception if an unsupported option is passed" do
+      lambda{XapianDb::Resultset.new(@enquiry, :unsupported => "?")}.should raise_error
+    end
+
+    it "accepts a limit option" do
+      @mset.stub!(:matches).and_return(@matches[0..1])
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :limit => 2)
+
+      resultset.hits.should         == 3
+      resultset.size.should         == 2
       resultset.current_page.should == 1
-      resultset.total_pages.should == 0
+      resultset.total_pages.should  == 1
     end
 
-  end
+    it "accepts a per_page option" do
+      @mset.stub!(:matches).and_return(@matches[0..1])
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2)
 
-  describe ".paginate(opts={})" do
-
-    it "should return an array of Xapian documents if the page parameters are within the resultset size" do
-      @result.paginate(:page => 1).should be_a_kind_of(Array)
-      @result.paginate(:page => 1).size.should == 1
-      @result.paginate(:page => 1).first.should be_a_kind_of(Xapian::Document)
+      resultset.hits.should         == 3
+      resultset.size.should         == 2
+      resultset.current_page.should == 1
+      resultset.total_pages.should  == 2
     end
 
-    it "should decorate the returned Xapian documents with attribute accessors" do
-      doc = @result.paginate(:page => 1).first
+    it "accepts a page number" do
+      @mset.stub!(:matches).and_return(@matches[2..2])
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 2)
+
+      resultset.hits.should         == 3
+      resultset.size.should         == 1
+      resultset.current_page.should == 2
+      resultset.total_pages.should  == 2
+    end
+
+    it "accepts nil as a page number" do
+      @mset.stub!(:matches).and_return(@matches[0..1])
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => nil)
+
+      resultset.hits.should         == 3
+      resultset.size.should         == 2
+      resultset.current_page.should == 1
+      resultset.total_pages.should  == 2
+    end
+
+    it "raises an exception if page is requested that does not exist" do
+      lambda{XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 3)}.should raise_error
+    end
+
+    it "should populate itself with found xapian documents" do
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 2)
+      resultset.first.should be_a_kind_of(Xapian::Document)
+    end
+
+    it "should decorate the Xapian documents with attribute accessors" do
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 2)
+      doc = resultset.first
       doc.respond_to?(:name).should be_true
-      doc.name.should == @name
+      doc.name.should == "#{@name}0"
     end
 
-    it "accepts nil for the page number" do
-      @result.paginate(:page => nil).should be_a_kind_of(Array)
-      @result.current_page.should == 1
-    end
+    it "can handle a page option as a string" do
+      @mset.stub!(:matches).and_return(@matches[2..2])
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => "2")
 
-    it "returns an empty array if the page option is smaller than 1" do
-      @result.paginate(:page => 0).should == []
-    end
-
-    it "returns an empty array if the page option is larger than total_pages" do
-      @result.paginate(:page => @result.total_pages + 1).should == []
+      resultset.hits.should         == 3
+      resultset.size.should         == 1
+      resultset.current_page.should == 2
+      resultset.total_pages.should  == 2
     end
 
   end
@@ -73,16 +125,27 @@ describe XapianDb::Resultset do
   describe ".previous_page" do
 
     it "should return nil if we are at page 1" do
-      @result.paginate(:page => 1)
-      @result.previous_page.should_not be
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 1)
+      resultset.previous_page.should_not be
     end
+
+    it "should return 1 if we are at page 2" do
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 2)
+      resultset.previous_page.should == 1
+    end
+
   end
 
   describe ".next_page" do
 
-    it "should return nil if there are no more pages" do
-      @result.paginate(:page => 1)
-      @result.next_page.should_not be
+    it "should return 2 if we are at page 1" do
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 1)
+      resultset.next_page.should == 2
+    end
+
+    it "should return nil if we are on the last page" do
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 2)
+      resultset.next_page.should_not be
     end
   end
 
