@@ -1,8 +1,7 @@
 class PeopleController < ApplicationController
 
   def index
-    @result = Person.search params[:search]
-    @page   = @result.paginate :page => params[:page]
+    @page = Person.search params[:search], :per_page => 20, :page => params[:page]
   end
 
   def edit

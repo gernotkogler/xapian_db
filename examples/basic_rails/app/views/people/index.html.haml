@@ -7,11 +7,11 @@
 
 -if @page.size > 0
   %h2 Results
-  -unless @result.spelling_suggestion.blank?
-    =link_to "Did you mean #{@result.spelling_suggestion} ?", people_path(:search => @result.spelling_suggestion)
+  -if @page.spelling_suggestion
+    =link_to "Did you mean #{@result.spelling_suggestion} ?", people_path(:search => @page.spelling_suggestion)
   %ul
   -@page.each do |doc|
     %li
       =link_to person_doc_as_string(doc), edit_person_path(doc.id)
   %p
-  =will_paginate @result
+  =will_paginate @page
