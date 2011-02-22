@@ -68,7 +68,7 @@ describe XapianDb::Adapters::BaseAdapter do
       XapianDb.database.search("find me").size.should == 2
       result = ClassA.search("find me")
       result.size.should == 1
-      result.paginate.first.indexed_class.should == "ClassA"
+      result.first.indexed_class.should == "ClassA"
     end
 
     it "should remove the class scope from a spelling suggestion" do
@@ -101,16 +101,14 @@ describe XapianDb::Adapters::BaseAdapter do
 
       it "should accept an :order option" do
         result = ClassA.search "text", :order => :text
-        page = result.paginate
-        page.first.text.should == "A text"
-        page.last.text.should == "B text"
+        result.first.text.should == "A text"
+        result.last.text.should == "B text"
       end
 
       it "should accept an :sort_decending option" do
         result = ClassA.search "text", :order => :text, :sort_decending => true
-        page = result.paginate
-        page.first.text.should == "B text"
-        page.last.text.should == "A text"
+        result.first.text.should == "B text"
+        result.last.text.should == "A text"
       end
 
     end

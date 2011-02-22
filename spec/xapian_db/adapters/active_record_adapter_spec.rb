@@ -75,7 +75,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
   describe "the after save hook" do
     it "should (re)index the object" do
       @object.save
-      XapianDb.search("Kogler").paginate.size.should == 1
+      XapianDb.search("Kogler").size.should == 1
     end
 
     it "should not index the object if an ignore expression in the blueprint is met" do
@@ -84,7 +84,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
         blueprint.ignore_if {name == "Kogler"}
       end
       @object.save
-      XapianDb.search("Kogler").paginate.size.should == 0
+      XapianDb.search("Kogler").size.should == 0
     end
 
     it "should index the object if an ignore expression in the blueprint is not met" do
@@ -93,7 +93,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
         blueprint.ignore_if {name == "not Kogler"}
       end
       @object.save
-      XapianDb.search("Kogler").paginate.size.should == 1
+      XapianDb.search("Kogler").size.should == 1
     end
 
   end
@@ -111,7 +111,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
 
     it "should return the id of the object that is linked with the document" do
       @object.save
-      doc = XapianDb.search("Kogler").paginate.first
+      doc = XapianDb.search("Kogler").first
       doc.id.should == @object.id
     end
   end
@@ -120,7 +120,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
 
     it "should return the object that is linked with the document" do
       @object.save
-      doc = XapianDb.search("Kogler").paginate.first
+      doc = XapianDb.search("Kogler").first
       # Since we do not have identity map in active_record, we can only
       # compare the ids, not the objects
       doc.indexed_object.id.should == @object.id

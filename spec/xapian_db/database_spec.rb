@@ -249,25 +249,22 @@ describe XapianDb::Database do
       it "accepts the :sort_indices option for a query that is scoped to a class" do
         result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => [2]
         result.size.should == 2
-        page = result.paginate
-        page.first.text2.should == "A text"
-        page.last.text2.should == "B text"
+        result.first.text2.should == "A text"
+        result.last.text2.should == "B text"
       end
 
       it "accepts the :sort_decending option for a query that is scoped to a class" do
         result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => [1], :sort_decending => true
         result.size.should == 2
-        page = result.paginate
-        page.first.text2.should == "B text"
-        page.last.text2.should == "A text"
+        result.first.text2.should == "B text"
+        result.last.text2.should == "A text"
       end
 
       it "accepts multiple indices for the :sort_indices option" do
         result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => [1, 2]
         result.size.should == 2
-        page = result.paginate
-        page.first.text2.should == "A text"
-        page.last.text2.should == "B text"
+        result.first.text2.should == "A text"
+        result.last.text2.should == "B text"
       end
 
     end
