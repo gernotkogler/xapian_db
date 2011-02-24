@@ -8,7 +8,7 @@
 -if @page.size > 0
   %h2 Results
   -if @page.spelling_suggestion
-    =link_to "Did you mean #{@result.spelling_suggestion} ?", people_path(:search => @page.spelling_suggestion)
+    =link_to "Did you mean #{@page.spelling_suggestion} ?", people_path(:search => @page.spelling_suggestion)
   %ul
   -@page.each do |doc|
     %li
