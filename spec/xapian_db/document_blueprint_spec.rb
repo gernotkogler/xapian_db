@@ -4,6 +4,22 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::DocumentBlueprint do
 
+  describe ".configured_classes" do
+
+    it "returns all configured classes" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.configured_classes.size.should == 0
+
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.configured_classes.size.should == 1
+      XapianDb::DocumentBlueprint.configured_classes.first.should == IndexedObject
+    end
+
+  end
+
   describe ".blueprint_for(klass)" do
 
     it "returns the blueprint for a class" do

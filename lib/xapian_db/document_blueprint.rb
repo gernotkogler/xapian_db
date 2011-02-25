@@ -45,6 +45,12 @@ module XapianDb
         @searchable_prefixes = nil # force rebuild of the searchable prefixes
       end
 
+      # Get all configured classes
+      # @return [Array<Class>]
+      def configured_classes
+        @blueprints ? @blueprints.keys : []
+      end
+
       # Get the blueprint for a class
       # @return [DocumentBlueprint]
       def blueprint_for(klass)
