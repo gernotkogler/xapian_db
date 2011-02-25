@@ -47,7 +47,7 @@ module XapianDb
             if defined?(ProgressBar)
               show_progressbar = true
             end
-            puts "Reindexing #{obj_count} objects..."
+            puts "reindexing #{obj_count} objects of #{klass}..."
             pbar = ProgressBar.new("Status", obj_count) if show_progressbar
           end
 
@@ -65,6 +65,7 @@ module XapianDb
             end
           end
           XapianDb.database.commit
+          true
         end
 
       end
