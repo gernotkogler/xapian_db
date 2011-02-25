@@ -199,28 +199,41 @@ describe XapianDb::Database do
       XapianDb.database.search("text2:findme_in_text2").size.should == 1
     end
 
-    it "should provide a spelling correction if a language is configured" do
-      # For this spec we need a persistent database since spelling dictionaries
+    context "spelling correction" do
+      # For these specs we need a persistent database since spelling dictionaries
       # are not supported for in memory databases
-      test_db = "/tmp/xapian_test"
-      db = XapianDb.create_db :path => test_db
-
-      XapianDb.setup do |config|
-        config.language :de
+      let(:test_db) { test_db = "/tmp/xapian_test" }
+      let(:db) { XapianDb.create_db :path => test_db }
+      before(:each) do
+        XapianDb.setup do |config|
+          config.language :de
+        end
+        @indexer = XapianDb::Indexer.new(db, @blueprint)
       end
 
-      @obj.stub!(:text).and_return("Hallo Nachbar")
-      @indexer = XapianDb::Indexer.new(db, @blueprint)
-      @doc     = @indexer.build_document_for(@obj)
-      db.store_doc(@doc).should be_true
-      db.commit
-      db.size.should == 1
-      result = db.search "Halo Naachbar"
-      result.spelling_suggestion.should == "hallo nachbar"
+      after(:each) do
+        # clean up
+        FileUtils.rm_rf test_db
+      end
 
-      # clean up
-      FileUtils.rm_rf test_db
+      it "should provide a spelling correction if a language is configured" do
+        @obj.stub!(:text).and_return("Hallo Nachbar")
+        @doc     = @indexer.build_document_for(@obj)
+        db.store_doc(@doc).should be_true
+        db.commit
+        db.size.should == 1
+        result = db.search "Halo Naachbar"
+        result.spelling_suggestion.should == "hallo nachbar"
+      end
 
+      it "should provide correction with the right encoding" do
+        @obj.stub!(:text).and_return("Tschüs")
+        @doc = @indexer.build_document_for(@obj)
+        db.store_doc(@doc)
+        db.commit
+        result = db.search "stchüs"
+        result.spelling_suggestion.should == "tschüs"
+      end
     end
 
     context "sorting" do

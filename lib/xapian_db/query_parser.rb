@@ -40,7 +40,7 @@ module XapianDb
       # (like "name:Kogler")
       XapianDb::DocumentBlueprint.searchable_prefixes.each{|prefix| parser.add_prefix(prefix.to_s.downcase, "X#{prefix.to_s.upcase}") }
       query = parser.parse_query(expression, @query_flags)
-      @spelling_suggestion = parser.get_corrected_query_string
+      @spelling_suggestion = parser.get_corrected_query_string.force_encoding("UTF-8")
       @spelling_suggestion = nil if @spelling_suggestion.empty?
       query
     end
