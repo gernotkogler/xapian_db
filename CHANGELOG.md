@@ -1,3 +1,15 @@
+##0.5.5 (February 25th, 2011)
+
+Fixes:
+
+  - ":memory:" as a configuration option for a database works again (was broken in 0.5.4)
+  - forcing utf-8 encoding on a spelling suggestion returned by the xapian query parser
+
+Features:
+
+  - configure only those environments in xapian_db.yml where you want to override the defaults
+  - XapianDb.rebuild_xapian_index rebuilds the index for all blueprints
+
 ##0.5.4 (February 22th, 2011)
 
 Fixes:

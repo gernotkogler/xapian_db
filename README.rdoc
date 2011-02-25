@@ -32,8 +32,8 @@ I tried hard but I couldn't find such a thing so I decided to write it, based on
 
 == Requirements
 
-* ruby 1.9.2 or better
-* rails 3.0 or better (if you want to use it with rails)
+* ruby 1.9.2 or newer
+* rails 3.0 or newer (if you want to use it with rails)
 
 == Getting started
 
@@ -68,6 +68,8 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
   production:
     database: db/xapian_db/production
     <<: *defaults
+
+If you do not configure settings for an environment in this file, xapian_db applies the defaults.
 
 === Configure an index blueprint
 
@@ -130,6 +132,10 @@ To get info about the reindex process, use the verbose option:
   Person.rebuild_xapian_index :verbose => true
 
 In verbose mode, XapianDb will use the progressbar gem if available.
+
+To rebuild the index for all blueprints, use
+
+  XapianDb.rebuild_xapian_index
 
 === Query the index
 
