@@ -78,4 +78,43 @@ describe XapianDb do
 
   end
 
+  describe ".rebuild_xapian_index" do
+
+    before :each do
+      XapianDb.setup do |config|
+        config.database :memory
+        config.adapter :active_record
+        config.writer  :direct
+      end
+
+
+    end
+
+    it "does nothing if no blueprints are configured" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      lambda{XapianDb.rebuild_xapian_index}.should_not raise_error
+      XapianDb.rebuild_xapian_index.should be_false
+    end
+
+    it "rebuilds the index for all blueprints" do
+      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+        blueprint.index :name
+      end
+      @object = ActiveRecordObject.new(1, "Kogler")
+      @object.save
+
+      XapianDb.search("Kogler").size.should == 1
+
+      # We reopen the in memory database to destroy the index
+      XapianDb.setup do |config|
+        config.database :memory
+      end
+      XapianDb.search("Kogler").size.should == 0
+
+      XapianDb.rebuild_xapian_index
+      XapianDb.search("Kogler").size.should == 1
+    end
+
+  end
+
 end

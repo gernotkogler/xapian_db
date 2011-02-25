@@ -84,6 +84,19 @@ module XapianDb
     XapianDb::Config.database.facets(expression)
   end
 
+  # Rebuild the xapian index for all configured blueprints
+  # @param [Hash] options Options for reindexing
+  # @option options [Boolean] :verbose (false) Should the reindexing give status informations?
+  # @return [Boolean] Did we reindex anything?
+  def self.rebuild_xapian_index(options={})
+    configured_classes = XapianDb::DocumentBlueprint.configured_classes
+    return false unless configured_classes.size > 0
+    configured_classes.each do |klass|
+      XapianDb::Config.writer.reindex_class(klass, options)
+    end
+    true
+  end
+
 end
 
 do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb beanstalk_writer.rb)
