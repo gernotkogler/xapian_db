@@ -62,7 +62,7 @@ module XapianDb
       raise ArgumentError.new "page #{@page} does not exist" if @hits > 0 && offset >= limit
 
       result_window = @enquiry.mset(offset, count)
-      self.replace result_window.matches.map{|match| decorate(match.document)}
+      self.replace result_window.matches.map{|match| decorate(match).document}
       @current_page = page
     end
 
@@ -88,11 +88,15 @@ module XapianDb
       self
     end
 
-    # Decorate a Xapian document with field accessors for each configured attribute
-    def decorate(document)
-      klass_name = document.values[0].value
+    # Decorate a Xapian match with field accessors for each configured attribute
+    # @param [Xapian::Match] a match
+    # @return [Xapian::Match] the decorated match
+    def decorate(match)
+      klass_name = match.document.values[0].value
       blueprint  = XapianDb::DocumentBlueprint.blueprint_for(Kernel.const_get(klass_name))
-      document.extend blueprint.accessors_module
+      match.document.extend blueprint.accessors_module
+      match.document.instance_variable_set :@score, match.percent
+      match
     end
 
   end

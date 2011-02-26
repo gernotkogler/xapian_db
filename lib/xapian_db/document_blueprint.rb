@@ -142,11 +142,17 @@ module XapianDb
       return @accessors_module unless @accessors_module.nil?
       @accessors_module = Module.new
 
-      # Add the accessor for the indexed class
+      # Add the accessors for the indexed class and the score
       @accessors_module.instance_eval do
+
         define_method :indexed_class do
           self.values[0].value
         end
+
+        define_method :score do
+          @score
+        end
+
       end
 
       # Add an accessor for each attribute

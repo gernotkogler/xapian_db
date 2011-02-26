@@ -25,6 +25,7 @@ describe XapianDb::Resultset do
       doc.add_value(0, IndexedObject.name)
       doc.add_value(1, "#{@name}#{i}")
       match.stub!(:document).and_return(doc)
+      match.stub!(:percent).and_return(90)
       @matches << match
     end
     @mset.stub!(:matches_estimated).and_return(@matches.size)
@@ -108,6 +109,12 @@ describe XapianDb::Resultset do
       doc = resultset.first
       doc.respond_to?(:name).should be_true
       doc.name.should == "#{@name}0"
+    end
+
+    it "should add the score of a match to the document" do
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 2)
+      doc = resultset.first
+      doc.score.should == 90
     end
 
     it "can handle a page option as a string" do
