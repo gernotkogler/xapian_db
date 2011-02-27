@@ -40,6 +40,13 @@ describe XapianDb::Resultset do
     end
   end
 
+  it "is compatible with kaminari pagination" do
+    resultset = XapianDb::Resultset.new(nil, {})
+    %w(total_count num_pages limit_value current_page).each do |method|
+      resultset.should respond_to(method)
+    end
+  end
+
   describe ".initialize(enquiry, options)" do
 
     it "creates a valid, empty result set if we pass nil for the enquiry" do

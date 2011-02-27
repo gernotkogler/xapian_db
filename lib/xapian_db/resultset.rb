@@ -4,23 +4,27 @@ module XapianDb
 
   # The resultset encapsulates a Xapian::Query object and allows paged access
   # to the found documents.
-  # The resultset is compatible with will_paginate.
+  # The resultset is compatible with will_paginate and kaminari.
   # @example Process the first page of a resultsest
   #   resultset.paginate(:page => 1, :per_page => 10).each do |doc|
   #     # do something with the xapian document
   #   end
   # @example Use the resultset and will_paginate in a view
   #   <%= will_paginate resultset %>
+  # @example Use the resultset and kaminari in a view
+  #   <%= paginate resultset %>
   # @author Gernot Kogler
   class Resultset < Array
 
     # The number of hits
     # @return [Integer]
     attr_reader :hits
+    alias_method :total_count, :hits
 
     # The number of pages
     # @return [Integer]
     attr_reader :total_pages
+    alias_method :num_pages, :total_pages
 
     # The current page
     # @return [Integer]
@@ -29,6 +33,9 @@ module XapianDb
     # The spelling corrected query (if a language is configured)
     # @return [String]
     attr_accessor :spelling_suggestion
+
+    # The number of records per page
+    attr_reader :limit_value
 
     # Constructor
     # @param [Xapian::Enquire] enquiry a Xapian query result (see http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html).
@@ -64,6 +71,7 @@ module XapianDb
       result_window = @enquiry.mset(offset, count)
       self.replace result_window.matches.map{|match| decorate(match.document)}
       @current_page = page
+      @limit_value = per_page
     end
 
     # The previous page number

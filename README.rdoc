@@ -194,6 +194,10 @@ Use a search result with will_paginate in a view:
 
   <%= will_paginate @results %>
 
+Or with kaminari:
+
+  <%= kaminari @results %>
+
 === Facets
 
 If you want to implement a simple drilldown for your searches, you can use a global facets query:
