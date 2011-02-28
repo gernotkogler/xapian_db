@@ -48,19 +48,19 @@ module XapianDb
     # @option options [String] :spelling_suggestion (nil) The spelling corrected query (if a language is configured)
     def initialize(enquiry, options={})
 
-      @enquiry = enquiry
-      return build_empty_resultset if @enquiry.nil?
-
+      enquiry = enquiry
+      return build_empty_resultset if enquiry.nil?
       db_size              = options.delete :db_size
+      @spelling_suggestion = options.delete :spelling_suggestion
+      @hits                = enquiry.mset(0, db_size).matches_estimated
+      return build_empty_resultset if @hits == 0
+
       limit                = options.delete :limit
       page                 = options.delete :page
       per_page             = options.delete :per_page
-      @spelling_suggestion = options.delete :spelling_suggestion
       raise ArgumentError.new "unsupported options for resultset: #{options}" if options.size > 0
       raise ArgumentError.new "db_size option is required" unless db_size
 
-      @hits         = enquiry.mset(0, db_size).matches_estimated
-      return build_empty_resultset if @hits == 0
 
       limit       ||= @hits
       per_page    ||= limit
@@ -70,7 +70,7 @@ module XapianDb
       count  = offset + per_page < limit ? per_page : limit - offset
       raise ArgumentError.new "page #{@page} does not exist" if @hits > 0 && offset >= limit
 
-      result_window = @enquiry.mset(offset, count)
+      result_window = enquiry.mset(offset, count)
       self.replace result_window.matches.map{|match| decorate(match).document}
       @current_page = page
       @limit_value = per_page
