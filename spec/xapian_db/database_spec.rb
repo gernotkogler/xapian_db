@@ -199,6 +199,23 @@ describe XapianDb::Database do
       XapianDb.database.search("text2:findme_in_text2").size.should == 1
     end
 
+    it "should support phrase searches" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :text
+      end
+      obj       = IndexedObject.new(1)
+      obj.stub!(:text).and_return("This is a complete sentence")
+      doc       = @indexer.build_document_for(obj)
+      XapianDb.database.store_doc(doc).should be_true
+
+      obj       = IndexedObject.new(2)
+      obj.stub!(:text).and_return("This sentence is a complete one")
+      doc       = @indexer.build_document_for(obj)
+      XapianDb.database.store_doc(doc).should be_true
+
+      XapianDb.database.search('"This is a complete sentence"').size.should == 1
+    end
+
     context "spelling correction" do
       # For these specs we need a persistent database since spelling dictionaries
       # are not supported for in memory databases

@@ -155,6 +155,10 @@ You can query objects of a specific class:
 
   results = Person.search "name:Foo"
 
+You can search for exact phrases:
+
+  results = XapianDb.search('"this exact sentence"')
+
 If you want to paginate the result, pass the :per_page argument:
 
   results = Person.search "name:Foo", :per_page => 20
