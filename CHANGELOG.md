@@ -1,4 +1,4 @@
-##0.5.6 (February 25th, 2011)
+##0.5.6 (February 28th, 2011)
 
 Features:
 
