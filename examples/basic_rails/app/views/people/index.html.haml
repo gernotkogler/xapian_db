@@ -4,6 +4,8 @@
   ="Enter your query:"
   =text_field_tag :search, params[:search]
   =submit_tag "Search"
+%p
+  (Take a look into your database to find out what you can search for)
 
 -if @page.size > 0
   %h2 Results
@@ -14,4 +16,4 @@
     %li
       =link_to person_doc_as_string(doc), edit_person_path(doc.id)
   %p
-  =will_paginate @page
+  =paginate @page
