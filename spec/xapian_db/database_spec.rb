@@ -213,6 +213,7 @@ describe XapianDb::Database do
       doc       = @indexer.build_document_for(obj)
       XapianDb.database.store_doc(doc).should be_true
 
+      XapianDb.database.search('This is a complete sentence').size.should == 2
       XapianDb.database.search('"This is a complete sentence"').size.should == 1
     end
 
