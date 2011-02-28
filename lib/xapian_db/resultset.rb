@@ -60,6 +60,8 @@ module XapianDb
       raise ArgumentError.new "db_size option is required" unless db_size
 
       @hits         = enquiry.mset(0, db_size).matches_estimated
+      return build_empty_resultset if @hits == 0
+
       limit       ||= @hits
       per_page    ||= limit
       @total_pages  = (limit / per_page.to_f).ceil
