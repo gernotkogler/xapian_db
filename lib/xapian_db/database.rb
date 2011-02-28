@@ -43,7 +43,7 @@ module XapianDb
     # Perform a search
     # @param [String] expression A valid search expression.
     # @param [Hash] options
-    # @option options [Integer] :per_page (10) How many docs per page?
+    # @option options [Integer] :per_page How many docs per page?
     # @option options [Array<Integer>] :sort_indices (nil) An array of attribute indices to sort by. This
     #   option is used internally by the search method implemented on configured classes. Do not use it
     #   directly unless
@@ -58,7 +58,7 @@ module XapianDb
     #   resultset = db.search("name:foo")
     # @return [XapianDb::Resultset] The resultset
     def search(expression, options={})
-      opts          = {:per_page => 10, :sort_decending => false}.merge(options)
+      opts          = {:sort_decending => false}.merge(options)
       @query_parser ||= QueryParser.new(self)
       query         = @query_parser.parse(expression)
 
