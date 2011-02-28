@@ -11,7 +11,7 @@ bundle install
 ==== 2: Create the database with some random data to play
 
 rake db:migrate
-rake db:seeds # takes long since it generates a lot of records
+rake db:seed # takes long since it generates a lot of records
 
 ==== 3: Go and play :-)
 
