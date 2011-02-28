@@ -186,6 +186,7 @@ If you use a persistent database, the resultset may contain a spelling correctio
 The results behave like an array:
 
   doc = results.first
+  puts doc.score.to_s         # Get the relevance of the document
   puts doc.indexed_class      # Get the type of the indexed object as a string, e.g. "Person"
   puts doc.name               # We can access the configured attributes
   person = doc.indexed_object # Access the object behind this doc (lazy loaded)

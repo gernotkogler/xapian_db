@@ -1,3 +1,9 @@
+##0.5.6 (February 25th, 2011)
+
+Features:
+
+  - documents returned by a query have the new score property that reflects the match relevance in percent (1-100%)
+
 ##0.5.5 (February 25th, 2011)
 
 Fixes:
