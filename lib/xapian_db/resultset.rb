@@ -95,6 +95,7 @@ module XapianDb
       @hits         = 0
       @total_pages  = 0
       @current_page = 0
+      @limit_value  = 0
       self
     end
 

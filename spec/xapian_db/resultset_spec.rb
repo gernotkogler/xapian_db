@@ -56,6 +56,7 @@ describe XapianDb::Resultset do
       resultset.size.should         == 0
       resultset.current_page.should == 0
       resultset.total_pages.should  == 0
+      resultset.limit_value.should  == 0
     end
 
     it "raises an exception if an unsupported option is passed" do
