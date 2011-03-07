@@ -1,3 +1,14 @@
+##0.5.7 (March 7th, 2011)
+
+Fixes:
+
+  - limit_value on the resultset is calculated again when the resultset is empty (thanks, Javi)
+  - added an order by id for rebuild_xapian_index to ensure that limit and offset work as expected
+
+Features:
+
+  - option to specify a specific adapter for a blueprint overriding the global configuration
+
 ##0.5.6 (February 28th, 2011)
 
 Features:
@@ -18,7 +29,7 @@ Features:
   - configure only those environments in xapian_db.yml where you want to override the defaults
   - XapianDb.rebuild_xapian_index rebuilds the index for all blueprints
 
-##0.5.4 (February 22th, 2011)
+##0.5.4 (February 22nd, 2011)
 
 Fixes:
 
