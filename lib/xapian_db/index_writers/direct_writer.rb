@@ -54,7 +54,7 @@ module XapianDb
           # Process the objects in batches to reduce the memory footprint
           nr_of_batches = (obj_count / 1000) + 1
           nr_of_batches.times do |batch|
-            klass.all(:offset => batch * 1000, :limit => 1000) .each do |obj|
+            klass.all(:offset => batch * 1000, :limit => 1000, :order => options[:primary_key]).each do |obj|
               if blueprint.should_index? obj
                 doc = indexer.build_document_for(obj)
                 XapianDb.database.store_doc(doc)

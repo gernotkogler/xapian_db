@@ -53,6 +53,7 @@ module XapianDb
 
              # Add a method to reindex all models of this class
              define_singleton_method(:rebuild_xapian_index) do |options={}|
+               options[:primary_key] = klass.serial.name
                XapianDb::Config.writer.reindex_class(self, options)
              end
            end
