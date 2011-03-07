@@ -46,8 +46,8 @@ module XapianDb
     # @option options [Integer] :per_page How many docs per page?
     # @option options [Array<Integer>] :sort_indices (nil) An array of attribute indices to sort by. This
     #   option is used internally by the search method implemented on configured classes. Do not use it
-    #   directly unless
-    #   you know what you do
+    #   directly unless you know what you do
+    # @option options [Boolean] :sort_decending (false) Reverse the sort order?
     # @example Simple Query
     #   resultset = db.search("foo")
     # @example Wildcard Query
@@ -76,7 +76,7 @@ module XapianDb
         raise ArgumentError.new("Sorting is available for class scoped searches only") unless expression =~ /^indexed_class:/
         sorter = Xapian::MultiValueSorter.new
 
-        options[:sort_indices].each do |index|
+        sort_indices.each do |index|
           sorter.add(index, sort_decending)
         end
         enquiry.set_sort_by_key_then_relevance(sorter)
