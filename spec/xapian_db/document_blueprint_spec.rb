@@ -20,6 +20,18 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
+  describe ".setup_base" do
+
+    it "defines a global blueprint with values and attributes implemented by all model classes" do
+      pending "waiting for implemenation"
+      XapianDb::DocumentBlueprint.setup_base do |blueprint|
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.global_blueprint.should be_a_kind_of XapianDb::DocumentBlueprint
+    end
+
+  end
+
   describe ".blueprint_for(klass)" do
 
     it "returns the blueprint for a class" do
@@ -42,6 +54,10 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "raises an exception if there is no blueprint configuration for a class" do
+      lambda {XapianDb::DocumentBlueprint.blueprint_for(Object)}.should raise_error
+    end
+
+    it "raises an exception if there is no blueprint configuration at all" do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       lambda {XapianDb::DocumentBlueprint.blueprint_for(Object)}.should raise_error
     end
@@ -72,15 +88,13 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "should return an empty array if no blueprints are configured" do
-      # We have to reload the DocumentBlueprint to get rid aof any configurations
-      XapianDb.send(:remove_const, 'DocumentBlueprint')
-      load File.expand_path(File.dirname(__FILE__) + '/../../lib/xapian_db/document_blueprint.rb')
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.searchable_prefixes.should == []
     end
 
   end
 
-  describe ".setup (singleton)" do
+  describe ".setup (class)" do
     it "stores a blueprint for a given class" do
       XapianDb::DocumentBlueprint.setup(IndexedObject)
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of(XapianDb::DocumentBlueprint)
@@ -88,12 +102,12 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
-  describe "#adapter=" do
-    it "sets the adpater for the configured class" do
+  describe "#adapter (symbol)" do
+    it "overides the adapter for the configured class" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.adapter = DemoAdapter
+        blueprint.adapter :generic
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).adapter.should == DemoAdapter
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)._adapter.should be_equal XapianDb::Adapters::GenericAdapter
     end
   end
 

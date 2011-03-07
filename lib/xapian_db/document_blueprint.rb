@@ -6,18 +6,12 @@ module XapianDb
   # for a given class.
   # @example A simple document blueprint configuration for the class Person
   #   XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
-  #     # Our Person class has a method lang_cd. We use this method to
-  #     # index each person with its language
-  #     blueprint.language_method :lang_cd
   #     blueprint.attribute       :name, :weight => 10
   #     blueprint.attribute       :first_name
   #     blueprint.index           :remarks
   #   end
   # @example A document blueprint configuration with a complex attribute for the class Person
   #   XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
-  #     # Our Person class has a method lang_cd. We use this method to
-  #     # index each person with its language
-  #     blueprint.language_method :lang_cd
   #     blueprint.attribute       :complex, :weight => 10 do
   #       # add some logic here to evaluate the value of 'complex'
   #     end
@@ -40,8 +34,8 @@ module XapianDb
         blueprint = DocumentBlueprint.new
         yield blueprint if block_given? # configure the blueprint through the block
         @blueprints[klass] = blueprint
-        @adapter = blueprint.adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
-        @adapter.add_class_helper_methods_to klass
+        @_adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
+        @_adapter.add_class_helper_methods_to klass
         @searchable_prefixes = nil # force rebuild of the searchable prefixes
       end
 
@@ -166,7 +160,7 @@ module XapianDb
       end
 
       # Let the adapter add its document helper methods (if any)
-      adapter = @adapter || XapianDb::Config.adapter || XapianDb::Adapters::GenericAdapter
+      adapter = @_adapter || XapianDb::Config.adapter || XapianDb::Adapters::GenericAdapter
       adapter.add_doc_helper_methods_to(@accessors_module)
       @accessors_module
     end
@@ -175,19 +169,23 @@ module XapianDb
     # Blueprint DSL methods
     # ---------------------------------------------------------------------------------
 
-    # The name of the method that returns an iso language code. The
-    # configured class must implement this method.
-    attr_reader :lang_method
-
-    # Set / read a custom adapter.
-    # Use this configuration option if you need a specific adapter for an indexed class.
-    # If set, it overrides the globally configured adapter (see also {Config#adapter})
-    attr_accessor :adapter
+    # An optional custom adapter
+    attr_accessor :_adapter
 
     # Construct the blueprint
     def initialize
       @attributes_hash = {}
       @indexed_methods_hash = {}
+    end
+
+    # Set the adapter
+    # @param [Symbol] type The adapter type; the following adapters are available:
+    #   - :generic ({XapianDb::Adapters::GenericAdapter})
+    #   - :active_record ({XapianDb::Adapters::ActiveRecordAdapter})
+    #   - :datamapper ({XapianDb::Adapters::DatamapperAdapter})
+    def adapter(type)
+      # We try to guess the adapter name
+      @_adapter = XapianDb::Adapters.const_get("#{camelize(type.to_s)}Adapter")
     end
 
     # Add an attribute to the blueprint. Attributes will be stored in the xapian documents an can be
@@ -296,6 +294,14 @@ module XapianDb
       @reserved_method_names ||= Xapian::Document.instance_methods
       @reserved_method_names.include?(attr_name.to_sym)
     end
+
+    private
+
+    # TODO: move this to a helper module
+    def camelize(string)
+      string.split(/[^a-z0-9]/i).map{|w| w.capitalize}.join
+    end
+
   end
 
 end
