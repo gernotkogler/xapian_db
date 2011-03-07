@@ -86,8 +86,6 @@ describe XapianDb do
         config.adapter :active_record
         config.writer  :direct
       end
-
-
     end
 
     it "does nothing if no blueprints are configured" do
@@ -113,6 +111,18 @@ describe XapianDb do
 
       XapianDb.rebuild_xapian_index
       XapianDb.search("Kogler").size.should == 1
+    end
+
+    it "ignores blueprints that describe plain ruby classes" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.adapter :generic
+        blueprint.index :id
+      end
+      # We reopen the in memory database to destroy the index
+      XapianDb.setup do |config|
+        config.database :memory
+      end
+      lambda {XapianDb.rebuild_xapian_index}.should_not raise_error
     end
 
   end

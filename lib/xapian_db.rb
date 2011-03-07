@@ -92,7 +92,7 @@ module XapianDb
     configured_classes = XapianDb::DocumentBlueprint.configured_classes
     return false unless configured_classes.size > 0
     configured_classes.each do |klass|
-      XapianDb::Config.writer.reindex_class(klass, options)
+      XapianDb::Config.writer.reindex_class(klass, options) if klass.respond_to?(:rebuild_xapian_index)
     end
     true
   end
