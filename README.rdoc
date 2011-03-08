@@ -116,6 +116,14 @@ You may add a filter expression to exclude objects from the index. This is handy
       blueprint.ignore_if {active == false}
     end
 
+You can override the global adapter configuration in a specific blueprint. Let's say you use ActiveRecord, but you have
+one more class that is not stored in the database, but you want it to be indexed:
+
+XapianDb::DocumentBlueprint.setup(SpecialClass) do |blueprint|
+  blueprint.adapter :generic
+  blueprint.index   :some_stuff
+end
+
 place these configurations either into the corresponding class or - I prefer to have the index configurations outside
 the models - into the file config/xapian_blueprints.rb.
 
