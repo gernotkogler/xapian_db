@@ -34,10 +34,10 @@ module XapianDb
         else
           config.database File.expand_path @database_path
         end
-        config.adapter @adapter.to_sym
-        config.writer @writer.to_sym
+        config.adapter @adapter.try(:to_sym)
+        config.writer @writer.try(:to_sym)
         config.beanstalk_daemon_url @beanstalk_daemon
-        config.language @language
+        config.language @language.try(:to_sym)
       end
 
     end
@@ -66,7 +66,6 @@ module XapianDb
     @adapter          = :active_record
     @writer           = :direct
     @beanstalk_daemon = nil
-    @language         = :en
   end
 
   end

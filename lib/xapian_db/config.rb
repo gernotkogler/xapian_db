@@ -108,9 +108,9 @@ module XapianDb
     #   end
     # see {LANGUAGE_MAP} for supported languages
     def language(lang)
-      key = lang.to_sym
-      @_stemmer = XapianDb::Repositories::Stemmer.stemmer_for key
-      key == :none ? @_stopper = nil : @_stopper = XapianDb::Repositories::Stopper.stopper_for(key)
+      lang ||= :none
+      @_stemmer = XapianDb::Repositories::Stemmer.stemmer_for lang
+      lang == :none ? @_stopper = nil : @_stopper = XapianDb::Repositories::Stopper.stopper_for(lang)
     end
 
     private
