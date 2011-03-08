@@ -46,9 +46,21 @@ end
 
 # Test class for indexed datamapper objects; this class mimics some behaviour
 # of datamapper and has methods to test the helper methods
+
+class DMSerial
+  def name
+    :id
+  end
+end
+
 class DatamapperObject < PersistentObject
 
   class << self
+
+    def serial
+      @serial ||= DMSerial.new
+      @serial
+    end
 
     def get(id)
       @objects.detect{|o| o.id == id}
@@ -69,6 +81,10 @@ end
 class ActiveRecordObject < PersistentObject
 
   class << self
+
+    def primary_key
+      :id
+    end
 
     def find(id)
       @objects.detect{|o| o.id == id}
