@@ -139,6 +139,14 @@ describe XapianDb::Config do
         end}.should raise_error ArgumentError
       end
 
+      it "can handle nil as an argument" do
+        XapianDb::Config.setup do |config|
+          config.language nil
+        end
+        XapianDb::Config.stemmer.should be_a_kind_of Xapian::Stem
+        XapianDb::Config.stopper.should_not be
+      end
+
     end
   end
 
