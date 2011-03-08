@@ -19,6 +19,8 @@ module XapianDb
   # @author Gernot Kogler
   class DocumentBlueprint
 
+    include XapianDb::Utilities
+
     # ---------------------------------------------------------------------------------
     # Singleton methods
     # ---------------------------------------------------------------------------------
@@ -293,13 +295,6 @@ module XapianDb
     def reserved_method_name?(attr_name)
       @reserved_method_names ||= Xapian::Document.instance_methods
       @reserved_method_names.include?(attr_name.to_sym)
-    end
-
-    private
-
-    # TODO: move this to a helper module
-    def camelize(string)
-      string.split(/[^a-z0-9]/i).map{|w| w.capitalize}.join
     end
 
   end

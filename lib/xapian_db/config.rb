@@ -12,6 +12,8 @@ module XapianDb
   # @author Gernot Kogler
   class Config
 
+    include XapianDb::Utilities
+
     # ---------------------------------------------------------------------------------
     # Singleton methods
     # ---------------------------------------------------------------------------------
@@ -111,13 +113,6 @@ module XapianDb
       lang ||= :none
       @_stemmer = XapianDb::Repositories::Stemmer.stemmer_for lang
       lang == :none ? @_stopper = nil : @_stopper = XapianDb::Repositories::Stopper.stopper_for(lang)
-    end
-
-    private
-
-    # TODO: move this to a helper module
-    def camelize(string)
-      string.split(/[^a-z0-9]/i).map{|w| w.capitalize}.join
     end
 
   end
