@@ -112,7 +112,7 @@ module XapianDb
     def language(lang)
       lang ||= :none
       @_stemmer = XapianDb::Repositories::Stemmer.stemmer_for lang
-      lang == :none ? @_stopper = nil : @_stopper = XapianDb::Repositories::Stopper.stopper_for(lang)
+      @_stopper = lang == :none ? nil : XapianDb::Repositories::Stopper.stopper_for(lang)
     end
 
   end
