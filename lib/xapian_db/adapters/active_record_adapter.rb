@@ -10,7 +10,7 @@ module XapianDb
     # This adapter does the following:
     # - adds the instance method <code>xapian_id</code> to an indexed class
     # - adds the class method <code>rebuild_xapian_index</code> to an indexed class
-    # - adds an after save block to an indexed class to update the index
+    # - adds an after commit block to an indexed class to update the index
     # - adds an after destroy block to an indexed class to update the index
     # - adds the instance method <code>indexed_object</code> to the module that will be included
     #   in every found xapian document
@@ -38,7 +38,7 @@ module XapianDb
            klass.class_eval do
 
              # add the after save logic
-             after_save do
+             after_commit do
                blueprint = XapianDb::DocumentBlueprint.blueprint_for klass
                if blueprint.should_index?(self)
                  XapianDb::Config.writer.index(self)

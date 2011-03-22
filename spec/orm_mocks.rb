@@ -90,8 +90,8 @@ class ActiveRecordObject < PersistentObject
       @objects.detect{|o| o.id == id}
     end
 
-    # Simulate the after_save method of activerecord
-    def after_save(&block)
+    # Simulate the after_commit method of activerecord
+    def after_commit(&block)
       @hooks ||= {}
       @hooks["after_save".to_sym] = block
     end
