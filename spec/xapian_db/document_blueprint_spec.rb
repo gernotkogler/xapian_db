@@ -20,18 +20,6 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
-  describe ".setup_base" do
-
-    it "defines a global blueprint with values and attributes implemented by all model classes" do
-      pending "waiting for implemenation"
-      XapianDb::DocumentBlueprint.setup_base do |blueprint|
-        blueprint.index :name
-      end
-      XapianDb::DocumentBlueprint.global_blueprint.should be_a_kind_of XapianDb::DocumentBlueprint
-    end
-
-  end
-
   describe ".blueprint_for(klass)" do
 
     it "returns the blueprint for a class" do
