@@ -50,7 +50,6 @@ module XapianDb
     # DSL methods
     # ---------------------------------------------------------------------------------
 
-    #
     attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_stemmer, :_stopper
 
     # Set the global database to use
