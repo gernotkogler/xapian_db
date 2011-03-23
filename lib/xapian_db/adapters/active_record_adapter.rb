@@ -41,21 +41,21 @@ module XapianDb
              after_commit do
                blueprint = XapianDb::DocumentBlueprint.blueprint_for klass
                if blueprint.should_index?(self)
-                 XapianDb::Config.writer.index(self)
+                 XapianDb.index(self)
                else
-                 XapianDb::Config.writer.unindex(self)
+                 XapianDb.unindex(self)
                end
              end
 
              # add the after destroy logic
              after_destroy do
-               XapianDb::Config.writer.unindex(self)
+               XapianDb.unindex(self)
              end
 
              # Add a method to reindex all models of this class
              define_singleton_method(:rebuild_xapian_index) do |options={}|
                options[:primary_key] = klass.primary_key
-               XapianDb::Config.writer.reindex_class(klass, options)
+               XapianDb.reindex_class(klass, options)
              end
            end
 

@@ -40,7 +40,7 @@ describe XapianDb::Adapters::DatamapperAdapter do
     end
 
     it "adds the helper methods from the base class" do
-      ActiveRecordObject.should respond_to(:search)
+      DatamapperObject.should respond_to(:search)
     end
 
   end

@@ -78,6 +78,46 @@ describe XapianDb do
 
   end
 
+  context "outside a transaction" do
+
+    before :each do
+      XapianDb.setup do |config|
+        config.adapter  :active_record
+        config.database :memory
+        config.writer   :direct
+      end
+
+      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.attribute :name
+      end
+    end
+
+    let(:object) { ActiveRecordObject.new(1, "Kogler") }
+
+    describe ".index(obj)" do
+      it "delegates the request to the configured writer" do
+        XapianDb::Config.writer.should_receive(:index).once
+        XapianDb.index object
+      end
+    end
+
+    describe ".unindex(obj)" do
+      it "delegates the request to the configured writer" do
+        XapianDb::Config.writer.should_receive(:unindex).once
+        XapianDb.unindex object
+      end
+    end
+
+    describe ".reindex_class(klass)" do
+      it "delegates the request to the configured writer" do
+        XapianDb::Config.writer.should_receive(:reindex_class).once
+        XapianDb.reindex_class object.class
+      end
+    end
+
+  end
+
   describe ".rebuild_xapian_index" do
 
     before :each do

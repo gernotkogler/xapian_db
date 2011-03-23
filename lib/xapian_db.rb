@@ -8,8 +8,14 @@
 
 require 'xapian'
 require 'yaml'
+require 'forwardable'
 
 module XapianDb
+
+  extend SingleForwardable
+
+  # Delegate index calls to the configured writer
+  def_delegators "XapianDb::Config.writer", :index, :unindex, :reindex_class
 
   # Supported languages
   LANGUAGE_MAP = {:da => :danish,
