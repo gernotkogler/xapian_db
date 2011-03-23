@@ -8,14 +8,8 @@
 
 require 'xapian'
 require 'yaml'
-require 'forwardable'
 
 module XapianDb
-
-  extend SingleForwardable
-
-  # Delegate index calls to the configured writer
-  def_delegators "XapianDb::Config.writer", :index, :unindex, :reindex_class
 
   # Supported languages
   LANGUAGE_MAP = {:da => :danish,
@@ -40,6 +34,7 @@ module XapianDb
   # for available options
   def self.setup(&block)
     XapianDb::Config.setup(&block)
+    @writer = XapianDb::Config.writer
   end
 
   # Create a database
@@ -90,6 +85,26 @@ module XapianDb
     XapianDb::Config.database.facets(expression)
   end
 
+  # Update an object in the index
+  # @param [Object] obj An instance of a class with a blueprint configuration
+  def self.index(obj)
+    @writer.index obj
+  end
+
+  # Remove an object from the index
+  # @param [Object] obj An instance of a class with a blueprint configuration
+  def self.unindex(obj)
+    @writer.unindex obj
+  end
+
+  # Reindex all objects of a given class
+  # @param [Class] klass The class to reindex
+  # @param [Hash] options Options for reindexing
+  # @option options [Boolean] :verbose (false) Should the reindexing give status informations?
+  def self.reindex_class(klass, options={})
+    @writer.reindex_class klass, options
+  end
+
   # Rebuild the xapian index for all configured blueprints
   # @param [Hash] options Options for reindexing
   # @option options [Boolean] :verbose (false) Should the reindexing give status informations?
@@ -101,6 +116,26 @@ module XapianDb
       XapianDb::Config.writer.reindex_class(klass, options) if klass.respond_to?(:rebuild_xapian_index)
     end
     true
+  end
+
+  # Execute a block as a transaction
+  def self.transaction(&block)
+    # Temporarily use the transactional writer
+    @writer = XapianDb::IndexWriters::TransactionalWriter.new
+    begin
+      block.call
+      @writer.commit_using XapianDb::Config.writer
+    rescue Exception => ex
+      msg = "error in XapianDb transaction block: #{ex}, transaction aborted"
+      if defined?(Rails)
+        Rails.logger.error msg
+      else
+        puts msg
+      end
+    ensure
+      # switch back to the configured writer
+      @writer = XapianDb::Config.writer
+    end
   end
 
 end

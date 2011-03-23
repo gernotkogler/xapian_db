@@ -78,46 +78,6 @@ describe XapianDb do
 
   end
 
-  context "outside a transaction" do
-
-    before :each do
-      XapianDb.setup do |config|
-        config.adapter  :active_record
-        config.database :memory
-        config.writer   :direct
-      end
-
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
-        blueprint.attribute :id
-        blueprint.attribute :name
-      end
-    end
-
-    let(:object) { ActiveRecordObject.new(1, "Kogler") }
-
-    describe ".index(obj)" do
-      it "delegates the request to the configured writer" do
-        XapianDb::Config.writer.should_receive(:index).once
-        XapianDb.index object
-      end
-    end
-
-    describe ".unindex(obj)" do
-      it "delegates the request to the configured writer" do
-        XapianDb::Config.writer.should_receive(:unindex).once
-        XapianDb.unindex object
-      end
-    end
-
-    describe ".reindex_class(klass)" do
-      it "delegates the request to the configured writer" do
-        XapianDb::Config.writer.should_receive(:reindex_class).once
-        XapianDb.reindex_class object.class
-      end
-    end
-
-  end
-
   describe ".rebuild_xapian_index" do
 
     before :each do
@@ -163,6 +123,69 @@ describe XapianDb do
         config.database :memory
       end
       lambda {XapianDb.rebuild_xapian_index}.should_not raise_error
+    end
+
+  end
+
+  context "transactions" do
+
+    before :each do
+      XapianDb.setup do |config|
+        config.adapter  :active_record
+        config.database :memory
+        config.writer   :direct
+      end
+
+      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.attribute :name
+      end
+    end
+
+    let(:object) { ActiveRecordObject.new(1, "Kogler") }
+
+    describe ".transaction(&block)" do
+
+      it "executes the given block" do
+        XapianDb.transaction do
+          object.save
+        end
+        XapianDb.database.size.should == 1
+      end
+
+      it "does not index the objects saved in the block if the block raises an error" do
+        XapianDb.transaction do
+          object.save
+          raise "oops"
+        end
+        XapianDb.database.size.should == 0
+      end
+
+    end
+
+
+    describe "outside a transaction" do
+
+      describe ".index(obj)" do
+        it "delegates the request to the configured writer" do
+          XapianDb::Config.writer.should_receive(:index).once
+          XapianDb.index object
+        end
+      end
+
+      describe ".unindex(obj)" do
+        it "delegates the request to the configured writer" do
+          XapianDb::Config.writer.should_receive(:unindex).once
+          XapianDb.unindex object
+        end
+      end
+
+      describe ".reindex_class(klass)" do
+        it "delegates the request to the configured writer" do
+          XapianDb::Config.writer.should_receive(:reindex_class).once
+          XapianDb.reindex_class object.class
+        end
+      end
     end
 
   end
