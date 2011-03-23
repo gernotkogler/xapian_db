@@ -15,13 +15,12 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       config.writer  :direct
     end
 
-
     XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
       blueprint.index :name
     end
-
-    @object = ActiveRecordObject.new(1, "Kogler")
   end
+
+  let(:object) { ActiveRecordObject.new(1, "Kogler") }
 
   describe ".add_class_helper_methods_to(klass)" do
 
@@ -29,7 +28,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
 
     it "adds the method 'xapian_id' to the configured class" do
-      @object.should respond_to(:xapian_id)
+      object.should respond_to(:xapian_id)
     end
 
     it "adds an after save hook to the configured class" do
@@ -68,13 +67,13 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
 
   describe ".xapian_id" do
     it "returns a unique id composed of the class name and the id" do
-      @object.xapian_id.should == "#{@object.class}-#{@object.id}"
+      object.xapian_id.should == "#{object.class}-#{object.id}"
     end
   end
 
-  describe "the after save hook" do
+  describe "the after commit hook" do
     it "should (re)index the object" do
-      @object.save
+      object.save
       XapianDb.search("Kogler").size.should == 1
     end
 
@@ -83,7 +82,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
         blueprint.index :name
         blueprint.ignore_if {name == "Kogler"}
       end
-      @object.save
+      object.save
       XapianDb.search("Kogler").size.should == 0
     end
 
@@ -92,7 +91,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
         blueprint.index :name
         blueprint.ignore_if {name == "not Kogler"}
       end
-      @object.save
+      object.save
       XapianDb.search("Kogler").size.should == 1
     end
 
@@ -100,9 +99,9 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
 
   describe "the after destroy hook" do
     it "should remove the object from the index" do
-      @object.save
+      object.save
       XapianDb.search("Kogler").size.should == 1
-      @object.destroy
+      object.destroy
       XapianDb.search("Kogler").size.should == 0
     end
   end
@@ -110,26 +109,26 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
   describe ".id" do
 
     it "should return the id of the object that is linked with the document" do
-      @object.save
+      object.save
       doc = XapianDb.search("Kogler").first
-      doc.id.should == @object.id
+      doc.id.should == object.id
     end
   end
 
   describe ".indexed_object" do
 
     it "should return the object that is linked with the document" do
-      @object.save
+      object.save
       doc = XapianDb.search("Kogler").first
       # Since we do not have identity map in active_record, we can only
       # compare the ids, not the objects
-      doc.indexed_object.id.should == @object.id
+      doc.indexed_object.id.should == object.id
     end
   end
 
   describe ".rebuild_xapian_index" do
     it "should (re)index all objects of this class" do
-      @object.save
+      object.save
       XapianDb.search("Kogler").size.should == 1
 
       # We reopen the in memory database to destroy the index
@@ -143,7 +142,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
 
     it "should respect an ignore expression" do
-      @object.save
+      object.save
       XapianDb.search("Kogler").size.should == 1
 
       # We reopen the in memory database to destroy the index
