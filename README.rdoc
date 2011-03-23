@@ -234,6 +234,16 @@ A global facet search always groups the results by the class of the indexed obje
 
 At the class level, any attribute can be used for a facet query.
 
+=== Transactions
+
+You can execute a block of code inside a XapianDb transaction. This ensures that the changed objects in your block will get reindexed
+only if the block does not raise an exception.
+
+  XapianDb.transaction do
+    object1.save
+    object2.save
+  end
+
 == Production setup
 
 Since Xapian allows only one database instance to write to the index, the default setup of XapianDb will not work

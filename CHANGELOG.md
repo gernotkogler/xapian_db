@@ -4,6 +4,10 @@ Fixes:
 
   - automatic reindexing of a changed object now works when using beanstalk and the worker rake task
 
+Features:
+
+  - support for transactions (see the README for details)
+
 ##0.5.7 (March 7th, 2011)
 
 Fixes:
