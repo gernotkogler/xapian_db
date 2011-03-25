@@ -88,13 +88,15 @@ module XapianDb
   # Update an object in the index
   # @param [Object] obj An instance of a class with a blueprint configuration
   def self.index(obj)
-    @writer.index obj
+    writer = @transactional_writer || XapianDb::Config.writer
+    writer.index obj
   end
 
   # Remove an object from the index
   # @param [Object] obj An instance of a class with a blueprint configuration
   def self.unindex(obj)
-    @writer.unindex obj
+    writer = @transactional_writer || XapianDb::Config.writer
+    writer.unindex obj
   end
 
   # Reindex all objects of a given class
@@ -102,7 +104,7 @@ module XapianDb
   # @param [Hash] options Options for reindexing
   # @option options [Boolean] :verbose (false) Should the reindexing give status informations?
   def self.reindex_class(klass, options={})
-    @writer.reindex_class klass, options
+    XapianDb::Config.writer.reindex_class klass, options
   end
 
   # Rebuild the xapian index for all configured blueprints
@@ -121,10 +123,10 @@ module XapianDb
   # Execute a block as a transaction
   def self.transaction(&block)
     # Temporarily use the transactional writer
-    @writer = XapianDb::IndexWriters::TransactionalWriter.new
+    @transactional_writer = XapianDb::IndexWriters::TransactionalWriter.new
     begin
       block.call
-      @writer.commit_using XapianDb::Config.writer
+      @transactional_writer.commit_using XapianDb::Config.writer
     rescue Exception => ex
       msg = "error in XapianDb transaction block: #{ex}, transaction aborted"
       if defined?(Rails)
@@ -133,8 +135,8 @@ module XapianDb
         puts msg
       end
     ensure
-      # switch back to the configured writer
-      @writer = XapianDb::Config.writer
+      # release the transactional writer
+      @transactional_writer = nil
     end
   end
 

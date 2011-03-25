@@ -1,3 +1,9 @@
+##0.5.9 (March 25th, 2011)
+
+Fixes:
+
+  - indexing was broken in 0.5.8
+
 ##0.5.8 (March 22th, 2011)
 
 Fixes:
