@@ -19,8 +19,8 @@ namespace :xapian_db do
     worker    = XapianDb::IndexWriters::BeanstalkWorker.new
     puts "XapianDb beanstalk worker is serving on #{url}..."
     loop do
-      job = beanstalk.reserve
       begin
+        job = beanstalk.reserve
         params = YAML::load job.body
         Rails.logger.info "XapianDb beanstalk worker: executing task #{params}"
         task = params.delete :task
@@ -28,7 +28,13 @@ namespace :xapian_db do
       rescue Exception => ex
         Rails.logger.error "XapianDb beanstalk worker: could not process #{job.body} (#{ex})"
       end
-      job.delete
+
+      begin
+        job.delete
+      rescue Exception => ex
+        Rails.logger.error "XapianDb beanstalk worker: could delete job #{job.body} (#{ex})"
+      end
+
     end
 
   end
