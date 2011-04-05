@@ -54,24 +54,24 @@ module XapianDb
       load blueprints_file_path if File.exist?(blueprints_file_path)
     end
 
-  private
+    private
 
-  # use the config options from the config file
-  def self.configure_from(env_config)
-    @database_path    = env_config["database"] || ":memory:"
-    @adapter          = env_config["adapter"]  || :active_record
-    @writer           = env_config["writer"]   || :direct
-    @beanstalk_daemon = env_config["beanstalk_daemon"]
-    @language         = env_config["language"]
-  end
+    # use the config options from the config file
+    def self.configure_from(env_config)
+      @database_path    = env_config["database"] || ":memory:"
+      @adapter          = env_config["adapter"]  || :active_record
+      @writer           = env_config["writer"]   || :direct
+      @beanstalk_daemon = env_config["beanstalk_daemon"]
+      @language         = env_config["language"]
+    end
 
-  # set default config options
-  def self.configure_defaults
-    Rails.env == "test" ? @database_path = ":memory:" : @database_path = "db/xapian_db/#{Rails.env}"
-    @adapter          = :active_record
-    @writer           = :direct
-    @beanstalk_daemon = nil
-  end
+    # set default config options
+    def self.configure_defaults
+      Rails.env == "test" ? @database_path = ":memory:" : @database_path = "db/xapian_db/#{Rails.env}"
+      @adapter          = :active_record
+      @writer           = :direct
+      @beanstalk_daemon = nil
+    end
 
   end
 end
