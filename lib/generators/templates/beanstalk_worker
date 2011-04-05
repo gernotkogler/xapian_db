@@ -1,18 +1,17 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require 'rubygems'
-require 'daemons'
+require "bundler/setup"
 require 'rails'
+require 'daemons'
+require "xapian_db"
+require 'yaml'
+require 'rails/railtie' # execute xapian_db railtie
 
 # daemon script to manage the beanstalk worker daemon
 # @author Gernot Kogler
 module XapianDb
   class BeanstalkWorker
-
-    require "xapian_db"
-    require 'yaml'
-    require 'rails/railtie' # execute xapian_db railtie
 
     def process_requests
 
@@ -29,8 +28,6 @@ module XapianDb
           params = YAML::load job.body
           Rails.logger.info "XapianDb beanstalk worker: executing task #{params}"
           task = params.delete :task
-          klass = Kernel.const_get "Person"
-          Rails.logger.info "Klasse im Loop: #{klass.inspect}"
           worker.send task, params
         rescue Exception => ex
           Rails.logger.error "XapianDb beanstalk worker: could not process #{job.body} (#{ex})"
@@ -69,7 +66,6 @@ Daemons.run_proc('beanstalk_worker', daemon_options) do
   end
 
   Dir.chdir dir
-
   require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
   XapianDb::BeanstalkWorker.new.process_requests
 end
