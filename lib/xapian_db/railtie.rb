@@ -9,9 +9,14 @@ module XapianDb
   # @author Gernot Kogler
   class Railtie < ::Rails::Railtie
 
-    # Require our rake tasks
+    # require our rake tasks
     rake_tasks do
       load "#{File.dirname(__FILE__)}/../../tasks/beanstalk_worker.rake"
+    end
+
+    # require our generators
+    generators do
+      require "#{File.dirname(__FILE__)}/../generators/install_generator.rb"
     end
 
     config.before_configuration do

@@ -11,12 +11,14 @@ require 'yaml'
 
 namespace :xapian_db do
 
-  desc "Run the beanstalk worker process to update the xapian index"
+  DEPRECATION_WARNING = "beanstalk_worker.rake is deprecated, use script/beanstalk_worker instead"
+  desc DEPRECATION_WARNING
   task :beanstalk_worker do
 
     url = XapianDb::Config.beanstalk_daemon_url
     beanstalk = Beanstalk::Pool.new([url])
     worker    = XapianDb::IndexWriters::BeanstalkWorker.new
+    puts DEPRECATION_WARNING
     puts "XapianDb beanstalk worker is serving on #{url}..."
     loop do
       begin

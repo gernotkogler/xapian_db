@@ -8,3 +8,4 @@ doc
 examples/basic_rails/db/xapian_db
 examples/basic_rails/db/*.sqlite3
 examples/basic_rails/log
+examples/basic_rails/tmp

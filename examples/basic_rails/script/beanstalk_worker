@@ -5,16 +5,15 @@ require 'rubygems'
 require 'daemons'
 require 'rails'
 
-# Ruby Daemon zum Starten von Workflows
+# daemon script to manage the beanstalk worker daemon
 # @author Gernot Kogler
 module XapianDb
   class BeanstalkWorker
 
     require "xapian_db"
     require 'yaml'
-    require 'rails/railtie'
+    require 'rails/railtie' # execute xapian_db railtie
 
-    # Verarbeitungs-Loop
     def process_requests
 
       Rails.logger.info "XapianDb beanstalk worker: initializing..."
@@ -49,15 +48,16 @@ module XapianDb
 end
 
 # =========================================================================================
-# Daemon-Infrastruktur
+# daemon setup
 # =========================================================================================
-
 dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+pids_dir = File.join(dir, 'tmp', 'pids')
+FileUtils.makedirs pids_dir unless File.exists?(pids_dir)
 
 daemon_options = {
   :multiple   => false,
   :dir_mode   => :normal,
-  :dir        => File.join(dir, 'tmp', 'pids'),
+  :dir        => pids_dir,
   :backtrace  => true
 }
 
