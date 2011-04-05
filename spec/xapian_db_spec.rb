@@ -190,4 +190,32 @@ describe XapianDb do
 
   end
 
+  context "no indexing" do
+
+    before :each do
+      XapianDb.setup do |config|
+        config.adapter  :active_record
+        config.database :memory
+        config.writer   :direct
+      end
+
+      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.attribute :name
+      end
+    end
+
+    let(:object) { ActiveRecordObject.new(1, "Kogler") }
+
+    describe ".auto_indexing_disabled(&block)" do
+
+      it "executes the given block and does not update the index" do
+        XapianDb.auto_indexing_disabled do
+          object.save
+        end
+        XapianDb.database.size.should == 0
+      end
+
+    end
+  end
 end

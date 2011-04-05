@@ -88,14 +88,14 @@ module XapianDb
   # Update an object in the index
   # @param [Object] obj An instance of a class with a blueprint configuration
   def self.index(obj)
-    writer = @transactional_writer || XapianDb::Config.writer
+    writer = @block_writer || XapianDb::Config.writer
     writer.index obj
   end
 
   # Remove an object from the index
   # @param [Object] obj An instance of a class with a blueprint configuration
   def self.unindex(obj)
-    writer = @transactional_writer || XapianDb::Config.writer
+    writer = @block_writer || XapianDb::Config.writer
     writer.unindex obj
   end
 
@@ -123,10 +123,10 @@ module XapianDb
   # Execute a block as a transaction
   def self.transaction(&block)
     # Temporarily use the transactional writer
-    @transactional_writer = XapianDb::IndexWriters::TransactionalWriter.new
+    @block_writer = XapianDb::IndexWriters::TransactionalWriter.new
     begin
       block.call
-      @transactional_writer.commit_using XapianDb::Config.writer
+      @block_writer.commit_using XapianDb::Config.writer
     rescue Exception => ex
       msg = "error in XapianDb transaction block: #{ex}, transaction aborted"
       if defined?(Rails)
@@ -136,13 +136,32 @@ module XapianDb
       end
     ensure
       # release the transactional writer
-      @transactional_writer = nil
+      @block_writer = nil
+    end
+  end
+
+  # Execute a block and do not update the index
+  def self.auto_indexing_disabled(&block)
+    # Temporarily use the "no operation" writer
+    @block_writer = XapianDb::IndexWriters::NoOpWriter.new
+    begin
+      block.call
+    rescue Exception => ex
+      msg = "error in XapianDb auto_indexing_disabled block: #{ex}"
+      if defined?(Rails)
+        Rails.logger.error msg
+      else
+        puts msg
+      end
+    ensure
+      # release the "no operation" writer
+      @block_writer = nil
     end
   end
 
 end
 
-do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb beanstalk_writer.rb utilities.rb)
+do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb beanstalk_writer.rb utilities.rb install_generator.rb)
 files = Dir.glob("#{File.dirname(__FILE__)}/**/*.rb").reject{|path| do_not_require.include?(File.basename(path))}
 # Require these first
 require "#{File.dirname(__FILE__)}/xapian_db/utilities"
