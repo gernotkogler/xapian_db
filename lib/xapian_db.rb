@@ -122,41 +122,40 @@ module XapianDb
 
   # Execute a block as a transaction
   def self.transaction(&block)
-    # Temporarily use the transactional writer
-    @block_writer = XapianDb::IndexWriters::TransactionalWriter.new
-    begin
+    writer = XapianDb::IndexWriters::TransactionalWriter.new
+    execute_block :writer => writer, :error_message => "error in XapianDb transaction block, transaction aborted" do
       block.call
-      @block_writer.commit_using XapianDb::Config.writer
-    rescue Exception => ex
-      msg = "error in XapianDb transaction block: #{ex}, transaction aborted"
-      if defined?(Rails)
-        Rails.logger.error msg
-      else
-        puts msg
-      end
-      raise
-    ensure
-      # release the transactional writer
-      @block_writer = nil
+      writer.commit_using XapianDb::Config.writer
     end
   end
 
   # Execute a block and do not update the index
   def self.auto_indexing_disabled(&block)
-    # Temporarily use the "no operation" writer
-    @block_writer = XapianDb::IndexWriters::NoOpWriter.new
+    execute_block :writer => XapianDb::IndexWriters::NoOpWriter.new do
+      block.call
+    end
+
+  end
+
+  # execute a block of code with a given writer and handle errors
+  # @param [Hash] opts Options
+  # @option opts [Object] :writer An index writer
+  # @option opts [String] :error_message the error message to log if an error occurs
+  def self.execute_block(opts, &block)
+    @block_writer = opts[:writer]
     begin
       block.call
     rescue Exception => ex
-      msg = "error in XapianDb auto_indexing_disabled block: #{ex}"
-      if defined?(Rails)
-        Rails.logger.error msg
-      else
-        puts msg
+      if opts[:error_message]
+        if defined?(Rails)
+          Rails.logger.error opts[:error_message]
+        else
+          puts opts[:error_message]
+        end
       end
       raise
     ensure
-      # release the "no operation" writer
+      # release the block writer
       @block_writer = nil
     end
   end
