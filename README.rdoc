@@ -244,6 +244,19 @@ only if the block does not raise an exception.
     object2.save
   end
 
+=== Bulk inserts / updates / deletes
+
+When you change a lot of models, it is not very efficient to update the xapian index on each insert / update / delete. Instead,
+you can use the auto_indexing_disabled method with a block and rebuild the whole index afterwards:
+
+  XapianDb.auto_indexing_disabled do
+    Person.each do |person|
+      # change person
+      person.save
+    end
+  end
+  Person.rebuild_xapian_index
+
 == Production setup
 
 Since Xapian allows only one database instance to write to the index, the default setup of XapianDb will not work
@@ -282,21 +295,26 @@ The easiest way is to use macports or homebrew:
   gem 'beanstalk-client' # Add this to your Gemfile
   bundle install
 
-=== 3. Configure your production environment in config/xapian_db.yml
+=== 3. Install the beanstalk worker script
+
+  rails generate xapian:db install
+
+=== 4. Configure your production environment in config/xapian_db.yml
 
   production:
     database: db/xapian_db/production
     writer:   beanstalk
     beanstalk_daemon: localhost:11300
 
-=== 4. start the beanstalk daemon
+=== 5. start the beanstalk daemon
 
   beanstalkd -d
 
-=== 5. start the beanstalk worker from within your Rails app root directory
+=== 6. start the beanstalk worker from within your Rails app root directory
 
-  rake RAILS_ENV=production xapian_db:beanstalk_worker
+  RAILS_ENV=production script/beanstalk_worker start
 
-<b>Important: Do not start multiple instances of this worker task!</b>
+If everything is fine, you should find a file namend beanstalk_worker.pid in tmp/pids. If something
+goes wrong, you'll find beanstalk_worker.log instead showing the stack trace.
 
-
+<b>Important: Do not start multiple instances of this daemon!</b>
