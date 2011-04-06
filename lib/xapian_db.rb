@@ -134,6 +134,7 @@ module XapianDb
       else
         puts msg
       end
+      raise
     ensure
       # release the transactional writer
       @block_writer = nil
@@ -153,6 +154,7 @@ module XapianDb
       else
         puts msg
       end
+      raise
     ensure
       # release the "no operation" writer
       @block_writer = nil

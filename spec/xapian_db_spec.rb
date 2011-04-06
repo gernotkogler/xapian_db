@@ -153,10 +153,20 @@ describe XapianDb do
         XapianDb.database.size.should == 1
       end
 
-      it "does not index the objects saved in the block if the block raises an error" do
-        XapianDb.transaction do
+      it "reraises exceptions" do
+        lambda { XapianDb.transaction do
           object.save
           raise "oops"
+        end }.should raise_error "oops"
+      end
+
+      it "does not index the objects saved in the block if the block raises an error" do
+        begin
+          XapianDb.transaction do
+            object.save
+            raise "oops"
+          end
+          rescue
         end
         XapianDb.database.size.should == 0
       end
@@ -214,6 +224,13 @@ describe XapianDb do
           object.save
         end
         XapianDb.database.size.should == 0
+      end
+
+      it "reraises exceptions" do
+        lambda { XapianDb.auto_indexing_disabled do
+          object.save
+          raise "oops"
+        end }.should raise_error "oops"
       end
 
     end
