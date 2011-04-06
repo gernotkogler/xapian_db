@@ -171,6 +171,22 @@ describe XapianDb do
         XapianDb.database.size.should == 0
       end
 
+      it "logs exceptions if used within a rails app" do
+        Rails = mock "Rails"
+        logger = mock "logger"
+        Rails.stub(:logger).and_return logger
+        logger.should_receive :error
+
+        begin
+          XapianDb.transaction do
+            object.save
+            raise "oops"
+          end
+          rescue
+        end
+        XapianDb.database.size.should == 0
+      end
+
     end
 
 
