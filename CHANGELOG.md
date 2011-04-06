@@ -1,8 +1,8 @@
-##0.5.10 (April 4th, 2011)
+##0.5.10 (April 6th, 2011)
 
 Features:
 
-  - the beanstalk worker is now available as a daemon script (execute 'rails generate xapian_db:install' to install it)
+  - the beanstalk worker is now implemented as a daemon script (execute 'rails generate xapian_db:install' to install it)
   - execute a block with auto indexing disabled (see 'Bulk inserts / updates / deletes' in teh README)
   - updated the xapian source to version 1.2.5
 
