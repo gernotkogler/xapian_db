@@ -74,8 +74,8 @@ module XapianDb
   # Query the configured database.
   # See {XapianDb::Database#search} for options
   # @return [XapianDb::Resultset]
-  def self.search(expression)
-    XapianDb::Config.database.search(expression)
+  def self.search(expression, options={})
+    XapianDb::Config.database.search(expression, options)
   end
 
   # Get facets from the configured database.

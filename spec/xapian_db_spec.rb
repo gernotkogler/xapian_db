@@ -56,13 +56,20 @@ describe XapianDb do
 
   end
 
-  describe ".search(expression)" do
+  describe ".search(expression, options={})" do
 
-    it "should delegate the search to the current database" do
+    before :each do
       XapianDb.setup do |config|
         config.database :memory
       end
+    end
+
+    it "should delegate the search to the current database" do
       XapianDb.search("Something").should be_a_kind_of(XapianDb::Resultset)
+    end
+
+    it "accepts per_page and page options" do
+      XapianDb.search("Something", :per_page => 10, :page => 1).should be_a_kind_of(XapianDb::Resultset)
     end
 
   end
