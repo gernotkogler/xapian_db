@@ -24,7 +24,7 @@ namespace :xapian_db do
       begin
         job = beanstalk.reserve
         params = YAML::load job.body
-        Rails.logger.info "XapianDb beanstalk worker: executing task #{params}"
+        Rails.logger.debug "XapianDb beanstalk worker: executing task #{params}"
         task = params.delete :task
         worker.send task, params
       rescue Exception => ex
