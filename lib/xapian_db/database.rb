@@ -65,7 +65,7 @@ module XapianDb
       # If we do not have a valid query we return an empty result set
       return Resultset.new(nil, opts) unless query
 
-      Rails.logger.info "Executing XapianDb search: #{expression}" if defined?(Rails)
+      start = Time.now
 
       enquiry        = Xapian::Enquire.new(reader)
       enquiry.query  = query
@@ -84,7 +84,10 @@ module XapianDb
 
       opts[:spelling_suggestion] = @query_parser.spelling_suggestion
       opts[:db_size]             = self.size
-      Resultset.new(enquiry, opts)
+      result = Resultset.new(enquiry, opts)
+
+      Rails.logger.debug "XapianDb search (#{(Time.now - start) * 1000}ms) #{expression}" if defined?(Rails)
+      result
     end
 
     # A very simple implementation of facets limited to the class facets.
