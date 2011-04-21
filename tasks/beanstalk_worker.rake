@@ -21,22 +21,16 @@ namespace :xapian_db do
     puts DEPRECATION_WARNING
     puts "XapianDb beanstalk worker is serving on #{url}..."
     loop do
+      job = beanstalk.reserve
       begin
-        job = beanstalk.reserve
         params = YAML::load job.body
-        Rails.logger.debug "XapianDb beanstalk worker: executing task #{params}"
+        Rails.logger.info "XapianDb beanstalk worker: executing task #{params}"
         task = params.delete :task
         worker.send task, params
       rescue Exception => ex
         Rails.logger.error "XapianDb beanstalk worker: could not process #{job.body} (#{ex})"
       end
-
-      begin
-        job.delete
-      rescue Exception => ex
-        Rails.logger.error "XapianDb beanstalk worker: could delete job #{job.body} (#{ex})"
-      end
-
+      job.delete
     end
 
   end
