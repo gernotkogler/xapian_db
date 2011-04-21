@@ -1,3 +1,11 @@
+##0.5.11 (April 21st, 2011)
+
+Features:
+
+  - XapianDb.search accepts all options supported by XapianDb::Database.search
+  - Rails log entries include query execution time
+  - small changes to the beanstalk worker error handling
+
 ##0.5.10 (April 6th, 2011)
 
 Features:
