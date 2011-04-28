@@ -65,14 +65,10 @@ module XapianDb
       # @return [Array<String>] All searchable prefixes
       def searchable_prefixes
         return [] unless @blueprints
-        return @searchable_prefixes unless @searchable_prefixes.nil?
-        prefixes = []
-        @blueprints.values.each do |blueprint|
-          prefixes << blueprint.searchable_prefixes
-        end
-        @searchable_prefixes = prefixes.flatten.compact.uniq
+        @searchable_prefixes ||= @blueprints.values.map { |blueprint| blueprint.searchable_prefixes }.flatten.compact.uniq
         # We can always do a field search on the name of the indexed class
         @searchable_prefixes << "indexed_class"
+        @searchable_prefixes
       end
 
     end
