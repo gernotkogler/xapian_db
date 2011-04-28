@@ -35,6 +35,8 @@ module XapianDb
         @blueprints ||= {}
         blueprint = DocumentBlueprint.new
         yield blueprint if block_given? # configure the blueprint through the block
+        # Remove a previously loaded blueprint for this class to avoid stale blueprint definitions
+        @blueprints.delete_if { |key, blueprint| key.name == klass.name }
         @blueprints[klass] = blueprint
         @_adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
         @_adapter.add_class_helper_methods_to klass

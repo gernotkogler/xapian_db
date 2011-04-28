@@ -1,3 +1,9 @@
+##0.5.12 (April 28th, 2011)
+
+Fixes:
+
+  - avoid stale blueprint setups when an indexed class is reloaded
+
 ##0.5.11 (April 21st, 2011)
 
 Features:

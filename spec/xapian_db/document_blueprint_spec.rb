@@ -88,6 +88,16 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of(XapianDb::DocumentBlueprint)
     end
 
+    it "does replace the blueprint for a class if the class is reloaded" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject)
+      XapianDb::DocumentBlueprint.configured_classes.size.should == 1
+      # reload IndexedObject
+      Object.send(:remove_const, :IndexedObject)
+      load File.expand_path('../../basic_mocks.rb', __FILE__)
+      XapianDb::DocumentBlueprint.setup(IndexedObject)
+      XapianDb::DocumentBlueprint.configured_classes.size.should == 1
+    end
+
   end
 
   describe "#adapter (symbol)" do
