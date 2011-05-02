@@ -204,7 +204,6 @@ module XapianDb
     #       end
     #     end
     #   end
-    # @todo Make sure the name does not collide with a method name of Xapian::Document
     def attribute(name, options={}, &block)
       raise ArgumentError.new("You cannot use #{name} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(name)
       opts = {:index => true}.merge(options)
@@ -219,7 +218,6 @@ module XapianDb
     # Add a list of attributes to the blueprint. Attributes will be stored in the xapian documents ans
     # can be accessed from a search result.
     # @param [Array] attributes An array of method names that deliver the values for the attributes
-    # @todo Make sure the name does not collide with a method name of Xapian::Document
     def attributes(*attributes)
       attributes.each do |attr|
         raise ArgumentError.new("You cannot use #{attr} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(attr)
