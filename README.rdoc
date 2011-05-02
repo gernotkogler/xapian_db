@@ -284,7 +284,8 @@ The easiest way is to use macports or homebrew:
   sudo apt-get -t lenny-backports install libevent-1.4-2
   sudo apt-get -t lenny-backports install libevent-dev
   cd /tmp
-  curl http://xph.us/dist/beanstalkd/beanstalkd-1.4.6.tar.gz | tar zx
+  wget --no-check-certificate https://github.com/downloads/kr/beanstalkd/beanstalkd-1.4.6.tar.gz
+  tar xvf beanstalkd-1.4.6.tar.gz
   cd beanstalkd-1.4.6/
   ./configure
   make
@@ -297,7 +298,7 @@ The easiest way is to use macports or homebrew:
 
 === 3. Install the beanstalk worker script
 
-  rails generate xapian:db install
+  rails generate xapian_db:install
 
 === 4. Configure your production environment in config/xapian_db.yml
 
