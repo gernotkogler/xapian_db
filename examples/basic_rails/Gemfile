@@ -12,7 +12,7 @@ gem 'forgery'
 gem 'kaminari'
 gem 'formtastic'
 gem 'beanstalk-client'
-gem 'xapian_db', '>= 0.5.10'
+gem 'xapian_db', '>= 0.5.13'
 
 # Use unicorn as the web server
 # gem 'unicorn'
