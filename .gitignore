@@ -3,6 +3,7 @@
 coverage/*
 Gemfile.lock
 *.gem
+*.tmproj
 doc
 .yardoc
 examples/basic_rails/db/xapian_db
