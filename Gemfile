@@ -28,3 +28,4 @@ gem "progressbar"
 gem 'guard-rspec'
 gem 'growl'
 gem 'rb-fsevent'
+gem 'xapian_db' # Simple way to ensure that the xapian ruby bindings are available and loaded
