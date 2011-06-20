@@ -9,7 +9,7 @@ def system!(cmd)
 	system(cmd) or raise
 end
 
-ver = '1.2.5'
+ver = '1.2.6'
 source_dir = 'xapian_source'
 core = "xapian-core-#{ver}"
 bindings = "xapian-bindings-#{ver}"
@@ -38,6 +38,15 @@ task :default do
 		system! "make clean all"
 	end
 
-	system! "cp -r #{bindings}/ruby/.libs/_xapian.* lib"
-	system! "cp #{bindings}/ruby/xapian.rb lib"
+  system! "cp -r #{bindings}/ruby/.libs/_xapian.* lib"
+  system! "cp #{bindings}/ruby/xapian.rb lib"
+
+  system! "rm lib/*.a"
+  system! "rm lib/*.la"
+  system! "rm lib/*.lai"
+
+  system! "rm -R #{bindings}"
+  system! "rm -R #{core}"
+  system! "rm -R #{source_dir}"
+
 end
