@@ -8,6 +8,7 @@ Features:
 
   - updated the xapian source to 1.2.6
   - xapian source and build artefacts are removed after successful install
+  - added support for namespaced classes
 
 ##0.5.12 (April 28th, 2011)
 
