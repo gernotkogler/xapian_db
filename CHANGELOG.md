@@ -1,3 +1,9 @@
+##0.5.13 (June 20th, 2011)
+
+Fixes:
+
+  - handle attribute objects that return nil from to_s
+
 ##0.5.12 (April 28th, 2011)
 
 Fixes:
