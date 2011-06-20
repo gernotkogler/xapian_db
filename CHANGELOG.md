@@ -4,6 +4,11 @@ Fixes:
 
   - handle attribute objects that return nil from to_s
 
+Features:
+
+  - updated the xapian source to 1.2.6
+  - xapian source and build artefacts are removed after successful install
+
 ##0.5.12 (April 28th, 2011)
 
 Fixes:
