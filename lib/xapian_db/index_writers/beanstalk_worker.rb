@@ -8,20 +8,22 @@ module XapianDb
     # @author Gernot Kogler
     class BeanstalkWorker
 
+      include XapianDb::Utilities
+
       def index_task(options)
-        klass = Kernel.const_get options[:class]
+        klass = constantize options[:class]
         obj   = klass.respond_to?(:get) ? klass.get(options[:id].to_i) : klass.find(options[:id].to_i)
         DirectWriter.index obj
       end
 
       def unindex_task(options)
-        klass = Kernel.const_get options[:class]
+        klass = constantize options[:class]
         obj   = klass.respond_to?(:get) ? klass.get(options[:id].to_i) : klass.find(options[:id].to_i)
         DirectWriter.unindex obj
       end
 
       def reindex_class_task(options)
-        klass = Kernel.const_get options[:class]
+        klass = constantize options[:class]
         DirectWriter.reindex_class klass, :verbose => false
       end
 

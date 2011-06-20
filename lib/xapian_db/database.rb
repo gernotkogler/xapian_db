@@ -7,6 +7,8 @@ module XapianDb
   # Base class for a Xapian database
   class Database
 
+    include XapianDb::Utilities
+
     # A readable xapian database (see http://xapian.org/docs/apidoc/html/classXapian_1_1Database.html)
     attr_reader :reader
 
@@ -104,7 +106,7 @@ module XapianDb
         class_name = match.document.values[0].value
         # We must add 1 to the collapse_count since collapse_count means
         # "how many other matches are there?"
-        facets[Kernel.const_get(class_name)] = match.collapse_count + 1
+        facets[constantize class_name] = match.collapse_count + 1
       end
       facets
     end

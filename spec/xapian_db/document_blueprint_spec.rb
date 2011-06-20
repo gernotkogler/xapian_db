@@ -41,6 +41,15 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(InheritedIndexedObject).should == XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
     end
 
+    it "can handle namespaces" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.setup(Namespace::IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(Namespace::IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
+    end
+
     it "raises an exception if there is no blueprint configuration for a class" do
       lambda {XapianDb::DocumentBlueprint.blueprint_for(Object)}.should raise_error
     end

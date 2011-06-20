@@ -65,6 +65,8 @@ module XapianDb
          def add_doc_helper_methods_to(a_module)
            a_module.instance_eval do
 
+             include XapianDb::Utilities
+
              # Implement access to the model id
              define_method :id do
                return @id unless @d.nil?
@@ -78,7 +80,7 @@ module XapianDb
                return @indexed_object unless @indexed_object.nil?
                # retrieve the class and id from data
                klass_name, id = data.split("-")
-               klass = Kernel.const_get(klass_name)
+               klass = constantize klass_name
                @indexed_object = klass.get(id.to_i)
              end
            end
