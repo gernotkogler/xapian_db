@@ -86,10 +86,7 @@ module XapianDb
           end
         end
       end
-
     end
-
-    private
 
     # Get the values to index from an object
     def get_values_to_index_from(obj)
@@ -101,8 +98,9 @@ module XapianDb
       # we use the attributes values (works well for active_record and datamapper objects)
       return obj.attributes.values if obj.respond_to?(:attributes) && obj.attributes.is_a?(Hash)
 
-      # The object is unkown and will be indexed by its to_s method
-      return [obj]
+      # The object is unkown and will be indexed by its to_s method; if to_s retruns nil, we
+      # will not index it
+      obj.to_s.nil? ? [] : [obj]
     end
 
   end

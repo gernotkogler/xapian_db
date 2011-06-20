@@ -118,4 +118,28 @@ describe XapianDb::Indexer do
 
   end
 
+  describe "#build_document_for" do
+
+    before :each do
+      XapianDb.setup do |config|
+        config.language :none
+      end
+      @db = XapianDb.create_db
+
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :strange_object
+      end
+
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @obj       = IndexedObject.new(1)
+      @obj.stub!(:strange_object).and_return ObjectReturningNilOnToS.new
+      @indexer = XapianDb::Indexer.new(@db, @blueprint)
+    end
+
+    it "can handle attribute objects that return nil on to_s" do
+      doc = @indexer.build_document_for(@obj)
+      doc.terms.should have(3).items # The tree terms we always add to a document
+    end
+  end
+
 end
