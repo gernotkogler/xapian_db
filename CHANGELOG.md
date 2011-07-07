@@ -1,3 +1,9 @@
+##0.5.14 (July 7th, 2011)
+
+Fixes:
+
+  - fixed an issue in the beanstalk worker (delete task could not retrieve the xapian id from an already deleted object)
+
 ##0.5.13 (June 20th, 2011)
 
 Fixes:
