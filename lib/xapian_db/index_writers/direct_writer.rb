@@ -25,9 +25,9 @@ module XapianDb
         end
 
         # Remove an object from the index
-        # @param [Object] obj An instance of a class with a blueprint configuration
-        def unindex(obj)
-          XapianDb.database.delete_doc_with_unique_term(obj.xapian_id)
+        # @param [String] xapian_id The document id of an object
+        def delete_doc_with(xapian_id)
+          XapianDb.database.delete_doc_with_unique_term xapian_id
           XapianDb.database.commit
         end
 

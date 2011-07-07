@@ -92,11 +92,11 @@ module XapianDb
     writer.index obj
   end
 
-  # Remove an object from the index
-  # @param [Object] obj An instance of a class with a blueprint configuration
-  def self.unindex(obj)
+  # Remove a document from the index
+  # @param [String] xapian_id The document id
+  def self.delete_doc_with(xapian_id)
     writer = @block_writer || XapianDb::Config.writer
-    writer.unindex obj
+    writer.delete_doc_with xapian_id
   end
 
   # Reindex all objects of a given class

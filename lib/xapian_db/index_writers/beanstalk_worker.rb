@@ -16,10 +16,8 @@ module XapianDb
         DirectWriter.index obj
       end
 
-      def unindex_task(options)
-        klass = constantize options[:class]
-        obj   = klass.respond_to?(:get) ? klass.get(options[:id].to_i) : klass.find(options[:id].to_i)
-        DirectWriter.unindex obj
+      def delete_doc_task(options)
+        DirectWriter.delete_doc_with options[:xapian_id]
       end
 
       def reindex_class_task(options)

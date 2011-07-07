@@ -43,13 +43,13 @@ module XapianDb
                if blueprint.should_index?(self)
                  XapianDb.index(self)
                else
-                 XapianDb.unindex(self)
+                 XapianDb.delete_doc_with(self.xapian_id)
                end
              end
 
              # add the after destroy logic
              after_destroy do
-               XapianDb.unindex(self)
+               XapianDb.delete_doc_with(self.xapian_id)
              end
 
              # Add a method to reindex all models of this class

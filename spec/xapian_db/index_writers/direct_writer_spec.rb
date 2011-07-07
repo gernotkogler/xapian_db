@@ -26,12 +26,12 @@ describe XapianDb::IndexWriters::DirectWriter do
     end
   end
 
-  describe ".unindex(obj)" do
-    it "removes an object from the index" do
+  describe ".delete_doc_with(xapian_id)" do
+    it "removes a document from the index" do
       XapianDb.database.size.should == 0
       XapianDb::IndexWriters::DirectWriter.index @obj
       XapianDb.database.size.should == 1
-      XapianDb::IndexWriters::DirectWriter.unindex @obj
+      XapianDb::IndexWriters::DirectWriter.delete_doc_with @obj.xapian_id
       XapianDb.database.size.should == 0
     end
   end

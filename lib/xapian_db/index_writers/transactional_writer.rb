@@ -10,12 +10,12 @@ module XapianDb
 
     class TransactionalWriter
 
-      attr_reader :index_requests, :unindex_requests
+      attr_reader :index_requests, :delete_requests
 
       # Constructor
       def initialize
-        @index_requests   = []
-        @unindex_requests = []
+        @index_requests  = []
+        @delete_requests = []
       end
 
       # Update an object in the index
@@ -24,10 +24,10 @@ module XapianDb
         @index_requests << obj
       end
 
-      # Remove an object from the index
-      # @param [Object] obj An instance of a class with a blueprint configuration
-      def unindex(obj)
-        @unindex_requests << obj
+      # Remove a document from the index
+      # @param [String] xapian_id The document id
+      def delete_doc_with(xapian_id)
+        @delete_requests << xapian_id
       end
 
       # Reindex all objects of a given class
@@ -42,7 +42,7 @@ module XapianDb
       # @param [DirectWriter, BeanstalkWriter] writer The writer to use
       def commit_using(writer)
         @index_requests.each { |obj| writer.index obj }
-        @unindex_requests.each { |obj| writer.unindex obj }
+        @delete_requests.each { |xapian_id| writer.delete_doc_with xapian_id }
       end
 
     end

@@ -30,14 +30,14 @@ describe XapianDb::IndexWriters::NoOpWriter do
     end
   end
 
-  describe "#unindex(obj)" do
+  describe "#delete_doc_with(xapian_id)" do
 
     before :each do
       XapianDb::IndexWriters::DirectWriter.index object
     end
 
     it "does nothing" do
-      writer.unindex object
+      writer.delete_doc_with object.xapian_id
       XapianDb.database.size.should == 1 # the object indexed in the before block
     end
   end

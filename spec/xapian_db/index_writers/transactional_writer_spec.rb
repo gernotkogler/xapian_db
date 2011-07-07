@@ -30,11 +30,11 @@ describe XapianDb::IndexWriters::TransactionalWriter do
     end
   end
 
-  describe "#unindex(obj)" do
+  describe "#delete_doc_with(xapian_id)" do
 
     it "registers an index request for an object" do
-      writer.unindex object
-      writer.unindex_requests.size.should == 1
+      writer.delete_doc_with object.xapian_id
+      writer.delete_requests.size.should == 1
     end
   end
 
@@ -55,10 +55,10 @@ describe XapianDb::IndexWriters::TransactionalWriter do
       XapianDb.database.size.should == 1
     end
 
-    it "commits the unindex requests to the database" do
+    it "commits the delete requests to the database" do
       XapianDb::IndexWriters::DirectWriter.index object
       XapianDb.database.size.should == 1
-      writer.unindex object
+      writer.delete_doc_with object.xapian_id
       XapianDb.database.size.should == 1 # not commited yet
       writer.commit_using XapianDb::IndexWriters::DirectWriter
       XapianDb.database.size.should == 0

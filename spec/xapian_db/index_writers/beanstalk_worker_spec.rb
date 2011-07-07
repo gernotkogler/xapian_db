@@ -27,11 +27,11 @@ describe XapianDb::IndexWriters::BeanstalkWorker do
     end
   end
 
-  describe ".unindex_task(options)" do
+  describe ".delete_doc_task(options)" do
     it "removes an object from the index" do
       @obj.save
       XapianDb.database.size.should == 1
-      XapianDb::IndexWriters::BeanstalkWorker.new.unindex_task :class => @obj.class.name, :id => @obj.id
+      XapianDb::IndexWriters::BeanstalkWorker.new.delete_doc_task :xapian_id => @obj.xapian_id
       XapianDb.database.size.should == 0
     end
   end

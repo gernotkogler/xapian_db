@@ -206,10 +206,10 @@ describe XapianDb do
         end
       end
 
-      describe ".unindex(obj)" do
+      describe ".delete_doc_with(xapian_id)" do
         it "delegates the request to the configured writer" do
-          XapianDb::Config.writer.should_receive(:unindex).once
-          XapianDb.unindex object
+          XapianDb::Config.writer.should_receive(:delete_doc_with).once
+          XapianDb.delete_doc_with object.xapian_id
         end
       end
 

@@ -13,8 +13,8 @@ module XapianDb
       def index(obj); end
 
       # Remove an object from the index
-      # @param [Object] obj An instance of a class with a blueprint configuration
-      def unindex(obj); end
+      # @param [String] xapian_id The document id
+      def delete_doc_with(xapian_id); end
 
       # Reindex all objects of a given class
       # @param [Class] klass The class to reindex
