@@ -1,3 +1,9 @@
+##0.5.15 (July 8th, 2011)
+
+Features:
+
+  - faster installation if the new, dependent gem containig xapian (xapian-ruby) is already installed
+
 ##0.5.14 (July 7th, 2011)
 
 Fixes:
