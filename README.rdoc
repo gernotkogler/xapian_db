@@ -232,7 +232,8 @@ A global facet search always groups the results by the class of the indexed obje
     puts "#{name}: #{count} hits"
   end
 
-At the class level, any attribute can be used for a facet query.
+At the class level, any attribute can be used for a facet query. Use facet queries on attributes that store atomic values like strings, numbers or dates.
+If you use it on attributes that contain collections (like an array of strings), you might get unexpected results.
 
 === Transactions
 
