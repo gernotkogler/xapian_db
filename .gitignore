@@ -4,6 +4,7 @@ coverage/*
 Gemfile.lock
 *.gem
 *.tmproj
+*.sublime-project
 doc
 .yardoc
 examples/basic_rails/db/xapian_db
