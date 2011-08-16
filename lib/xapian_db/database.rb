@@ -92,6 +92,21 @@ module XapianDb
       result
     end
 
+    # Find documents that are similar to one or more reference documents. It is basically
+    # the implementation of this suggestion: http://trac.xapian.org/wiki/FAQ/FindSimilar
+    # @param [Array<Xapian::Document> or Xapian::Document] docs One or more reference docs
+    # @return [XapianDb::Resultset] The resultset
+    def find_similar_to(docs)
+      docs = [docs].flatten
+      reference = Xapian::RSet.new
+      docs.each { |doc| reference.add_document doc.docid }
+      relevant_terms = Xapian::Enquire.new(reader).eset(40, reference).terms.map {|e| e.name }
+      query          = Xapian::Query.new Xapian::Query::OP_OR, relevant_terms
+      enquiry        = Xapian::Enquire.new(reader)
+      enquiry.query  = query
+      Resultset.new(enquiry, :db_size => self.size)
+    end
+
     # A very simple implementation of facets limited to the class facets.
     # @param [String] expression A valid search expression (see {#search} for examples).
     # @return [Hash<Class, Integer>] A hash containing the classes and the hits per class

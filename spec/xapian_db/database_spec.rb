@@ -352,6 +352,63 @@ describe XapianDb::Database do
     end
   end
 
+  describe ".find_similar_to(xapian_docs)" do
+
+    before :all do
+
+      class Class
+        attr_reader :id, :text
+        def initialize(id, text)
+          @id, @text = id, text
+        end
+      end
+
+      XapianDb.setup do |config|
+        config.adapter :generic
+        config.database :memory
+      end
+
+      XapianDb::DocumentBlueprint.setup(Class) do |blueprint|
+        blueprint.index :text
+      end
+
+      db = XapianDb.database
+      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(Class)
+
+      obj = Class.new(1, "xapian rocks")
+      db.store_doc indexer.build_document_for(obj)
+
+      obj = Class.new(2, "on the rocks")
+      db.store_doc indexer.build_document_for(obj)
+
+      obj = Class.new(3, "xapian is cool")
+      db.store_doc indexer.build_document_for(obj)
+
+    end
+
+    it "accepts a single xapian document" do
+      reference = XapianDb.database.search "xapian rocks"
+      lambda { XapianDb.database.find_similar_to reference.first }.should_not raise_error
+    end
+
+    it "accepts a resultset" do
+      reference = XapianDb.database.search "xapian"
+      lambda { XapianDb.database.find_similar_to reference }.should_not raise_error
+    end
+
+    it "returns a resultset" do
+      reference = XapianDb.database.search "xapian"
+      XapianDb.database.find_similar_to(reference).should be_a XapianDb::Resultset
+    end
+
+    it "does not return the reference document(s)" do
+      pending "not working yet"
+      reference = XapianDb.database.search "xapian rocks"
+      result = XapianDb.database.find_similar_to(reference)
+      result.detect {|doc| doc.docid == reference.first.docid}.should_not be
+    end
+
+  end
 end
 
 describe XapianDb::InMemoryDatabase do
