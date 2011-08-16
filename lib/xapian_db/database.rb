@@ -100,10 +100,14 @@ module XapianDb
       docs = [docs].flatten
       reference = Xapian::RSet.new
       docs.each { |doc| reference.add_document doc.docid }
-      relevant_terms = Xapian::Enquire.new(reader).eset(40, reference).terms.map {|e| e.name }
-      query          = Xapian::Query.new Xapian::Query::OP_OR, relevant_terms
-      enquiry        = Xapian::Enquire.new(reader)
-      enquiry.query  = query
+      doc_identifiers = docs.map { |doc| "Q#{doc.data}" }
+      relevant_terms = Xapian::Enquire.new(reader).eset(40, reference).terms.map {|e| e.name } - doc_identifiers
+
+      reference_query = Xapian::Query.new Xapian::Query::OP_OR, doc_identifiers
+      terms_query     = Xapian::Query.new Xapian::Query::OP_OR, relevant_terms
+      final_query     = Xapian::Query.new Xapian::Query::OP_AND_NOT, terms_query, reference_query
+      enquiry         = Xapian::Enquire.new(reader)
+      enquiry.query   = final_query
       Resultset.new(enquiry, :db_size => self.size)
     end
 

@@ -402,7 +402,6 @@ describe XapianDb::Database do
     end
 
     it "does not return the reference document(s)" do
-      pending "not working yet"
       reference = XapianDb.database.search "xapian rocks"
       result = XapianDb.database.find_similar_to(reference)
       result.detect {|doc| doc.docid == reference.first.docid}.should_not be
