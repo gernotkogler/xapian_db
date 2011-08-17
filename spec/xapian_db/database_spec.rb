@@ -4,7 +4,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::Database do
 
-  describe ".store_doc(doc)" do
+  describe "#store_doc(doc)" do
 
     before :each do
       XapianDb.setup do |config|
@@ -37,7 +37,7 @@ describe XapianDb::Database do
 
   end
 
-  describe ".delete_doc_with_unique_term(term)" do
+  describe "#delete_doc_with_unique_term(term)" do
 
     before :each do
       XapianDb.setup do |config|
@@ -66,7 +66,7 @@ describe XapianDb::Database do
 
   end
 
-  describe ".delete_docs_of_class(klass)" do
+  describe "#delete_docs_of_class(klass)" do
 
     before :each do
       XapianDb.setup do |config|
@@ -139,7 +139,7 @@ describe XapianDb::Database do
 
   end
 
-  describe ".size" do
+  describe "#size" do
 
     before :each do
       XapianDb.setup do |config|
@@ -154,7 +154,7 @@ describe XapianDb::Database do
 
   end
 
-  describe ".search(expression)" do
+  describe "#search(expression)" do
 
     before :each do
       XapianDb.setup do |config|
@@ -301,7 +301,7 @@ describe XapianDb::Database do
     end
   end
 
-  describe ".facets(expression)" do
+  describe "#facets(expression)" do
 
     before :all do
 
@@ -352,7 +352,7 @@ describe XapianDb::Database do
     end
   end
 
-  describe ".find_similar_to(xapian_docs)" do
+  describe "#find_similar_to(xapian_docs, options)" do
 
     before :all do
 
@@ -448,7 +448,7 @@ describe XapianDb::InMemoryDatabase do
     end
   end
 
-  describe ".size" do
+  describe "#size" do
 
     it "reflects added documents without committing" do
       doc = Xapian::Document.new
@@ -481,7 +481,7 @@ describe XapianDb::PersistentDatabase do
     XapianDb.database.size.should == 0
   end
 
-  describe ".commit" do
+  describe "#commit" do
 
     it "writes all pending changes to the database" do
       doc = Xapian::Document.new
@@ -493,5 +493,4 @@ describe XapianDb::PersistentDatabase do
     end
 
   end
-
 end
