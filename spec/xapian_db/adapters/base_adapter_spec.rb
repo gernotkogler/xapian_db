@@ -113,6 +113,34 @@ describe XapianDb::Adapters::BaseAdapter do
 
     end
 
+    describe ".find_similar_to(xapian_docs, options)" do
+
+      before :each do
+
+        XapianDb.setup do |config|
+          config.adapter  :generic
+          config.database :memory
+          config.language :en
+        end
+
+        XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+          blueprint.attribute :text
+        end
+        indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+        obj = IndexedObject.new(1)
+        obj.stub!(:text).and_return "some text"
+
+        XapianDb.database.store_doc indexer.build_document_for(obj)
+        XapianDb.database.commit
+      end
+
+      it "delegates the search to the database with a class option" do
+        result = IndexedObject.search "some text"
+        XapianDb.database.should_receive(:find_similar_to).with(result, :class => IndexedObject)
+        IndexedObject.find_similar_to result
+      end
+    end
+
     describe ".facets(attribute, expression)" do
 
       before :all do

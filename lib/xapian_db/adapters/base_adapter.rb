@@ -47,6 +47,10 @@ module XapianDb
                result
              end
 
+             define_singleton_method(:find_similar_to) do |reference|
+              return XapianDb.database.find_similar_to reference, :class => klass
+             end
+
              # Add a method to search atribute facets of this class
              define_singleton_method(:facets) do |attr_name, expression|
 
