@@ -407,6 +407,35 @@ describe XapianDb::Database do
       result.detect {|doc| doc.docid == reference.first.docid}.should_not be
     end
 
+    describe "with a class option" do
+
+      before :each do
+
+        class ClassToIgnore
+          attr_reader :id, :text
+          def initialize(id, text)
+            @id, @text = id, text
+          end
+        end
+
+        XapianDb::DocumentBlueprint.setup(ClassToIgnore) do |blueprint|
+          blueprint.index :text
+        end
+
+        db = XapianDb.database
+        indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(ClassToIgnore)
+
+        obj = ClassToIgnore.new(1, "xapian is sweet")
+        db.store_doc indexer.build_document_for(obj)
+      end
+
+      it "should not find documents based on other classes" do
+        reference = XapianDb.database.search "xapian rocks"
+        result = XapianDb.database.find_similar_to(reference, :class => Class)
+        result.detect { |doc| doc.indexed_class != Class.name }.should_not be
+      end
+
+    end
   end
 end
 

@@ -95,8 +95,11 @@ module XapianDb
     # Find documents that are similar to one or more reference documents. It is basically
     # the implementation of this suggestion: http://trac.xapian.org/wiki/FAQ/FindSimilar
     # @param [Array<Xapian::Document> or Xapian::Document] docs One or more reference docs
+    # @param [Hash] options query options
+    # @option options [Class] :class an indexed class; if a class is passed, the result will
+    #   contain objects of this class only
     # @return [XapianDb::Resultset] The resultset
-    def find_similar_to(docs)
+    def find_similar_to(docs, options={})
       docs = [docs].flatten
       reference = Xapian::RSet.new
       docs.each { |doc| reference.add_document doc.docid }
@@ -109,8 +112,14 @@ module XapianDb
       reference_query = Xapian::Query.new Xapian::Query::OP_OR, pk_terms
       terms_query     = Xapian::Query.new Xapian::Query::OP_OR, relevant_terms
       final_query     = Xapian::Query.new Xapian::Query::OP_AND_NOT, terms_query, reference_query
-      enquiry         = Xapian::Enquire.new(reader)
-      enquiry.query   = final_query
+      if options[:class]
+        class_scope = "indexed_class:#{options[:class].name.downcase}"
+        @query_parser ||= QueryParser.new(self)
+        class_query   = @query_parser.parse(class_scope)
+        final_query   = Xapian::Query.new Xapian::Query::OP_AND, class_query, final_query
+      end
+      enquiry       = Xapian::Enquire.new(reader)
+      enquiry.query = final_query
       Resultset.new(enquiry, :db_size => self.size)
     end
 
