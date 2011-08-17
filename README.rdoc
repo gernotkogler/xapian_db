@@ -235,6 +235,17 @@ A global facet search always groups the results by the class of the indexed obje
 At the class level, any attribute can be used for a facet query. Use facet queries on attributes that store atomic values like strings, numbers or dates.
 If you use it on attributes that contain collections (like an array of strings), you might get unexpected results.
 
+=== Find similar documents
+
+If you have a rearch result, you can search for similar documents by selecting one or more documents from your result and passing them to the find_similar_to method:
+
+  results = XapianDb.search("moose")
+  similar = XapianDb.find_similar_to results.first
+
+It works like this: The xapian engine extracts the most selective terms from the passed documents. Then, a
+new query is executed with the retrieved terms combined with OR operators.
+This method works best if your models contain large amounts of text.
+
 === Transactions
 
 You can execute a block of code inside a XapianDb transaction. This ensures that the changed objects in your block will get reindexed
