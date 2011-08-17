@@ -4,7 +4,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::Indexer do
 
-  describe ".xapian_document" do
+  describe "#build_document_for(obj)" do
 
     before :each do
 
@@ -33,7 +33,7 @@ describe XapianDb::Indexer do
     end
 
     it "creates a Xapian::Document from an configured object" do
-      @indexer.build_document_for(@obj).should be_a_kind_of(Xapian::Document)
+      @doc.should be_a_kind_of(Xapian::Document)
     end
 
     it "inserts the xapian_id into the data property of the Xapian::Document" do
@@ -115,31 +115,25 @@ describe XapianDb::Indexer do
       doc = @indexer.build_document_for(@obj)
       (doc.terms.map(&:term) & %w(not zero)).should == %w(not zero)
     end
-
   end
 
-  describe "#build_document_for" do
+  it "can handle attribute objects that return nil on to_s" do
+    XapianDb.setup do |config|
+      config.language :none
+    end
+    @db = XapianDb.create_db
 
-    before :each do
-      XapianDb.setup do |config|
-        config.language :none
-      end
-      @db = XapianDb.create_db
-
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.attribute :strange_object
-      end
-
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-      @obj       = IndexedObject.new(1)
-      @obj.stub!(:strange_object).and_return ObjectReturningNilOnToS.new
-      @indexer = XapianDb::Indexer.new(@db, @blueprint)
+    XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      blueprint.attribute :strange_object
     end
 
-    it "can handle attribute objects that return nil on to_s" do
-      doc = @indexer.build_document_for(@obj)
-      doc.terms.should have(3).items # The tree terms we always add to a document
-    end
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+    @obj       = IndexedObject.new(1)
+    @obj.stub!(:strange_object).and_return ObjectReturningNilOnToS.new
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    doc.terms.should have(3).items # The tree terms we always add to a document
   end
 
 end
