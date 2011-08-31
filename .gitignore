@@ -5,6 +5,7 @@ Gemfile.lock
 *.gem
 *.tmproj
 *.sublime-project
+*.sublime-workspace
 doc
 .yardoc
 examples/basic_rails/db/xapian_db
