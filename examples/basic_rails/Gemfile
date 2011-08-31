@@ -1,9 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.5'
-
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
+gem 'rails'
 
 gem 'sqlite3-ruby', :require => 'sqlite3'
 gem 'mongrel', '1.2.0.pre2'
@@ -11,8 +8,9 @@ gem 'haml'
 gem 'forgery'
 gem 'kaminari'
 gem 'formtastic'
+gem 'jquery-rails'
 gem 'beanstalk-client'
-gem 'xapian_db', '>= 0.5.13'
+gem 'xapian_db', '>= 1.0.1'
 
 # Use unicorn as the web server
 # gem 'unicorn'
