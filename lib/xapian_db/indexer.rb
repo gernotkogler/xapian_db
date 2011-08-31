@@ -43,9 +43,18 @@ module XapianDb
           value = @obj.send(attribute)
         end
 
+        options = @blueprint.options_for_indexed_method attribute
+
         # If we have an object that responds to attributes (e.g. an Active Record
         # or a Datamapper model), we serialize only the attributes
-        yaml = value.respond_to?(:attributes) ? value.attributes.to_yaml : value.to_yaml
+        yaml = case options.as
+               when :date then
+                 value.respond_to?(:strftime) ? value.strftime('%Y%m%d') : value.to_yaml
+               when :numeric then
+                 value || 0
+               else
+                   value.respond_to?(:attributes) ? value.attributes.to_yaml : value.to_yaml
+               end
         @xapian_doc.add_value(@blueprint.value_index_for(attribute), yaml)
       end
     end

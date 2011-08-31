@@ -39,7 +39,10 @@ module XapianDb
 
       # Add the searchable prefixes to allow searches by field
       # (like "name:Kogler")
-      XapianDb::DocumentBlueprint.searchable_prefixes.each{|prefix| parser.add_prefix(prefix.to_s.downcase, "X#{prefix.to_s.upcase}") }
+      XapianDb::DocumentBlueprint.searchable_prefixes.each do |prefix, options| 
+        parser.add_prefix(prefix.to_s.downcase, "X#{prefix.to_s.upcase}")
+        parser.add_valuerangeprocessor Xapian::DateValueRangeProcessor.new(options.position, "#{prefix}:") if options.as == :date
+      end
       query = parser.parse_query(expression, @query_flags)
       @spelling_suggestion = parser.get_corrected_query_string.force_encoding("UTF-8")
       @spelling_suggestion = nil if @spelling_suggestion.empty?

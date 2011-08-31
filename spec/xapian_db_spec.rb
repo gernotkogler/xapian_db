@@ -134,6 +134,46 @@ describe XapianDb do
 
   end
 
+  describe "date ranges" do
+    before :each do
+      XapianDb.setup do |config|
+        config.database :memory
+        config.adapter :active_record
+        config.writer  :direct
+      end
+      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+        blueprint.index :name
+        blueprint.attribute :date, :as => :date
+      end
+      @object1 = ActiveRecordObject.new(1, "Benjamin", Date.today - 1)
+      @object1.save
+      @object2 = ActiveRecordObject.new(2, "Benjamin", Date.today)
+      @object2.save
+      @object3 = ActiveRecordObject.new(3, "Benjamin", Date.today + 1)
+      @object3.save
+    end
+
+    it "should should get the objects by date" do
+      result = XapianDb.search("date:#{Date.today.strftime('%Y-%m-%d')}")
+      result.size.should == 1
+      result.first.data.should == "ActiveRecordObject-2"
+    end
+
+    it "should find all objects with a full range" do
+      XapianDb.search("date:#{@object1.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").size.should == 3
+    end
+
+    it "should find selection of objects with partial range" do
+      XapianDb.search("date:#{@object2.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").size.should == 2
+    end
+    it "should find selection of objects with open ending range" do
+      XapianDb.search("date:#{@object3.date.strftime('%Y-%m-%d')}..").size.should == 1
+    end
+    it "should find selection of objects with open beginning range" do
+      XapianDb.search("date:..#{@object2.date.strftime('%Y-%m-%d')}").size.should == 2
+    end
+  end
+
   context "transactions" do
 
     before :each do
