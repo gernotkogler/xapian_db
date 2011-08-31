@@ -66,10 +66,11 @@ module XapianDb
       # Return an array of all configured text methods in any blueprint
       # @return [Array<String>] All searchable prefixes
       def searchable_prefixes
-        return [] unless @blueprints
-        @searchable_prefixes ||= @blueprints.values.map { |blueprint| blueprint.searchable_prefixes }.flatten.compact.uniq
+        return {} unless @blueprints
+        # Now merge the hashes
+        @searchable_prefixes ||= {}.tap{ |r| @blueprints.values.map { |blueprint| blueprint.searchable_prefixes.each{|k, v| r[k] = (r[k] || IndexOptions.new ).merge(v)} } }
         # We can always do a field search on the name of the indexed class
-        @searchable_prefixes << "indexed_class"
+        @searchable_prefixes[:indexed_class] ||= IndexOptions.new(:position => 0)
         @searchable_prefixes
       end
 
@@ -89,7 +90,7 @@ module XapianDb
     # @param [Symbol] attribute The name of the attribute
     # @return [Block] The block
     def block_for_attribute(attribute)
-      @attributes_hash[attribute]
+      @attributes_hash[attribute][:block]
     end
 
     # Get the names of all configured index methods sorted alphabetically
@@ -120,7 +121,14 @@ module XapianDb
     # Return an array of all configured text methods in this blueprint
     # @return [Array<String>] All searchable prefixes
     def searchable_prefixes
-      @prefixes ||= @indexed_methods_hash.keys
+      return @searchable_prefixes if @searchable_prefixes
+      @searchable_prefixes = @indexed_methods_hash
+      i = 1 # indexed_class is 0
+      @searchable_prefixes.sort.each do |prefix, options|
+        @searchable_prefixes[prefix].position = i
+        i += 1
+      end
+      @searchable_prefixes
     end
 
     # Should the object go into the index? Evaluates an ignore expression,
@@ -194,6 +202,7 @@ module XapianDb
     # @param [Hash] options
     # @option options [Integer] :weight (1) The weight for this attribute.
     # @option options [Boolean] :index (true) Should the attribute be indexed?
+    # @option options [Symbol] :as should add type info for range queries (:date, :numeric)
     # @example For complex attribute configurations you may pass a block:
     #   XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
     #     blueprint.attribute :complex do
@@ -208,9 +217,9 @@ module XapianDb
       raise ArgumentError.new("You cannot use #{name} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(name)
       opts = {:index => true}.merge(options)
       if block_given?
-        @attributes_hash[name] = block
+        @attributes_hash[name] = {:block => block}.merge(options)
       else
-        @attributes_hash[name] = nil
+        @attributes_hash[name] = options
       end
       self.index(name, opts, &block) if opts[:index]
     end
@@ -221,7 +230,7 @@ module XapianDb
     def attributes(*attributes)
       attributes.each do |attr|
         raise ArgumentError.new("You cannot use #{attr} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(attr)
-        @attributes_hash[attr] = nil
+        @attributes_hash[attr] = {}
         self.index attr
       end
     end
@@ -267,14 +276,26 @@ module XapianDb
     class IndexOptions
 
       # The weight for the indexed value
-      attr_accessor :weight, :block
+      attr_accessor :weight, :block, :as, :position
 
       # Constructor
       # @param [Hash] options
       # @option options [Integer] :weight (1) The weight for the indexed value
-      def initialize(options)
+      def initialize(options = {})
         @weight = options[:weight] || 1
         @block  = options[:block]
+        @as = options[:as]
+        @position = options[:position] || 1
+      end
+
+      # Allow merging of options. First defines wins except for position
+      # @param [IndexOptions]
+      def merge(opts)
+        @weight ||= opts.weight
+        @block ||= opts.block
+        @as ||= opts.as
+        @position = opts.position # Alway overwrite position, otherwise it will always be 1
+        self
       end
     end
 
