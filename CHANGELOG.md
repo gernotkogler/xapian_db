@@ -1,3 +1,13 @@
+##1.0.1 (August 31th, 2011)
+
+Fixes:
+
+  - better handling of the beanstalk-client dependency
+
+Features:
+
+  - rails sample app upgraded to 3.1
+
 ##1.0 (August 17th, 2011)
 
 Features:

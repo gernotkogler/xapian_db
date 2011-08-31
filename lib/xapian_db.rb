@@ -9,6 +9,22 @@
 require 'xapian'
 require 'yaml'
 
+do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb beanstalk_writer.rb utilities.rb install_generator.rb)
+files = Dir.glob("#{File.dirname(__FILE__)}/**/*.rb").reject{|path| do_not_require.include?(File.basename(path))}
+# Require these first
+require "#{File.dirname(__FILE__)}/xapian_db/utilities"
+require "#{File.dirname(__FILE__)}/xapian_db/adapters/base_adapter"
+files.each {|file| require file}
+
+# Configure XapianDB if we are in a Rails app
+require File.dirname(__FILE__) + '/xapian_db/railtie' if defined?(Rails)
+
+# Try to require the beanstalk writer (depends on beanstalk-client)
+begin
+  require File.dirname(__FILE__) + '/xapian_db/index_writers/beanstalk_writer'
+rescue LoadError
+end
+
 module XapianDb
 
   # Supported languages
@@ -161,16 +177,3 @@ module XapianDb
   end
 
 end
-
-do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb beanstalk_writer.rb utilities.rb install_generator.rb)
-files = Dir.glob("#{File.dirname(__FILE__)}/**/*.rb").reject{|path| do_not_require.include?(File.basename(path))}
-# Require these first
-require "#{File.dirname(__FILE__)}/xapian_db/utilities"
-require "#{File.dirname(__FILE__)}/xapian_db/adapters/base_adapter"
-files.each {|file| require file}
-
-# Configure XapianDB if we are in a Rails app
-require File.dirname(__FILE__) + '/xapian_db/railtie' if defined?(Rails)
-
-# Require the beanstalk writer is beanstalk-client is installed
-require File.dirname(__FILE__) + '/xapian_db/index_writers/beanstalk_writer' if Gem.available?('beanstalk-client')
