@@ -26,10 +26,10 @@ class PersistentObject
 
   end
 
-  attr_reader :id, :name
+  attr_reader :id, :name, :date
 
-  def initialize(id, name)
-    @id, @name = id, name
+  def initialize(id, name, date = Date.today)
+    @id, @name, @date = id, name, date
   end
 
   def save

@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'fileutils'
 require 'simplecov'
+require 'date'
 
 SimpleCov.start do
   add_filter '/spec/'
