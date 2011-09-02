@@ -13,6 +13,14 @@ class IndexedObject
   end
 end
 
+class OtherIndexedObject
+  attr_reader :id
+
+  def initialize(id)
+    @id = id
+  end
+end
+
 class ObjectReturningNilOnToS
   def to_s
     nil

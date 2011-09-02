@@ -4,6 +4,10 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::DocumentBlueprint do
 
+  before :each do
+    XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+  end
+
   describe ".configured_classes" do
 
     it "returns all configured classes" do
@@ -95,7 +99,6 @@ describe XapianDb::DocumentBlueprint do
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :date,   :as => :date
-        blueprint.index :number, :as => :number
         blueprint.index :untyped
       end
     end
@@ -125,6 +128,16 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.setup(IndexedObject)
       XapianDb::DocumentBlueprint.configured_classes.size.should == 1
     end
+
+    it "raises an exception if a method with the same name has different type declarations" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :date, :as => :date
+      end
+      lambda { XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
+        blueprint.index :date, :as => :number
+      end }.should raise_error ArgumentError
+    end
+
   end
 
   describe ".value_number_for(:indexed_method)" do
@@ -149,8 +162,6 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "handles multiple blueprints whith the same indexed method at different positions" do
-      class OtherIndexedObject
-      end
       XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :not_in_alphabetical_order
@@ -240,6 +251,9 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "throws an exception if the attribute name maps to a Xapian::Document method name" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attributes :id, :name, :first_name
+      end
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:id)
       lambda{XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attributes :data
@@ -249,7 +263,7 @@ describe XapianDb::DocumentBlueprint do
 
   describe "#index" do
 
-    before :all do
+    before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :id
       end

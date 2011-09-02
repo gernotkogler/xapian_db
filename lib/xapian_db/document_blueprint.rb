@@ -35,13 +35,16 @@ module XapianDb
         @blueprints ||= {}
         blueprint = DocumentBlueprint.new
         yield blueprint if block_given? # configure the blueprint through the block
+        validate_type_consistency_on blueprint
         # Remove a previously loaded blueprint for this class to avoid stale blueprint definitions
         @blueprints.delete_if { |indexed_class, blueprint| indexed_class.name == klass.name }
         @blueprints[klass] = blueprint
         @_adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
         @_adapter.add_class_helper_methods_to klass
-        @searchable_prefixes = nil # force rebuild
-        @methods_map         = nil # force rebuild
+        # force rebuild of cached data
+        @searchable_prefixes = nil
+        @methods_map         = nil
+        @type_map            = nil
       end
 
       # Get all configured classes
@@ -80,12 +83,24 @@ module XapianDb
         end
       end
 
+      # Get the type info of an indexed method
+      # @param [indexed_method] The name of an indexed method
+      # @return [Symbol] The defined type or :untyped if no type is defined
       def type_info_for(indexed_method)
-        @blueprints.values.each do |blueprint|
-          options = blueprint.options_for_indexed_method(indexed_method)
-          return options.as if options && options.as
+        unless @type_map
+          @type_map = {}
+          @blueprints.values.each do |blueprint|
+            blueprint.indexed_method_names.each do |method_name|
+              options = blueprint.options_for_indexed_method(method_name)
+              if options
+                @type_map[method_name.to_sym] = options.as
+              else
+                @type_map[method_name.to_sym] = :untyped
+              end
+            end
+          end
         end
-        return :untyped
+        @type_map[indexed_method.to_sym]
       end
 
       # Return an array of all configured text methods in any blueprint
@@ -96,6 +111,20 @@ module XapianDb
         # We can always do a field search on the name of the indexed class
         @searchable_prefixes << "indexed_class"
       end
+
+      private
+
+      def validate_type_consistency_on(blueprint)
+        blueprint.indexed_method_names.each do |method_name|
+          options = blueprint.options_for_indexed_method(method_name)
+          next unless options
+          if type_info_for(method_name) && options.as != type_info_for(method_name)
+            raise ArgumentError.new "different type definitions for #{method_name} detected (#{type_info_for(method_name)}, #{options.as})"
+          end
+        end
+
+      end
+
     end
 
     # ---------------------------------------------------------------------------------
@@ -278,8 +307,7 @@ module XapianDb
     # Options for an indexed method
     class IndexOptions
 
-      # The weight for the indexed value
-      attr_accessor :weight, :block, :as
+      attr_reader :weight, :block, :as
 
       # Constructor
       # @param [Hash] options
@@ -287,7 +315,7 @@ module XapianDb
       def initialize(options = {})
         @weight = options[:weight] || 1
         @block  = options[:block]
-        @as = options[:as]
+        @as     = options[:as] || :untyped
       end
 
     end
