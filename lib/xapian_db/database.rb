@@ -76,12 +76,9 @@ module XapianDb
 
       if sort_indices
         raise ArgumentError.new("Sorting is available for class scoped searches only") unless expression =~ /^indexed_class:/
-        sorter = Xapian::MultiValueSorter.new
-
-        sort_indices.each do |index|
-          sorter.add(index, sort_decending)
-        end
-        enquiry.set_sort_by_key_then_relevance(sorter)
+        sorter = Xapian::MultiValueKeyMaker.new
+        sort_indices.each { |index| sorter.add_value index }
+        enquiry.set_sort_by_key_then_relevance(sorter, sort_decending)
       end
 
       opts[:spelling_suggestion] = @query_parser.spelling_suggestion

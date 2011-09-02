@@ -117,6 +117,39 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.setup(IndexedObject)
       XapianDb::DocumentBlueprint.configured_classes.size.should == 1
     end
+  end
+
+  describe ".value_number_for(:indexed_method)" do
+
+    before :each do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+    end
+
+    it "returns the value number of an indexed method" do
+      XapianDb::DocumentBlueprint.value_number_for(:name).should == 2
+    end
+
+    it "accepts a string as an argument" do
+      XapianDb::DocumentBlueprint.value_number_for("name").should == 2
+    end
+
+    it "raises an argument error if the method is not indexed" do
+      lambda { XapianDb::DocumentBlueprint.value_number_for(:not_indexed) }.should raise_error ArgumentError
+    end
+
+    it "handles multiple blueprints whith the same indexed method at different positions" do
+      class OtherIndexedObject
+      end
+      XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :not_in_alphabetical_order
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.value_number_for(:name).should == 2
+    end
 
   end
 
@@ -332,26 +365,6 @@ describe XapianDb::DocumentBlueprint do
     it "adds accessor methods that deserialize values using YAML" do
       @doc.date_of_birth.should == Date.today
       @doc.array.should == [1, "two", Date.today]
-    end
-
-  end
-
-  describe "#value_index_for(attribute)" do
-
-    before :each do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.attribute :name
-        blueprint.attribute :first_name
-      end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
-    end
-
-    it "raises an argument error if the attribute name is unknown" do
-      lambda{@blueprint.value_index_for(:unknown)}.should raise_error ArgumentError
-    end
-
-    it "returns the value index of an attribute (to access the value from a Xapian:Document)" do
-      @blueprint.value_index_for(:name).should == 2
     end
 
   end

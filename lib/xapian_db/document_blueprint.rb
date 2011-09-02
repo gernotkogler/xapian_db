@@ -36,11 +36,12 @@ module XapianDb
         blueprint = DocumentBlueprint.new
         yield blueprint if block_given? # configure the blueprint through the block
         # Remove a previously loaded blueprint for this class to avoid stale blueprint definitions
-        @blueprints.delete_if { |key, blueprint| key.name == klass.name }
+        @blueprints.delete_if { |indexed_class, blueprint| indexed_class.name == klass.name }
         @blueprints[klass] = blueprint
         @_adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
         @_adapter.add_class_helper_methods_to klass
-        @searchable_prefixes = nil # force rebuild of the searchable prefixes
+        @searchable_prefixes = nil # force rebuild
+        @methods_map         = nil # force rebuild
       end
 
       # Get all configured classes
@@ -63,17 +64,40 @@ module XapianDb
         raise "Blueprint for class #{klass} is not defined"
       end
 
+      # Get the value number for an indexed method. Please note that this is not the index in the values
+      # array of a xapian document but the valueno. Therefore, document.values[value_number] returns
+      # the wrong data, use document.value(value_number) instead.
+      # @param [indexed_method] The name of an indexed method
+      # @return [Integer] The value number
+      def value_number_for(indexed_method)
+        @methods_map ||= @blueprints.values.map { |blueprint| blueprint.indexed_method_names}.flatten.compact.uniq.sort
+        position = @methods_map.index indexed_method.to_sym
+        if position
+          # We add 1 because value slot 0 is reserved for the class name
+          return position + 1
+        else
+          raise ArgumentError.new "#{indexed_method} is not configured in any blueprint"
+        end
+      end
+
       # Return an array of all configured text methods in any blueprint
       # @return [Array<String>] All searchable prefixes
       def searchable_prefixes
         return {} unless @blueprints
-        # Now merge the hashes
-        @searchable_prefixes ||= {}.tap{ |r| @blueprints.values.map { |blueprint| blueprint.searchable_prefixes.each{|k, v| r[k] = (r[k] || IndexOptions.new ).merge(v)} } }
+        return @searchable_prefixes if @searchable_prefixes
+
+        @searchable_prefixes = {}
+        @blueprints.values.each do |blueprint|
+          blueprint.searchable_prefixes.each do |prefix, options|
+            @searchable_prefixes[prefix] ||= options
+            @searchable_prefixes[prefix].merge options
+          end
+        end
+
         # We can always do a field search on the name of the indexed class
-        @searchable_prefixes[:indexed_class] ||= IndexOptions.new(:position => 0)
+        @searchable_prefixes[:indexed_class] = IndexOptions.new(:position => 0)
         @searchable_prefixes
       end
-
     end
 
     # ---------------------------------------------------------------------------------
@@ -104,18 +128,6 @@ module XapianDb
     # @return [IndexOptions] The options
     def options_for_indexed_method(method)
       @indexed_methods_hash[method]
-    end
-
-    # Return the value index of an attribute. Needed to access the value of an attribute
-    # from a Xapian document.
-    # @param [String, Symbol] attribute_name The name of the attribute
-    # @return [Integer] The value index of the attribute
-    # @raise ArgumentError if the attribute name is unknown
-    def value_index_for(attribute_name)
-      index = attribute_names.index attribute_name.to_sym
-      raise ArgumentError.new("Attribute #{attribute_name} unknown") unless index
-      # We add 1 because value slot 0 is reserved for the class name
-      index + 1
     end
 
     # Return an array of all configured text methods in this blueprint
@@ -159,10 +171,10 @@ module XapianDb
 
       # Add an accessor for each attribute
       attribute_names.each do |attribute|
-        index = value_index_for(attribute)
+        index = DocumentBlueprint.value_number_for(attribute)
         @accessors_module.instance_eval do
           define_method attribute do
-            YAML::load(self.values[index].value)
+            YAML::load(self.value(index))
           end
         end
       end
@@ -285,7 +297,7 @@ module XapianDb
         @weight = options[:weight] || 1
         @block  = options[:block]
         @as = options[:as]
-        @position = options[:position] || 1
+        @position = options[:position]
       end
 
       # Allow merging of options. First defines wins except for position

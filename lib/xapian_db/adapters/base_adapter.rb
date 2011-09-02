@@ -34,8 +34,7 @@ module XapianDb
                if order
                  attr_names             = [order].flatten
                  blueprint              = XapianDb::DocumentBlueprint.blueprint_for klass
-                 sort_indices           = attr_names.map {|attr_name| blueprint.value_index_for(attr_name)}
-                 options[:sort_indices] = attr_names.map {|attr_name| blueprint.value_index_for(attr_name)}
+                 options[:sort_indices] = attr_names.map {|attr_name| XapianDb::DocumentBlueprint.value_number_for(attr_name) }
                end
                result = XapianDb.database.search "#{class_scope} and (#{expression})", options
 
@@ -57,18 +56,18 @@ module XapianDb
                # return an empty hash if no search expression is given
                return {} if expression.nil? || expression.strip.empty?
 
-               class_scope = "indexed_class:#{klass.name.downcase}"
-               blueprint   = XapianDb::DocumentBlueprint.blueprint_for klass
-               value_index = blueprint.value_index_for attr_name.to_sym
+               class_scope  = "indexed_class:#{klass.name.downcase}"
+               blueprint    = XapianDb::DocumentBlueprint.blueprint_for klass
+               value_number = XapianDb::DocumentBlueprint.value_number_for(attr_name)
 
-               query_parser        = QueryParser.new(XapianDb.database)
+               query_parser         = QueryParser.new(XapianDb.database)
                query                = query_parser.parse("#{class_scope} and (#{expression})")
                enquiry              = Xapian::Enquire.new(XapianDb.database.reader)
                enquiry.query        = query
-               enquiry.collapse_key = value_index
+               enquiry.collapse_key = value_number
                facets = {}
                enquiry.mset(0, XapianDb.database.size).matches.each do |match|
-                 facet_value = YAML::load match.document.values[value_index].value
+                 facet_value = YAML::load match.document.value(value_number)
                  # We must add 1 to the collapse_count since collapse_count means
                  # "how many other matches are there?"
                  facets[facet_value] = match.collapse_count + 1

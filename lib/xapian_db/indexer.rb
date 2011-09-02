@@ -55,7 +55,7 @@ module XapianDb
                else
                    value.respond_to?(:attributes) ? value.attributes.to_yaml : value.to_yaml
                end
-        @xapian_doc.add_value(@blueprint.value_index_for(attribute), yaml)
+        @xapian_doc.add_value(DocumentBlueprint.value_number_for(attribute), yaml)
       end
     end
 

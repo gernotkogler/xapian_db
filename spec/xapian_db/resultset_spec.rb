@@ -23,7 +23,7 @@ describe XapianDb::Resultset do
       match   = mock(Xapian::Match)
       doc     = Xapian::Document.new
       doc.add_value(0, IndexedObject.name)
-      doc.add_value(1, "#{@name}#{i}")
+      doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:name), "#{@name}#{i}")
       match.stub!(:document).and_return(doc)
       match.stub!(:percent).and_return(90)
       @matches << match
