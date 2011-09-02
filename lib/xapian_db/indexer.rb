@@ -45,16 +45,16 @@ module XapianDb
 
         options = @blueprint.options_for_indexed_method attribute
 
-        # If we have an object that responds to attributes (e.g. an Active Record
-        # or a Datamapper model), we serialize only the attributes
-        yaml = case options.as
-               when :date then
-                 value.respond_to?(:strftime) ? value.strftime('%Y%m%d') : value.to_yaml
-               when :numeric then
-                 value || 0
-               else
-                   value.respond_to?(:attributes) ? value.attributes.to_yaml : value.to_yaml
-               end
+        yaml =  case options.as
+                  when :date then
+                    value.respond_to?(:strftime) ? value.strftime('%Y%m%d') : value.to_yaml
+                  when :numeric then
+                     Xapian::sortable_serialise(value)
+                  else
+                    # If we have an object that responds to attributes (e.g. an Active Record
+                    # or a Datamapper model), we serialize only the attributes
+                    value.respond_to?(:attributes) ? value.attributes.to_yaml : value.to_yaml
+                end
         @xapian_doc.add_value(DocumentBlueprint.value_number_for(attribute), yaml)
       end
     end

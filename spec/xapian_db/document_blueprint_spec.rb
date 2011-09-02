@@ -84,20 +84,28 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix, options| prefix == :name}.size.should ==1
     end
 
-    it "should set a range filter on a method specified as date at the right position based on sorted method names" do
-      XapianDb::DocumentBlueprint.setup(Object) do |blueprint|
-        blueprint.index :id
-        blueprint.index :name
-        blueprint.index :date, :as => :date
-        blueprint.attribute :new_date, :as => :date
+    it "should return an empty array if no blueprints are configured" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.searchable_prefixes.should == []
+    end
+  end
+
+  describe ".type_info_for(indexed_method)" do
+
+    before :each do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :date,   :as => :date
+        blueprint.index :number, :as => :number
+        blueprint.index :untyped
       end
-      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix, options| prefix == :date && options.as == :date && options.position == 1 }.size.should == 1
-      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix, options| prefix == :new_date && options.as == :date && options.position == 4 }.size.should == 1
     end
 
-    it "should return an empty hash if no blueprints are configured" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-      XapianDb::DocumentBlueprint.searchable_prefixes.should == {}
+    it "should return the type of an attribute if one is defined" do
+      XapianDb::DocumentBlueprint.type_info_for(:date).should == :date
+    end
+
+    it "should return :untyped if no type is defined" do
+      XapianDb::DocumentBlueprint.type_info_for(:untyped).should == :untyped
     end
 
   end

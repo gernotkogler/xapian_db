@@ -80,23 +80,21 @@ module XapianDb
         end
       end
 
+      def type_info_for(indexed_method)
+        @blueprints.values.each do |blueprint|
+          options = blueprint.options_for_indexed_method(indexed_method)
+          return options.as if options && options.as
+        end
+        return :untyped
+      end
+
       # Return an array of all configured text methods in any blueprint
       # @return [Array<String>] All searchable prefixes
       def searchable_prefixes
-        return {} unless @blueprints
-        return @searchable_prefixes if @searchable_prefixes
-
-        @searchable_prefixes = {}
-        @blueprints.values.each do |blueprint|
-          blueprint.searchable_prefixes.each do |prefix, options|
-            @searchable_prefixes[prefix] ||= options
-            @searchable_prefixes[prefix].merge options
-          end
-        end
-
+        return [] unless @blueprints
+        @searchable_prefixes ||= @blueprints.values.map { |blueprint| blueprint.searchable_prefixes }.flatten.compact.uniq
         # We can always do a field search on the name of the indexed class
-        @searchable_prefixes[:indexed_class] = IndexOptions.new(:position => 0)
-        @searchable_prefixes
+        @searchable_prefixes << "indexed_class"
       end
     end
 
@@ -133,14 +131,7 @@ module XapianDb
     # Return an array of all configured text methods in this blueprint
     # @return [Array<String>] All searchable prefixes
     def searchable_prefixes
-      return @searchable_prefixes if @searchable_prefixes
-      @searchable_prefixes = @indexed_methods_hash
-      i = 1 # indexed_class is 0
-      @searchable_prefixes.sort.each do |prefix, options|
-        @searchable_prefixes[prefix].position = i
-        i += 1
-      end
-      @searchable_prefixes
+      @searchable_prefixes ||= @indexed_methods_hash.keys
     end
 
     # Should the object go into the index? Evaluates an ignore expression,
@@ -288,7 +279,7 @@ module XapianDb
     class IndexOptions
 
       # The weight for the indexed value
-      attr_accessor :weight, :block, :as, :position
+      attr_accessor :weight, :block, :as
 
       # Constructor
       # @param [Hash] options
@@ -297,18 +288,8 @@ module XapianDb
         @weight = options[:weight] || 1
         @block  = options[:block]
         @as = options[:as]
-        @position = options[:position]
       end
 
-      # Allow merging of options. First defines wins except for position
-      # @param [IndexOptions]
-      def merge(opts)
-        @weight ||= opts.weight
-        @block ||= opts.block
-        @as ||= opts.as
-        @position = opts.position # Alway overwrite position, otherwise it will always be 1
-        self
-      end
     end
 
     private
