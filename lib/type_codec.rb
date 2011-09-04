@@ -31,7 +31,11 @@ module XapianDb
       # @return [String] the yaml string
       def self.encode(object)
         begin
-          object.to_yaml
+          if object.respond_to?(:attributes)
+            object.attributes.to_yaml
+          else
+            object.to_yaml
+          end
         rescue NoMethodError
           raise ArgumentError.new "#{object} does not support yaml serialization"
         end

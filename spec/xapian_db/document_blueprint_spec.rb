@@ -98,8 +98,8 @@ describe XapianDb::DocumentBlueprint do
 
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.index :date,   :as => :date
-        blueprint.index :untyped
+        blueprint.attribute :date, :as => :date
+        blueprint.attribute :untyped
       end
     end
 
@@ -107,10 +107,9 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.type_info_for(:date).should == :date
     end
 
-    it "should return :untyped if no type is defined" do
-      XapianDb::DocumentBlueprint.type_info_for(:untyped).should == :untyped
+    it "should return :generic if no type is defined" do
+      XapianDb::DocumentBlueprint.type_info_for(:untyped).should == :generic
     end
-
   end
 
   describe ".setup (class)" do
@@ -131,21 +130,21 @@ describe XapianDb::DocumentBlueprint do
 
     it "raises an exception if a method with the same name has different type declarations" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.index :date, :as => :date
+        blueprint.attribute :date, :as => :date
       end
       lambda { XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
-        blueprint.index :date, :as => :number
+        blueprint.attribute :date, :as => :number
       end }.should raise_error ArgumentError
     end
 
   end
 
-  describe ".value_number_for(:indexed_method)" do
+  describe ".value_number_for(:attribute)" do
 
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.index :id
-        blueprint.index :name
+        blueprint.attribute :id
+        blueprint.attribute :name
       end
     end
 
@@ -284,6 +283,12 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).options_for_indexed_method(:id).weight.should == 10
     end
 
+    it "does not accept a type option" do
+      lambda { XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :date, :as => :date
+      end }.should raise_error ArgumentError
+    end
+
     it "allows to declare two methods (can distinguish this from a method with an options hash)" do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.index :id, :name
@@ -351,7 +356,7 @@ describe XapianDb::DocumentBlueprint do
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
         blueprint.attribute :array
-        blueprint.attribute :date_of_birth
+        blueprint.attribute :date_of_birth, :as => :date
         blueprint.attribute :empty_field
         blueprint.attribute :id
         blueprint.attribute :name
@@ -360,11 +365,11 @@ describe XapianDb::DocumentBlueprint do
 
       @doc = Xapian::Document.new
       @doc.add_value(0, "IndexedObject")
-      @doc.add_value(1, [1, "two", Date.today].to_yaml)
-      @doc.add_value(2, Date.today.to_yaml)
-      @doc.add_value(3, nil.to_yaml)
-      @doc.add_value(4, 1.to_yaml)
-      @doc.add_value(5, "Kogler".to_yaml)
+      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:array), [1, "two", Date.new(2011, 1, 1)].to_yaml)
+      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:date_of_birth), "20110101")
+      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:empty_field), nil.to_yaml)
+      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:id), 1.to_yaml)
+      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:name), "Kogler".to_yaml)
       @doc.extend @blueprint.accessors_module
     end
 
@@ -384,9 +389,34 @@ describe XapianDb::DocumentBlueprint do
       @doc.indexed_class.should == "IndexedObject"
     end
 
-    it "adds accessor methods that deserialize values using YAML" do
-      @doc.date_of_birth.should == Date.today
-      @doc.array.should == [1, "two", Date.today]
+    it "adds accessor methods that deserialize values to native objects" do
+      @doc.date_of_birth.should == Date.new(2011, 1, 1)
+      @doc.array.should == [1, "two", Date.new(2011, 1, 1)]
+    end
+
+  end
+
+  describe "#type_map" do
+
+    let(:blueprint) { XapianDb::DocumentBlueprint.blueprint_for(IndexedObject) }
+
+    before :each do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :date, :as => :date
+        blueprint.attribute :untyped
+      end
+    end
+
+    it "should return a hash table" do
+      blueprint.type_map.should be_a Hash
+    end
+
+    it "contains the type of an indexed method if a type is defined" do
+      blueprint.type_map[:date].should == :date
+    end
+
+    it "contains :generic for an indexed method if no type is defined" do
+      blueprint.type_map[:untyped].should == :generic
     end
 
   end

@@ -24,5 +24,11 @@ module XapianDb
       constant
     end
 
+    # Taken from Rails
+    def assert_valid_keys(hash, *valid_keys)
+      unknown_keys = hash.keys - [valid_keys].flatten
+      raise(ArgumentError, "Unsupported option(s) detected: #{unknown_keys.join(", ")}") unless unknown_keys.empty?
+    end
+
   end
 end

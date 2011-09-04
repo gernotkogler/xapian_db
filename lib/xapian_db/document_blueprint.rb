@@ -43,8 +43,7 @@ module XapianDb
         @_adapter.add_class_helper_methods_to klass
         # force rebuild of cached data
         @searchable_prefixes = nil
-        @methods_map         = nil
-        @type_map            = nil
+        @attributes_map      = nil
       end
 
       # Get all configured classes
@@ -67,19 +66,19 @@ module XapianDb
         raise "Blueprint for class #{klass} is not defined"
       end
 
-      # Get the value number for an indexed method. Please note that this is not the index in the values
+      # Get the value number for an attribute. Please note that this is not the index in the values
       # array of a xapian document but the valueno. Therefore, document.values[value_number] returns
       # the wrong data, use document.value(value_number) instead.
-      # @param [indexed_method] The name of an indexed method
+      # @param [attribute] The name of an attribute
       # @return [Integer] The value number
-      def value_number_for(indexed_method)
-        @methods_map ||= @blueprints.values.map { |blueprint| blueprint.indexed_method_names}.flatten.compact.uniq.sort
-        position = @methods_map.index indexed_method.to_sym
+      def value_number_for(attribute)
+        @attributes_map ||= @blueprints.values.map { |blueprint| blueprint.attribute_names}.flatten.compact.uniq.sort
+        position = @attributes_map.index attribute.to_sym
         if position
           # We add 1 because value slot 0 is reserved for the class name
           return position + 1
         else
-          raise ArgumentError.new "#{indexed_method} is not configured in any blueprint"
+          raise ArgumentError.new "attribute #{attribute} is not configured in any blueprint"
         end
       end
 
@@ -87,20 +86,10 @@ module XapianDb
       # @param [indexed_method] The name of an indexed method
       # @return [Symbol] The defined type or :untyped if no type is defined
       def type_info_for(indexed_method)
-        unless @type_map
-          @type_map = {}
-          @blueprints.values.each do |blueprint|
-            blueprint.indexed_method_names.each do |method_name|
-              options = blueprint.options_for_indexed_method(method_name)
-              if options
-                @type_map[method_name.to_sym] = options.as
-              else
-                @type_map[method_name.to_sym] = :untyped
-              end
-            end
-          end
+        @blueprints.values.each do |blueprint|
+          return blueprint.type_map[indexed_method] if blueprint.type_map.has_key?(indexed_method)
         end
-        @type_map[indexed_method.to_sym]
+        nil
       end
 
       # Return an array of all configured text methods in any blueprint
@@ -115,14 +104,11 @@ module XapianDb
       private
 
       def validate_type_consistency_on(blueprint)
-        blueprint.indexed_method_names.each do |method_name|
-          options = blueprint.options_for_indexed_method(method_name)
-          next unless options
-          if type_info_for(method_name) && options.as != type_info_for(method_name)
-            raise ArgumentError.new "different type definitions for #{method_name} detected (#{type_info_for(method_name)}, #{options.as})"
+        blueprint.type_map.each do |method_name, type|
+          if type_info_for(method_name) && type_info_for(method_name) != type
+            raise ArgumentError.new "different type definitions for #{method_name} detected (#{type_info_for(method_name)}, #{type})"
           end
         end
-
       end
 
     end
@@ -130,6 +116,8 @@ module XapianDb
     # ---------------------------------------------------------------------------------
     # Instance methods
     # ---------------------------------------------------------------------------------
+
+    attr_reader :type_map
 
     # Get the names of all configured attributes sorted alphabetically
     # @return [Array<Symbol>] The names of the attributes
@@ -192,9 +180,10 @@ module XapianDb
       # Add an accessor for each attribute
       attribute_names.each do |attribute|
         index = DocumentBlueprint.value_number_for(attribute)
+        codec = XapianDb::TypeCodec.codec_for @type_map[attribute]
         @accessors_module.instance_eval do
           define_method attribute do
-            YAML::load(self.value(index))
+            codec.decode self.value(index)
           end
         end
       end
@@ -214,8 +203,9 @@ module XapianDb
 
     # Construct the blueprint
     def initialize
-      @attributes_hash = {}
+      @attributes_hash =      {}
       @indexed_methods_hash = {}
+      @type_map =             {}
     end
 
     # Set the adapter
@@ -247,13 +237,15 @@ module XapianDb
     #   end
     def attribute(name, options={}, &block)
       raise ArgumentError.new("You cannot use #{name} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(name)
-      opts = {:index => true}.merge(options)
+      do_not_index    = options.delete(:index) == false
+      @type_map[name] = (options.delete(:as) || :generic)
+
       if block_given?
         @attributes_hash[name] = {:block => block}.merge(options)
       else
         @attributes_hash[name] = options
       end
-      self.index(name, opts, &block) if opts[:index]
+      self.index(name, options, &block) unless do_not_index
     end
 
     # Add a list of attributes to the blueprint. Attributes will be stored in the xapian documents ans
@@ -290,7 +282,9 @@ module XapianDb
         when 2
           # Is it a method name with options?
           if args.last.is_a? Hash
-            @indexed_methods_hash[args.first] = IndexOptions.new(args.last.merge(:block => block))
+            options = args.last
+            assert_valid_keys options, :weight
+            @indexed_methods_hash[args.first] = IndexOptions.new(options.merge(:block => block))
           else
             add_indexes_from args
           end
@@ -307,7 +301,7 @@ module XapianDb
     # Options for an indexed method
     class IndexOptions
 
-      attr_reader :weight, :block, :as
+      attr_reader :weight, :block
 
       # Constructor
       # @param [Hash] options
@@ -315,7 +309,6 @@ module XapianDb
       def initialize(options = {})
         @weight = options[:weight] || 1
         @block  = options[:block]
-        @as     = options[:as] || :untyped
       end
 
     end
