@@ -10,7 +10,7 @@ gem 'kaminari'
 gem 'formtastic'
 gem 'jquery-rails'
 gem 'beanstalk-client'
-gem 'xapian_db', '>= 1.0.1'
+gem 'xapian_db', :git => 'git://github.com/garaio/xapian_db.git'
 
 # Use unicorn as the web server
 # gem 'unicorn'
