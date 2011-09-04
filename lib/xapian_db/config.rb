@@ -67,10 +67,9 @@ module XapianDb
       if path.to_sym == :memory
         @_database = XapianDb.create_db
       else
-        if File.exist?(path)
+        begin
           @_database = XapianDb.open_db :path => path
-        else
-          # Database does not exist; create it
+        rescue IOError
           @_database = XapianDb.create_db :path => path
         end
       end

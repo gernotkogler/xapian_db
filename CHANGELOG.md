@@ -3,6 +3,7 @@
 Fixes:
 
   - better handling of the beanstalk-client dependency
+  - recreate the xapian index database if the configured path exists but does not contain a valid xapian index
 
 Features:
 
