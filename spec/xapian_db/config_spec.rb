@@ -43,6 +43,17 @@ describe XapianDb::Config do
         XapianDb.database.size.should == 1 # The doc should still be there
       end
 
+      it "handles the existence of an empty index directory gracefully" do
+        db_path = "/tmp/xapian_db"
+        FileUtils.rm_rf db_path
+        FileUtils.mkdir_p db_path
+        XapianDb::Config.setup do |config|
+          config.database db_path
+        end
+        XapianDb.database.size
+        FileUtils.rm_rf db_path
+      end
+
     end
 
     describe ".adapter" do
