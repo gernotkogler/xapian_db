@@ -1,4 +1,4 @@
-##1.0.1 (August 31th, 2011)
+##work in progress (targeting next release)
 
 Fixes:
 
@@ -7,6 +7,9 @@ Fixes:
 Features:
 
   - rails sample app upgraded to 3.1
+  - support for date range queries
+
+IMPORTANT: YOU MUST REBUILD YOUR XAPIAN INDEX DATABASE SINCE THE INDEX STRUCTURE HAS CHANGED!
 
 ##1.0 (August 17th, 2011)
 
