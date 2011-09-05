@@ -75,19 +75,6 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.searchable_prefixes.should include(:id, :name)
     end
 
-    it "should return a hash with unique values" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
-        blueprint.index :id
-        blueprint.index :name
-      end
-      XapianDb::DocumentBlueprint.setup(Object) do |blueprint|
-        blueprint.index :id
-        blueprint.index :name
-      end
-      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix, options| prefix == :id}.size.should ==1
-      XapianDb::DocumentBlueprint.searchable_prefixes.select{|prefix, options| prefix == :name}.size.should ==1
-    end
-
     it "should return an empty array if no blueprints are configured" do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.searchable_prefixes.should == []
