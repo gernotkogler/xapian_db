@@ -107,7 +107,7 @@ module XapianDb
       def validate_type_consistency_on(blueprint)
         blueprint.type_map.each do |method_name, type|
           if type_info_for(method_name) && type_info_for(method_name) != type
-            raise ArgumentError.new "different type definitions for #{method_name} detected (#{type_info_for(method_name)}, #{type})"
+            raise ArgumentError.new "ambigous type definition for #{method_name} detected (#{type_info_for(method_name)}, #{type})"
           end
         end
       end
