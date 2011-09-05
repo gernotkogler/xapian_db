@@ -83,12 +83,12 @@ module XapianDb
         end
       end
 
-      # Get the type info of an indexed method
-      # @param [indexed_method] The name of an indexed method
+      # Get the type info of an attribute
+      # @param [attribute] The name of an indexed method
       # @return [Symbol] The defined type or :untyped if no type is defined
-      def type_info_for(indexed_method)
+      def type_info_for(attribute)
         @blueprints.values.each do |blueprint|
-          return blueprint.type_map[indexed_method] if blueprint.type_map.has_key?(indexed_method)
+          return blueprint.type_map[attribute] if blueprint.type_map.has_key?(attribute)
         end
         nil
       end
