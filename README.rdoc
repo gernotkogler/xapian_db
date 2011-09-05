@@ -216,7 +216,15 @@ Or with kaminari:
 If you want to implement a simple drilldown for your searches, you can use a global facets query:
 
   search_expression = "Foo"
-  facets = XapianDb.facets(search_expression)
+  facets = XapianDb.facets(:name, search_expression)
+  facets.each do |name, count|
+    puts "#{name}: #{count} hits"
+  end
+
+If you want the facets based on the indexed class, use the special attribute :indexed_class:
+
+  search_expression = "Foo"
+  facets = XapianDb.facets(:indexed_class, search_expression)
   facets.each do |klass, count|
     puts "#{klass.name}: #{count} hits"
 
@@ -224,7 +232,7 @@ If you want to implement a simple drilldown for your searches, you can use a glo
     # doc = klass.search search_expression
   end
 
-A global facet search always groups the results by the class of the indexed objects. There is a class level facet query syntax available, too:
+A class level facet query is possible, too:
 
   search_expression = "Foo"
   facets = Person.facets(:name, search_expression)
@@ -232,7 +240,7 @@ A global facet search always groups the results by the class of the indexed obje
     puts "#{name}: #{count} hits"
   end
 
-At the class level, any attribute can be used for a facet query. Use facet queries on attributes that store atomic values like strings, numbers or dates.
+Any attribute declared in a blueprint can be used for a facet query. Use facet queries on attributes that store atomic values like strings, numbers or dates.
 If you use it on attributes that contain collections (like an array of strings), you might get unexpected results.
 
 === Find similar documents

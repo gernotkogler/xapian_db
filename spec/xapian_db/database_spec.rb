@@ -306,53 +306,53 @@ describe XapianDb::Database do
 
   describe "#facets(expression)" do
 
+    let (:db) { XapianDb.database }
+
     before :all do
-
-      class ClassA
-        attr_reader :id, :text
-        def initialize(id, text)
-          @id, @text = id, text
-        end
-      end
-
-      class ClassB < ClassA
-      end
-
       XapianDb.setup do |config|
         config.adapter  :generic
         config.database :memory
         config.language :en
       end
 
-      XapianDb::DocumentBlueprint.setup(ClassA) do |blueprint|
-        blueprint.index :text
-      end
-      XapianDb::DocumentBlueprint.setup(ClassB) do |blueprint|
-        blueprint.index :text
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :text
       end
 
-      db = XapianDb.database
-      indexerA = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(ClassA)
-      indexerB = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(ClassB)
-
-      # We add the name of the other class to the index to make sure we do not find it
-      # only by the name of the class
-      @objA = ClassA.new(1, "find me classb")
-      db.store_doc indexerA.build_document_for(@objA)
-      @objB = ClassB.new(1, "find me classa")
-      db.store_doc indexerB.build_document_for(@objB)
-
-      XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to ClassA
-      XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to ClassB
-
+      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      obj = IndexedObject.new(1)
+      obj.stub!(:text).and_return "Facet A"
+      db.store_doc indexer.build_document_for(obj)
+      obj = IndexedObject.new(2)
+      obj.stub!(:text).and_return "Facet B"
+      db.store_doc indexer.build_document_for(obj)
+      XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to IndexedObject
     end
 
-    it "should return a hash containing the class facets" do
-      facets = XapianDb.database.facets "find me"
+    it "should return a hash containing the values of the attributes and their count" do
+      facets = XapianDb.database.facets :text, "facet"
       facets.size.should == 2
-      facets[ClassA].should == 1
-      facets[ClassB].should == 1
+      facets["Facet A"].should == 1
+      facets["Facet B"].should == 1
     end
+
+    it "collects the facets across all indexed classes" do
+      XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
+        blueprint.attribute :text
+      end
+      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(OtherIndexedObject)
+      obj = OtherIndexedObject.new(1)
+      obj.stub!(:text).and_return "Facet C"
+      db.store_doc indexer.build_document_for(obj)
+
+      facets = XapianDb.database.facets :text, "facet"
+      facets.size.should == 3
+      facets["Facet A"].should == 1
+      facets["Facet B"].should == 1
+      facets["Facet C"].should == 1
+
+    end
+
   end
 
   describe "#find_similar_to(xapian_docs, options)" do

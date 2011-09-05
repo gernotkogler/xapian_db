@@ -169,6 +169,10 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.value_number_for(:name).should == 2
     end
 
+    it "returns 0 for :indexed_class" do
+      XapianDb::DocumentBlueprint.value_number_for(:indexed_class).should == 0
+    end
+
   end
 
   describe "#adapter (symbol)" do

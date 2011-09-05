@@ -143,6 +143,8 @@ describe XapianDb::Adapters::BaseAdapter do
 
     describe ".facets(attribute, expression)" do
 
+      let (:db) { XapianDb.database }
+
       before :all do
 
         XapianDb.setup do |config|
@@ -171,6 +173,19 @@ describe XapianDb::Adapters::BaseAdapter do
         facets.size.should == 2
         facets["Facet A"].should == 1
         facets["Facet B"].should == 1
+      end
+
+      it "scopes the facet query to the containing class" do
+        XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
+          blueprint.attribute :text
+        end
+        indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(OtherIndexedObject)
+        obj = OtherIndexedObject.new(1)
+        obj.stub!(:text).and_return "Facet C"
+        db.store_doc indexer.build_document_for(obj)
+
+        facets = IndexedObject.facets :text, "facet"
+        facets.keys.should_not include("Facet C")
       end
 
     end

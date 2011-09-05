@@ -97,8 +97,8 @@ module XapianDb
   # Get facets from the configured database.
   # See {XapianDb::Database#facets} for options
   # @return [Hash<Class, Integer>] A hash containing the classes and the hits per class
-  def self.facets(expression)
-    XapianDb::Config.database.facets(expression)
+  def self.facets(attribute, expression)
+    XapianDb::Config.database.facets attribute, expression
   end
 
   # Update an object in the index

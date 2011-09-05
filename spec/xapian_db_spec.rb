@@ -74,13 +74,16 @@ describe XapianDb do
 
   end
 
-  describe ".facets(expression)" do
+  describe ".facets(attribute, expression)" do
 
     it "should delegate the facets query to the current database" do
       XapianDb.setup do |config|
         config.database :memory
       end
-      XapianDb.facets("Something").should be_a_kind_of(Hash)
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :text
+      end
+      XapianDb.facets(:text, "Something").should be_a_kind_of(Hash)
     end
 
   end

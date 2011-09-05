@@ -72,6 +72,7 @@ module XapianDb
       # @param [attribute] The name of an attribute
       # @return [Integer] The value number
       def value_number_for(attribute)
+        return 0 if attribute.to_sym == :indexed_class
         @attributes_map ||= @blueprints.values.map { |blueprint| blueprint.attribute_names}.flatten.compact.uniq.sort
         position = @attributes_map.index attribute.to_sym
         if position
