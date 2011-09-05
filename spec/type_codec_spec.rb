@@ -26,6 +26,19 @@ describe XapianDb::TypeCodec::GenericCodec do
       described_class.encode(object).should == object.to_yaml
     end
 
+    it "encodes an objects attributes hash if it has one" do
+      hash = { :id => 1, :name => "Kogler" }
+      object = Object.new
+      object.stub!(:attributes).and_return hash
+      described_class.encode(object).should == hash.to_yaml
+    end
+
+    it "raises an ArgumentError if the object does not respond to to_yaml" do
+      object = Object.new
+      object.stub!(:to_yaml).and_raise NoMethodError
+      lambda { described_class.encode(object) }.should raise_error ArgumentError
+    end
+
   end
 
   describe "decode(yaml_string)" do
@@ -33,6 +46,11 @@ describe XapianDb::TypeCodec::GenericCodec do
     it "decodes a yaml string representing the object to the object" do
       yaml_string = "some text".to_yaml
       described_class.decode(yaml_string).should == YAML::load(yaml_string)
+    end
+
+    it "raises an ArgumentError if the given argument cannot pe parsed by YAML" do
+      argument = 1
+      lambda { described_class.decode(argument) }.should raise_error ArgumentError
     end
 
   end

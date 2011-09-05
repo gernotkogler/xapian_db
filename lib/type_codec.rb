@@ -47,7 +47,7 @@ module XapianDb
       def self.decode(yaml_string)
         begin
           YAML::load yaml_string
-        rescue ArgumentError
+        rescue TypeError
           raise ArgumentError.new "'#{yaml_string}' cannot be loaded by YAML"
         end
       end

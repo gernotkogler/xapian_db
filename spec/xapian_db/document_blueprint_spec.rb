@@ -4,10 +4,6 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::DocumentBlueprint do
 
-  before :each do
-    XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-  end
-
   describe ".configured_classes" do
 
     it "returns all configured classes" do
