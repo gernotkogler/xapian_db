@@ -10,6 +10,8 @@ Features:
 
   - rails sample app upgraded to 3.1
   - support for date range queries
+  - global factes queries have now the same options like class scoped facte queries
+  - Support for custom serialization between your objects and xapian documents; overwrite the serialization implementation in type_codec.rb or implement your own serialization for sepecific types (see examples/custom_serialization.rb)
 
 IMPORTANT: YOU MUST REBUILD YOUR XAPIAN INDEX DATABASE SINCE THE INDEX STRUCTURE HAS CHANGED!
 
