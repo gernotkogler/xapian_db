@@ -201,17 +201,61 @@ describe XapianDb do
     end
 
     it "should find all objects with a full range" do
-      XapianDb.search("date:#{@object1.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").size.should == 3
+      XapianDb.search("date:#{@object1.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").should have(3).items
     end
 
     it "should find selection of objects with partial range" do
-      XapianDb.search("date:#{@object2.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").size.should == 2
+      XapianDb.search("date:#{@object2.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").should have(2).items
     end
+
     it "should find selection of objects with open ending range" do
-      XapianDb.search("date:#{@object3.date.strftime('%Y-%m-%d')}..").size.should == 1
+      XapianDb.search("date:#{@object3.date.strftime('%Y-%m-%d')}..").should have(1).item
     end
+
     it "should find selection of objects with open beginning range" do
-      XapianDb.search("date:..#{@object2.date.strftime('%Y-%m-%d')}").size.should == 2
+      XapianDb.search("date:..#{@object2.date.strftime('%Y-%m-%d')}").should have(2).items
+    end
+  end
+
+  describe "number ranges" do
+    before :each do
+      XapianDb.setup do |config|
+        config.database :memory
+        config.adapter :active_record
+        config.writer  :direct
+      end
+      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+        blueprint.index :name
+        blueprint.attribute :age, :as => :number
+      end
+      @object1 = ActiveRecordObject.new(1, "Gernot", Date.today, 30)
+      @object1.save
+      @object2 = ActiveRecordObject.new(2, "Gernot", Date.today, 31)
+      @object2.save
+      @object3 = ActiveRecordObject.new(3, "Gernot", Date.today, 32)
+      @object3.save
+    end
+
+    it "should should get the objects by number" do
+      result = XapianDb.search("age:31")
+      result.size.should == 1
+      result.first.data.should == "ActiveRecordObject-2"
+    end
+
+    it "should find all objects with a full range" do
+      XapianDb.search("age:30..32").should have(3).items
+    end
+
+    it "should find selection of objects with partial range" do
+      XapianDb.search("age:31..32").should have(2).items
+    end
+
+    it "should find selection of objects with open ending range" do
+      XapianDb.search("age:32..").should have(1).item
+    end
+
+    it "should find selection of objects with open beginning range" do
+      XapianDb.search("age:..31").should have(2).items
     end
   end
 

@@ -149,7 +149,7 @@ module XapianDb
     # Return an array of all configured text methods in this blueprint
     # @return [Array<String>] All searchable prefixes
     def searchable_prefixes
-      @searchable_prefixes ||= @indexed_methods_hash.keys
+      @searchable_prefixes ||= indexed_method_names
     end
 
     # Should the object go into the index? Evaluates an ignore expression,

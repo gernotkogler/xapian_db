@@ -26,10 +26,10 @@ class PersistentObject
 
   end
 
-  attr_accessor :id, :name, :date
+  attr_accessor :id, :name, :date, :age
 
-  def initialize(id, name, date = Date.today)
-    @id, @name, @date = id, name, date
+  def initialize(id, name, date = Date.today, age = 0)
+    @id, @name, @date, @age = id, name, date, age
   end
 
   def save

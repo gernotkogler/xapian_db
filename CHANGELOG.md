@@ -10,6 +10,7 @@ Features:
 
   - rails sample app upgraded to 3.1
   - support for date range queries
+  - support for number range queries
   - sorting now works on a global query, too (XapianDb.search...)
   - global factes queries have now the same options like class scoped facet queries
   - Support for custom serialization into xapian documents; overwrite the serialization implementation in type_codec.rb or implement your own serialization for specific types (see examples/custom_serialization.rb)

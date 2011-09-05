@@ -116,9 +116,10 @@ You may add a filter expression to exclude objects from the index. This is handy
       blueprint.ignore_if {active == false}
     end
 
-You can add a type information to an attribute. As of now only the special type :date is supported (and needed for date range queries):
+You can add a type information to an attribute. As of now only the special types :date and :number are supported (and needed for range queries):
 
     XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+      blueprint.attribute :age,           :as => :number
       blueprint.attribute :date_of_birth, :as => :date
     end
 
@@ -197,6 +198,18 @@ If you have a attribute of type :date defined, you can do date range searches:
   end
 
   result = XapianDb.search("date:2011-01-01..2011-12-31")
+
+If you have a attribute of type :number defined, you can do number range searches:
+
+  XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+    blueprint.attribute :age, :as => :number
+  end
+
+  result = XapianDb.search("age:30..40")
+
+You can combine range query expressions with other expressions:
+
+  result = XapianDb.search("age:30..40 AND city:Aarau")
 
 === Process the results
 

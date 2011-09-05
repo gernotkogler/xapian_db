@@ -41,9 +41,13 @@ module XapianDb
       # (like "name:Kogler")
       XapianDb::DocumentBlueprint.searchable_prefixes.each do |prefix|
         parser.add_prefix(prefix.to_s.downcase, "X#{prefix.to_s.upcase}")
-        if XapianDb::DocumentBlueprint.type_info_for(prefix) == :date
-          value_number = XapianDb::DocumentBlueprint.value_number_for(prefix)
-          parser.add_valuerangeprocessor Xapian::DateValueRangeProcessor.new(value_number, "#{prefix}:")
+        case XapianDb::DocumentBlueprint.type_info_for(prefix)
+          when :date
+            value_number = XapianDb::DocumentBlueprint.value_number_for(prefix)
+            parser.add_valuerangeprocessor Xapian::DateValueRangeProcessor.new(value_number, "#{prefix}:")
+          when :number
+            value_number = XapianDb::DocumentBlueprint.value_number_for(prefix)
+            parser.add_valuerangeprocessor Xapian::NumberValueRangeProcessor.new(value_number, "#{prefix}:")
         end
       end
       query = parser.parse_query(expression, @query_flags)
