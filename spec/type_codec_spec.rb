@@ -82,3 +82,29 @@ describe XapianDb::TypeCodec::DateCodec do
 
 end
 
+describe XapianDb::TypeCodec::NumberCodec do
+
+  describe "encode(number)" do
+
+    it "encodes a number using the xapian sortable_serialise method" do
+      described_class.encode(1).should == Xapian::sortable_serialise(1)
+    end
+
+    it "raises an argument error if the given object is not a number" do
+      lambda { described_class.encode("X") }.should raise_error "X was expected to be a number"
+    end
+  end
+
+  describe "decode(number_as_string)" do
+
+    it "decodes a string representing a number to a BigDecimal" do
+      encoded_number = Xapian::sortable_serialise(1.5)
+      described_class.decode(encoded_number).should == BigDecimal.new("1.5")
+    end
+
+    it "raises an argument error if the argument ist not a string" do
+      lambda { described_class.decode(1) }.should raise_error "1 cannot be unserialized"
+    end
+  end
+
+end

@@ -78,5 +78,30 @@ module XapianDb
       end
     end
 
+    class NumberCodec
+
+      # Encode a number to a sortable string
+      # @param [Integer, BigDecimal, Float] number a number object to encode
+      # @return [String] the encoded number
+      def self.encode(number)
+        begin
+          Xapian::sortable_serialise number
+        rescue TypeError
+          raise ArgumentError.new "#{number} was expected to be a number"
+        end
+      end
+
+      # Decode a string to a BigDecimal
+      # @param [String] number_as_string a string representing a number
+      # @return [BigDecimal] the decoded number
+      def self.decode(encoded_number)
+        begin
+          BigDecimal.new(Xapian::sortable_unserialise(encoded_number).to_s)
+        rescue TypeError
+          raise ArgumentError.new "#{encoded_number} cannot be unserialized"
+        end
+      end
+    end
+
   end
 end
