@@ -26,7 +26,7 @@ class PersistentObject
 
   end
 
-  attr_reader :id, :name, :date
+  attr_accessor :id, :name, :date
 
   def initialize(id, name, date = Date.today)
     @id, @name, @date = id, name, date

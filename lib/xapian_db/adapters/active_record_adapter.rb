@@ -37,14 +37,9 @@ module XapianDb
 
            klass.class_eval do
 
-             # add the after save logic
+             # add the after commit logic
              after_commit do
-               blueprint = XapianDb::DocumentBlueprint.blueprint_for klass
-               if blueprint.should_index?(self)
-                 XapianDb.index(self)
-               else
-                 XapianDb.delete_doc_with(self.xapian_id)
-               end
+               XapianDb.reindex(self)
              end
 
              # add the after destroy logic

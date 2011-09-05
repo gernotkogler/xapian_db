@@ -88,6 +88,44 @@ describe XapianDb do
 
   end
 
+  describe ".reindex(obj)" do
+
+    before :each do
+      XapianDb.setup do |config|
+        config.database :memory
+        config.adapter :active_record
+        config.writer  :direct
+      end
+
+      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+        blueprint.index :name
+        blueprint.ignore_if {
+          date > Date.today
+        }
+      end
+
+    end
+
+    it "updates the xapian document belonging to the object" do
+      @object = ActiveRecordObject.new(1, "Kogler")
+      @object.save
+      XapianDb.search("Kogler").size.should == 1
+      @object.stub!(:name).and_return "renamed"
+      XapianDb.reindex(@object)
+      XapianDb.search("renamed").size.should == 1
+    end
+
+    it "deletes the xapian document if the ignore_if clause evaluates to false" do
+      @object = ActiveRecordObject.new(1, "Kogler")
+      @object.save
+      XapianDb.search("Kogler").size.should == 1
+      @object.date = Date.today + 1
+      XapianDb.reindex(@object)
+      XapianDb.search("Kogler").size.should == 0
+    end
+
+  end
+
   describe ".rebuild_xapian_index" do
 
     before :each do

@@ -115,6 +115,17 @@ module XapianDb
     writer.delete_doc_with xapian_id
   end
 
+  # Update or delete a xapian document belonging to an object depending on the ignore_if logic(if present)
+  # @param [Object] object An instance of a class with a blueprint configuration
+  def self.reindex(object)
+    blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class
+    if blueprint.should_index?(object)
+      XapianDb.index object
+    else
+      XapianDb.delete_doc_with object.xapian_id
+    end
+  end
+
   # Reindex all objects of a given class
   # @param [Class] klass The class to reindex
   # @param [Hash] options Options for reindexing
