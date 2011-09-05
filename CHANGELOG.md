@@ -4,6 +4,7 @@ Fixes:
 
   - better handling of the beanstalk-client dependency
   - recreate the xapian index database if the configured path exists but does not contain a valid xapian index
+  - support for non-integer primary keys (removed unneccesary to_i conversion)
 
 Features:
 

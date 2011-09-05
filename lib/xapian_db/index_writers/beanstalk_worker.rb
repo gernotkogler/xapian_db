@@ -13,7 +13,7 @@ module XapianDb
       def index_task(options)
         klass = constantize options[:class]
         # TODO: to_i does not work with non numeric ids
-        obj   = klass.respond_to?(:get) ? klass.get(options[:id].to_i) : klass.find(options[:id].to_i)
+        obj   = klass.respond_to?(:get) ? klass.get(options[:id]) : klass.find(options[:id])
         DirectWriter.index obj
       end
 
