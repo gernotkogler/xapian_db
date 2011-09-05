@@ -116,6 +116,12 @@ You may add a filter expression to exclude objects from the index. This is handy
       blueprint.ignore_if {active == false}
     end
 
+You can add a type information to an attribute. As of now only the special type :date is supported (and needed for date range queries):
+
+    XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+      blueprint.attribute :date_of_birth, :as => :date
+    end
+
 You can override the global adapter configuration in a specific blueprint. Let's say you use ActiveRecord, but you have
 one more class that is not stored in the database, but you want it to be indexed:
 
@@ -144,6 +150,10 @@ In verbose mode, XapianDb will use the progressbar gem if available.
 To rebuild the index for all blueprints, use
 
   XapianDb.rebuild_xapian_index
+
+You can update the index for a single object, too (e.g. to reevaluate an ignore_if block without modifying and saving the object):
+
+  XapianDb.reindex object
 
 === Query the index
 
@@ -180,7 +190,13 @@ On class queries you can specifiy order options:
   results = Person.search "name:Foo", :order => :first_name
   results = Person.search "Fo*", :order => [:name, :first_name], :sort_decending => true
 
-Please note that the order option is not available for global searches (XapianDb.search...)
+If you have a attribute of type :date defined, you can do date range searches:
+
+  XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+    blueprint.attribute :date_of_birth, :as => :date
+  end
+
+  result = XapianDb.search("date:2011-01-01..2011-12-31")
 
 === Process the results
 
