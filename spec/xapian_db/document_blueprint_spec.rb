@@ -156,6 +156,17 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.value_number_for(:indexed_class).should == 0
     end
 
+    it "calculates the value number in alphabetical order even if the attributes are not declared in alphabetical order" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :date_of_birth, :as => :date
+        blueprint.attribute :empty_field
+        blueprint.attribute :id
+        blueprint.attribute :name
+        blueprint.attribute :array
+      end
+      XapianDb::DocumentBlueprint.value_number_for(:array).should == 1
+    end
+
   end
 
   describe "#adapter (symbol)" do
@@ -380,7 +391,6 @@ describe XapianDb::DocumentBlueprint do
       @doc.date_of_birth.should == Date.new(2011, 1, 1)
       @doc.array.should == [1, "two", Date.new(2011, 1, 1)]
     end
-
   end
 
   describe "#type_map" do
