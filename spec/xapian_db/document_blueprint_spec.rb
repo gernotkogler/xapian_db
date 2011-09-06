@@ -156,6 +156,17 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.value_number_for(:indexed_class).should == 0
     end
 
+    it "calculates the value number in alphabetical order even if the attributes are not declared in alphabetical order" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :date_of_birth, :as => :date
+        blueprint.attribute :empty_field
+        blueprint.attribute :id
+        blueprint.attribute :name
+        blueprint.attribute :array
+      end
+      XapianDb::DocumentBlueprint.value_number_for(:array).should == 1
+    end
+
   end
 
   describe "#adapter (symbol)" do
@@ -381,6 +392,34 @@ describe XapianDb::DocumentBlueprint do
       @doc.array.should == [1, "two", Date.new(2011, 1, 1)]
     end
 
+    # it "complex test" do
+    #   XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+
+    #   XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+    #     blueprint.attribute :name
+    #     blueprint.attribute :date_of_birth, :as => :date
+    #     blueprint.attribute :array
+    #   end
+
+    #   XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
+    #     blueprint.attribute :code
+    #     blueprint.attribute :foo
+    #   end
+
+    #   doc1 = Xapian::Document.new
+    #   doc1.add_value(0, "IndexedObject")
+    #   doc1.add_value(XapianDb::DocumentBlueprint.value_number_for(:array), [1, "two", Date.new(2011, 1, 1)].to_yaml)
+    #   doc1.add_value(XapianDb::DocumentBlueprint.value_number_for(:name), "Kogler".to_yaml)
+    #   doc1.extend XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).accessors_module
+
+    #   doc2 = Xapian::Document.new
+    #   doc2.add_value(0, "OtherIndexedObject")
+    #   doc2.add_value(XapianDb::DocumentBlueprint.value_number_for(:code), "Code".to_yaml)
+    #   doc2.add_value(XapianDb::DocumentBlueprint.value_number_for(:foo), "Foo".to_yaml)
+    #   doc2.extend XapianDb::DocumentBlueprint.blueprint_for(OtherIndexedObject).accessors_module
+
+    #   raise doc2.foo
+    # end
   end
 
   describe "#type_map" do
