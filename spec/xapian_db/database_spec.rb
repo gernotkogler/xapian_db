@@ -260,21 +260,29 @@ describe XapianDb::Database do
         XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
           blueprint.attribute :text
           blueprint.attribute :text2
+          blueprint.attribute :number
         end
+
         obj = IndexedObject.new(1)
         obj.stub!(:text).and_return("same_sort")
         obj.stub!(:text2).and_return("B text")
+        obj.stub!(:number).and_return(10)
         doc = @indexer.build_document_for(obj)
         XapianDb.database.store_doc doc
-        obj2 = IndexedObject.new(2)
-        obj2.stub!(:text).and_return("same_sort")
-        obj2.stub!(:text2).and_return("A text")
-        doc = @indexer.build_document_for(obj2)
+        obj = IndexedObject.new(2)
+        obj.stub!(:text).and_return("same_sort")
+        obj.stub!(:text2).and_return("A text")
+        obj.stub!(:number).and_return(1)
+        doc = @indexer.build_document_for(obj)
         XapianDb.database.store_doc doc
-
       end
-      it "does not accept the :sort_index option for a query that is not scoped to a class" do
-        lambda{XapianDb.search "text", :sort_indices => 1}.should raise_error ArgumentError
+
+      it "accepts the :sort_indices option for a query" do
+        sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text2)]
+        result = XapianDb.database.search "text", :sort_indices => sort_indices
+        result.size.should == 2
+        result.first.text2.should == "A text"
+        result.last.text2.should == "B text"
       end
 
       it "accepts the :sort_indices option for a query that is scoped to a class" do
@@ -283,6 +291,14 @@ describe XapianDb::Database do
         result.size.should == 2
         result.first.text2.should == "A text"
         result.last.text2.should == "B text"
+      end
+
+      it "accepts the :sort_decending option for a query" do
+        sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text)]
+        result = XapianDb.database.search "text", :sort_indices => sort_indices, :sort_decending => true
+        result.size.should == 2
+        result.first.text2.should == "B text"
+        result.last.text2.should == "A text"
       end
 
       it "accepts the :sort_decending option for a query that is scoped to a class" do
@@ -295,10 +311,26 @@ describe XapianDb::Database do
 
       it "accepts multiple indices for the :sort_indices option" do
         sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text), XapianDb::DocumentBlueprint.value_number_for(:text2)]
+        result = XapianDb.database.search "text", :sort_indices => sort_indices
+        result.size.should == 2
+        result.first.text2.should == "A text"
+        result.last.text2.should == "B text"
+      end
+
+      it "accepts multiple indices for the :sort_indices option for a query that is scoped to a class" do
+        sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text), XapianDb::DocumentBlueprint.value_number_for(:text2)]
         result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => sort_indices
         result.size.should == 2
         result.first.text2.should == "A text"
         result.last.text2.should == "B text"
+      end
+
+      it "orders the result numerically if a number attribute is used for sorting" do
+        sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:number)]
+        result = XapianDb.database.search "text", :sort_indices => sort_indices
+        result.size.should == 2
+        result.first.number.should == 1
+        result.last.number.should == 10
       end
 
     end

@@ -75,7 +75,6 @@ module XapianDb
       sort_decending = opts.delete :sort_decending
 
       if sort_indices
-        raise ArgumentError.new("Sorting is available for class scoped searches only") unless expression =~ /^indexed_class:/
         sorter = Xapian::MultiValueKeyMaker.new
         sort_indices.each { |index| sorter.add_value index }
         enquiry.set_sort_by_key_then_relevance(sorter, sort_decending)
