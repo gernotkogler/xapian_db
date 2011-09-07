@@ -105,7 +105,7 @@ module XapianDb
       # Return an array of all defined attributes
       # @return [Array<Symbol>] All defined attributes
       def attributes
-        @attributes
+        @attributes || []
       end
 
       private
