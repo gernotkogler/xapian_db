@@ -1,4 +1,4 @@
-##work in progress (targeting next release)
+##1.1 (September 7th, 2011)
 
 Fixes:
 
