@@ -71,13 +71,35 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.searchable_prefixes.should include(:id, :name)
     end
 
-    it "should return an empty array if no blueprints are configured" do
+    it "should return %w(indexed_class) if no attributes and no indexes are configured" do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-      XapianDb::DocumentBlueprint.searchable_prefixes.should == []
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      end
+      XapianDb::DocumentBlueprint.searchable_prefixes.should == %w(indexed_class)
     end
   end
 
-  describe ".type_info_for(indexed_method)" do
+  describe ".attributes" do
+
+    it "should return an array of all defined attributes" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.attribute :name
+      end
+      XapianDb::DocumentBlueprint.attributes.should include(:id, :name)
+    end
+
+    it "should return an empty array if no attributes are configured" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.attributes.should == []
+    end
+  end
+
+  describe ".type_info_for(attribute)" do
 
     before :each do
       XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
@@ -93,6 +115,16 @@ describe XapianDb::DocumentBlueprint do
     it "should return :generic if no type is defined" do
       XapianDb::DocumentBlueprint.type_info_for(:untyped).should == :generic
     end
+
+    it "returns nil if the attribute is not defined" do
+      XapianDb::DocumentBlueprint.type_info_for(:not_defined).should_not be
+    end
+
+    it "returns nil if no blueprints are defined defined" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.type_info_for(:not_defined).should_not be
+    end
+
   end
 
   describe ".setup (class)" do
@@ -140,6 +172,12 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "raises an argument error if the method is not indexed" do
+      lambda { XapianDb::DocumentBlueprint.value_number_for(:not_indexed) }.should raise_error ArgumentError
+    end
+
+    it "raises an argument error if no blueprints are defined" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.instance_variable_set(:@attributes, nil)
       lambda { XapianDb::DocumentBlueprint.value_number_for(:not_indexed) }.should raise_error ArgumentError
     end
 

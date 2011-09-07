@@ -41,9 +41,11 @@ module XapianDb
         @blueprints[klass] = blueprint
         @_adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
         @_adapter.add_class_helper_methods_to klass
-        # force rebuild of cached data
-        @searchable_prefixes = nil
-        @attributes_map      = nil
+
+        @searchable_prefixes = @blueprints.values.map { |blueprint| blueprint.searchable_prefixes }.flatten.compact.uniq || []
+        # We can always do a field search on the name of the indexed class
+        @searchable_prefixes << "indexed_class"
+        @attributes = @blueprints.values.map { |blueprint| blueprint.attribute_names}.flatten.compact.uniq.sort || []
       end
 
       # Get all configured classes
@@ -72,9 +74,9 @@ module XapianDb
       # @param [attribute] The name of an attribute
       # @return [Integer] The value number
       def value_number_for(attribute)
+        raise ArgumentError.new "attribute #{attribute} is not configured in any blueprint" if @attributes.nil?
         return 0 if attribute.to_sym == :indexed_class
-        @attributes_map ||= @blueprints.values.map { |blueprint| blueprint.attribute_names}.flatten.compact.uniq.sort
-        position = @attributes_map.index attribute.to_sym
+        position = @attributes.index attribute.to_sym
         if position
           # We add 1 because value slot 0 is reserved for the class name
           return position + 1
@@ -87,6 +89,7 @@ module XapianDb
       # @param [attribute] The name of an indexed method
       # @return [Symbol] The defined type or :untyped if no type is defined
       def type_info_for(attribute)
+        return nil if @blueprints.nil?
         @blueprints.values.each do |blueprint|
           return blueprint.type_map[attribute] if blueprint.type_map.has_key?(attribute)
         end
@@ -96,10 +99,13 @@ module XapianDb
       # Return an array of all configured text methods in any blueprint
       # @return [Array<String>] All searchable prefixes
       def searchable_prefixes
-        return [] unless @blueprints
-        @searchable_prefixes ||= @blueprints.values.map { |blueprint| blueprint.searchable_prefixes }.flatten.compact.uniq
-        # We can always do a field search on the name of the indexed class
-        @searchable_prefixes << "indexed_class"
+        @searchable_prefixes
+      end
+
+      # Return an array of all defined attributes
+      # @return [Array<Symbol>] All defined attributes
+      def attributes
+        @attributes
       end
 
       private
@@ -256,6 +262,7 @@ module XapianDb
       attributes.each do |attr|
         raise ArgumentError.new("You cannot use #{attr} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(attr)
         @attributes_hash[attr] = {}
+        @type_map[attr] = :generic
         self.index attr
       end
     end
