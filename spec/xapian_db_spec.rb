@@ -4,6 +4,10 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe XapianDb do
 
+  before :each do
+    XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+  end
+
   describe ".setup(&block)" do
 
     it "should delegate the setup to the config class" do
@@ -256,6 +260,42 @@ describe XapianDb do
 
     it "should find selection of objects with open beginning range" do
       XapianDb.search("age:..31").should have(2).items
+    end
+  end
+
+  describe "string ranges" do
+    before :each do
+      XapianDb.setup do |config|
+        config.database :memory
+        config.adapter :active_record
+        config.writer  :direct
+      end
+      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+        blueprint.attribute :name, :as => :string
+        blueprint.attribute :age, :as => :number
+      end
+      @object1 = ActiveRecordObject.new(1, "Adam", Date.today, 30)
+      @object1.save
+      @object2 = ActiveRecordObject.new(2, "Bernard", Date.today, 31)
+      @object2.save
+      @object3 = ActiveRecordObject.new(3, "Chris", Date.today, 32)
+      @object3.save
+    end
+
+    it "should find all objects with a full range" do
+      XapianDb.search("name:Adam..Chris").should have(3).items
+    end
+
+    it "should find selection of objects with partial range" do
+      XapianDb.search("name:Bernard..Chris").should have(2).items
+    end
+
+    it "should find selection of objects with open ending range" do
+      XapianDb.search("name:Chris..").should have(1).item
+    end
+
+    it "should find selection of objects with open beginning range" do
+      XapianDb.search("name:..Bernard").should have(2).items
     end
   end
 

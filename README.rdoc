@@ -116,11 +116,12 @@ You may add a filter expression to exclude objects from the index. This is handy
       blueprint.ignore_if {active == false}
     end
 
-You can add a type information to an attribute. As of now only the special types :date and :number are supported (and needed for range queries):
+You can add a type information to an attribute. As of now the special types :string, :date and :number are supported (and required for range queries):
 
     XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
       blueprint.attribute :age,           :as => :number
       blueprint.attribute :date_of_birth, :as => :date
+      blueprint.attribute :name,          :as => :string
     end
 
 You can override the global adapter configuration in a specific blueprint. Let's say you use ActiveRecord, but you have
@@ -191,21 +192,22 @@ On class queries you can specifiy order options:
   results = Person.search "name:Foo", :order => :first_name
   results = Person.search "Fo*", :order => [:name, :first_name], :sort_decending => true
 
-If you have a attribute of type :date defined, you can do date range searches:
+If you define an attribute with a supported type, you can do range searches:
 
   XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+    blueprint.attribute :age,           :as => :number
     blueprint.attribute :date_of_birth, :as => :date
+    blueprint.attribute :name,          :as => :string
   end
 
-  result = XapianDb.search("date:2011-01-01..2011-12-31")
-
-If you have a attribute of type :number defined, you can do number range searches:
-
-  XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
-    blueprint.attribute :age, :as => :number
-  end
-
+  result = XapianDb.search("date_of_birth:2011-01-01..2011-12-31")
   result = XapianDb.search("age:30..40")
+  result = XapianDb.search("name:Adam..Chris")
+
+Open Ranges are supported, too:
+
+  result = XapianDb.search("age:..40")
+  result = XapianDb.search("age:30..")
 
 You can combine range query expressions with other expressions:
 

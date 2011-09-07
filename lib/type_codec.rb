@@ -26,7 +26,7 @@ module XapianDb
 
     class GenericCodec
 
-      # Encode an object to to its yaml representation
+      # Encode an object to its yaml representation
       # @param [Object] object an object to encode
       # @return [String] the yaml string
       def self.encode(object)
@@ -50,6 +50,23 @@ module XapianDb
         rescue TypeError
           raise ArgumentError.new "'#{yaml_string}' cannot be loaded by YAML"
         end
+      end
+    end
+
+    class StringCodec
+
+      # Encode an object to a string
+      # @param [Object] object an object to encode
+      # @return [String] the string
+      def self.encode(object)
+        object.to_s
+      end
+
+      # Decode a string
+      # @param [String] string a string
+      # @return [String] the string
+      def self.decode(string)
+        string
       end
     end
 

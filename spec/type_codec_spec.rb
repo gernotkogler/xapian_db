@@ -56,6 +56,23 @@ describe XapianDb::TypeCodec::GenericCodec do
   end
 end
 
+describe XapianDb::TypeCodec::StringCodec do
+
+  describe "encode(object)" do
+
+    it "encodes an object to a string" do
+      described_class.encode("string").should == "string"
+    end
+  end
+
+  describe "decode(string)" do
+
+    it "returns the string given as an argument" do
+      described_class.decode("string").should == "string"
+    end
+  end
+end
+
 describe XapianDb::TypeCodec::DateCodec do
 
   describe "encode(date)" do
