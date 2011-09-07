@@ -99,7 +99,7 @@ module XapianDb
       # Return an array of all configured text methods in any blueprint
       # @return [Array<String>] All searchable prefixes
       def searchable_prefixes
-        @searchable_prefixes
+        @searchable_prefixes || []
       end
 
       # Return an array of all defined attributes

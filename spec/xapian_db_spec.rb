@@ -76,6 +76,40 @@ describe XapianDb do
       XapianDb.search("Something", :per_page => 10, :page => 1).should be_a_kind_of(XapianDb::Resultset)
     end
 
+    describe "with an order expression" do
+
+      before :each do
+        XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+          blueprint.attribute :text
+        end
+        indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+        obj1 = IndexedObject.new(1)
+        obj1.stub!(:text).and_return "A text"
+        XapianDb.database.store_doc indexer.build_document_for(obj1)
+        obj2 = IndexedObject.new(2)
+        obj2.stub!(:text).and_return "B text"
+        XapianDb.database.store_doc indexer.build_document_for(obj2)
+        XapianDb.database.commit
+      end
+
+      it "should raise an argument error if the :order option contains an unknown attribute" do
+        lambda { XapianDb.search "text", :order => :unkown }.should raise_error ArgumentError
+      end
+
+      it "should accept an :order option" do
+        result = XapianDb.search "text", :order => :text
+        result.first.text.should == "A text"
+        result.last.text.should == "B text"
+      end
+
+      it "should accept an :sort_decending option" do
+        result = XapianDb.search "text", :order => :text, :sort_decending => true
+        result.first.text.should == "B text"
+        result.last.text.should == "A text"
+      end
+
+    end
+
   end
 
   describe ".facets(attribute, expression)" do

@@ -33,7 +33,8 @@ module XapianDb
                order = options.delete :order
                if order
                  attr_names             = [order].flatten
-                 blueprint              = XapianDb::DocumentBlueprint.blueprint_for klass
+                 undefined_attrs        = attr_names - XapianDb::DocumentBlueprint.attributes
+                 raise ArgumentError.new "invalid order clause: attributes #{undefined_attrs.inspect} are not defined" unless undefined_attrs.empty?
                  options[:sort_indices] = attr_names.map {|attr_name| XapianDb::DocumentBlueprint.value_number_for(attr_name) }
                end
                result = XapianDb.database.search "#{class_scope} and (#{expression})", options

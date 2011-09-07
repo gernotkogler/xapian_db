@@ -96,7 +96,7 @@ describe XapianDb::Adapters::BaseAdapter do
       end
 
       it "should raise an argument error if the :order option contains an unknown attribute" do
-        lambda{ClassA.search "text", :order => :unkown}.should raise_error ArgumentError
+        lambda { ClassA.search "text", :order => :unkown }.should raise_error ArgumentError
       end
 
       it "should accept an :order option" do

@@ -91,6 +91,13 @@ module XapianDb
   # See {XapianDb::Database#search} for options
   # @return [XapianDb::Resultset]
   def self.search(expression, options={})
+    order = options.delete :order
+    if order
+      attr_names             = [order].flatten
+      undefined_attrs        = attr_names - XapianDb::DocumentBlueprint.attributes
+      raise ArgumentError.new "invalid order clause: attributes #{undefined_attrs.inspect} are not defined" unless undefined_attrs.empty?
+      options[:sort_indices] = attr_names.map {|attr_name| XapianDb::DocumentBlueprint.value_number_for(attr_name) }
+    end
     XapianDb::Config.database.search(expression, options)
   end
 
