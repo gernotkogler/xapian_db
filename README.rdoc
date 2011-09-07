@@ -2,7 +2,7 @@
 
 == Important Information
 
-If you upgrade from an earlier version of xapian_db do 1.1, you MUST rebuild your entire index (XapianDb.rebuild_xapian_index)!
+If you upgrade from an earlier version of xapian_db to 1.1, you MUST rebuild your entire index (XapianDb.rebuild_xapian_index)!
 
 == What's in the box?
 
