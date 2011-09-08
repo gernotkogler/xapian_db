@@ -37,16 +37,13 @@ module XapianDb
         # @option options [Boolean] :verbose (false) Should the reindexing give status informations?
         def reindex_class(klass, options={})
           opts = {:verbose => false}.merge(options)
-          # First, delete all docs of this class
           XapianDb.database.delete_docs_of_class(klass)
           blueprint = XapianDb::DocumentBlueprint.blueprint_for(klass)
           indexer   = XapianDb::Indexer.new(XapianDb.database, blueprint)
           show_progressbar = false
           obj_count = klass.count
           if opts[:verbose]
-            if defined?(ProgressBar)
-              show_progressbar = true
-            end
+            show_progressbar = defined?(ProgressBar)
             puts "reindexing #{obj_count} objects of #{klass}..."
             pbar = ProgressBar.new("Status", obj_count) if show_progressbar
           end
@@ -55,12 +52,7 @@ module XapianDb
           nr_of_batches = (obj_count / 1000) + 1
           nr_of_batches.times do |batch|
             klass.all(:offset => batch * 1000, :limit => 1000, :order => options[:primary_key]).each do |obj|
-              if blueprint.should_index? obj
-                doc = indexer.build_document_for(obj)
-                XapianDb.database.store_doc(doc)
-              else
-                XapianDb.database.delete_doc_with_unique_term(obj.xapian_id)
-              end
+              XapianDb.reindex obj
               pbar.inc if show_progressbar
             end
           end
@@ -69,8 +61,6 @@ module XapianDb
         end
 
       end
-
     end
-
   end
 end
