@@ -138,7 +138,7 @@ one more class that is not stored in the database, but you want it to be indexed
 
 If you use associations in your blueprints, it might be a good idea to specify a base query to speed up rebuild_xapian_index calls (avoiding 1+n queries):
 
-XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+  XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
     blueprint.index :addresses
     blueprint.base_query Person.includes(:addresses)
   end
