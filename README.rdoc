@@ -131,10 +131,17 @@ You can add a type information to an attribute. As of now the special types :str
 You can override the global adapter configuration in a specific blueprint. Let's say you use ActiveRecord, but you have
 one more class that is not stored in the database, but you want it to be indexed:
 
-XapianDb::DocumentBlueprint.setup(SpecialClass) do |blueprint|
-  blueprint.adapter :generic
-  blueprint.index   :some_stuff
-end
+  XapianDb::DocumentBlueprint.setup(SpecialClass) do |blueprint|
+    blueprint.adapter :generic
+    blueprint.index   :some_stuff
+  end
+
+If you use associations in your blueprints, it might be a good idea to specify a base query to speed up rebuild_xapian_index calls (avoiding 1+n queries):
+
+XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+    blueprint.index :addresses
+    blueprint.base_query Person.includes(:addresses)
+  end
 
 place these configurations either into the corresponding class or - I prefer to have the index configurations outside
 the models - into the file config/xapian_blueprints.rb.

@@ -1,3 +1,13 @@
+##1.1.1 (September 9th, 2011)
+
+Fixes:
+
+  - fixed a bug in XapianDb.rebuild_xapian_index that did not index all records of a klass; it ist highly recommended to run Xapian.rebuild_xapian_index after installing this version
+
+Features:
+
+  - base query option for blueprints; may speed up reindexing signifiantly if you index associations
+
 ##1.1 (September 7th, 2011)
 
 Fixes:

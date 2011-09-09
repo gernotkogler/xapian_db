@@ -86,6 +86,9 @@ class ActiveRecordObject < PersistentObject
       :id
     end
 
+    def includes(*associations)
+    end
+
     def find(id)
       @objects.detect{|o| o.id == id}
     end

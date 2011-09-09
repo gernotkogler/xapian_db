@@ -205,8 +205,8 @@ module XapianDb
     # Blueprint DSL methods
     # ---------------------------------------------------------------------------------
 
-    # An optional custom adapter
     attr_accessor :_adapter
+    attr_reader :_base_query
 
     # Construct the blueprint
     def initialize
@@ -304,6 +304,16 @@ module XapianDb
     # Add a block of code that evaluates if a model should not be indexed
     def ignore_if &block
       @ignore_expression = block
+    end
+
+    # Define a base query to select one or all objects of the indexed class. The reason for a
+    # base query is to optimize the query avoiding th 1+n problematic. The base query should only
+    # include joins(...) and includes(...) calls.
+    # @param [expression] a base query expression
+    # @example Include the adresses
+    #   blueprint.base_query Person.includes(:addresses)
+    def base_query(expression)
+      @_base_query = expression
     end
 
     # Options for an indexed method

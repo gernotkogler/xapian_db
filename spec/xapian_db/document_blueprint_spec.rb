@@ -387,6 +387,18 @@ describe XapianDb::DocumentBlueprint do
 
   end
 
+  describe "base_query" do
+
+    it "accepts a base query expression" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :array
+        blueprint.base_query ActiveRecordObject.includes(:children)
+      end
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+    end
+  end
+
+
   describe "#accessors_module" do
 
     before :each do
