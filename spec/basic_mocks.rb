@@ -3,7 +3,14 @@
 # Basic mocks for our tests
 # @author Gernot Kogler
 
-# Test class for indexed objects
+class String
+
+  def tableize
+    self # not really important what we return
+  end
+
+end
+
 class IndexedObject
 
   attr_reader :id

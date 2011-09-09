@@ -71,6 +71,14 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
   end
 
+  describe ".primary_key_for(klass)" do
+
+    it "returns the name of the primary key column" do
+      XapianDb::Adapters::ActiveRecordAdapter.primary_key_for(ActiveRecordObject).should == ActiveRecordObject.primary_key
+    end
+
+  end
+
   describe "the after commit hook" do
     it "should (re)index the object" do
       object.save

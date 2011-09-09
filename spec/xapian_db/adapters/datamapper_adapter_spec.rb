@@ -67,6 +67,14 @@ describe XapianDb::Adapters::DatamapperAdapter do
     end
   end
 
+  describe ".primary_key_for(klass)" do
+
+    it "returns the name of the primary key column" do
+      XapianDb::Adapters::DatamapperAdapter.primary_key_for(DatamapperObject).should == DatamapperObject.serial.name
+    end
+
+  end
+
   describe "the after save hook" do
     it "should (re)index the object" do
       @object.save

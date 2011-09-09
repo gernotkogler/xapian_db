@@ -20,6 +20,13 @@ module XapianDb
 
        class << self
 
+         # return the name of the primary key column of a class
+         # @param [Class] klass the class
+         # @return [Symbol] the name of the primary key column
+         def primary_key_for(klass)
+          klass.primary_key
+         end
+
          # Implement the class helper methods
          # @param [Class] klass The class to add the helper methods to
          def add_class_helper_methods_to(klass)

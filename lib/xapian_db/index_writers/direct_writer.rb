@@ -12,6 +12,7 @@ module XapianDb
 
     class DirectWriter
 
+      BATCH_SIZE = 200
       class << self
 
         # Update an object in the index
@@ -38,10 +39,11 @@ module XapianDb
         def reindex_class(klass, options={})
           opts = {:verbose => false}.merge(options)
           XapianDb.database.delete_docs_of_class(klass)
-          blueprint = XapianDb::DocumentBlueprint.blueprint_for(klass)
-          indexer   = XapianDb::Indexer.new(XapianDb.database, blueprint)
+          blueprint  = XapianDb::DocumentBlueprint.blueprint_for(klass)
+          indexer    = XapianDb::Indexer.new(XapianDb.database, blueprint)
+          base_query = blueprint._base_query || klass
           show_progressbar = false
-          obj_count = klass.count
+          obj_count = base_query.count
           if opts[:verbose]
             show_progressbar = defined?(ProgressBar)
             puts "reindexing #{obj_count} objects of #{klass}..."
@@ -49,9 +51,11 @@ module XapianDb
           end
 
           # Process the objects in batches to reduce the memory footprint
-          nr_of_batches = (obj_count / 1000) + 1
+          nr_of_batches = (obj_count / BATCH_SIZE) + 1
+          order_expression = "#{klass.name.tableize}.#{options[:primary_key]}"
           nr_of_batches.times do |batch|
-            klass.all(:offset => batch * 1000, :limit => 1000, :order => options[:primary_key]).each do |obj|
+            # raise "PK: #{options[:primary_key]}"
+            base_query.all(:offset => batch * BATCH_SIZE, :limit => BATCH_SIZE, :order => order_expression).each do |obj|
               XapianDb.reindex obj
               pbar.inc if show_progressbar
             end
