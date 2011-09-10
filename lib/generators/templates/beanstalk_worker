@@ -16,21 +16,33 @@ module XapianDb
     def process_requests
 
       Rails.logger.info "XapianDb beanstalk worker: initializing..."
+      Rails.logger.flush
 
-      url = XapianDb::Config.beanstalk_daemon_url
-      beanstalk = Beanstalk::Pool.new([url])
-      worker    = XapianDb::IndexWriters::BeanstalkWorker.new
-      Rails.logger.info "XapianDb beanstalk worker: ready"
+      begin
+        url = XapianDb::Config.beanstalk_daemon_url
+        beanstalk = Beanstalk::Pool.new([url])
+        worker    = XapianDb::IndexWriters::BeanstalkWorker.new
+        Rails.logger.info "XapianDb beanstalk worker: ready"
+        Rails.logger.flush
+      rescue Exception => ex
+        Rails.logger.error "cannot connect to beanstalk daemon: (#{ex}), terminating"
+        Rails.logger.flush
+        return
+      end
 
       loop do
         job = beanstalk.reserve
         begin
           params = YAML::load job.body
           Rails.logger.info "XapianDb beanstalk worker: executing task #{params}"
+          Rails.logger.flush
           task = params.delete :task
           worker.send task, params
+          Rails.logger.info "XapianDb beanstalk worker: done"
+          Rails.logger.flush
         rescue Exception => ex
           Rails.logger.error "XapianDb beanstalk worker: could not process #{job.body} (#{ex})"
+          Rails.logger.flush
         end
         job.delete
       end

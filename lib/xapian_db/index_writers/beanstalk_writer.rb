@@ -17,13 +17,13 @@ module XapianDb
 
         # Update an object in the index
         # @param [Object] obj An instance of a class with a blueprint configuration
-        def index(obj)
+        def index(obj, commit=true)
           beanstalk.put( {:task => "index_task", :class => obj.class.name, :id => obj.id }.to_yaml )
         end
 
         # Remove an object from the index
         # @param [String] xapian_id The document id
-        def delete_doc_with(xapian_id)
+        def delete_doc_with(xapian_id, commit=true)
           beanstalk.put( { :task => "delete_doc_task", :xapian_id => xapian_id }.to_yaml )
         end
 

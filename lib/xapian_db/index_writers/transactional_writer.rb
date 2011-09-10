@@ -20,13 +20,13 @@ module XapianDb
 
       # Update an object in the index
       # @param [Object] obj An instance of a class with a blueprint configuration
-      def index(obj)
+      def index(obj, commit=false)
         @index_requests << obj
       end
 
       # Remove a document from the index
       # @param [String] xapian_id The document id
-      def delete_doc_with(xapian_id)
+      def delete_doc_with(xapian_id, commit=false)
         @delete_requests << xapian_id
       end
 
@@ -41,8 +41,9 @@ module XapianDb
       # Commit all pending changes to the database
       # @param [DirectWriter, BeanstalkWriter] writer The writer to use
       def commit_using(writer)
-        @index_requests.each { |obj| writer.index obj }
-        @delete_requests.each { |xapian_id| writer.delete_doc_with xapian_id }
+        @index_requests.each { |obj| writer.index obj, false }
+        @delete_requests.each { |xapian_id| writer.delete_doc_with xapian_id, false }
+        XapianDb.database.commit
       end
 
     end

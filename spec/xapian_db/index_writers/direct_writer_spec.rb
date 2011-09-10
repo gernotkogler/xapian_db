@@ -39,6 +39,11 @@ describe XapianDb::IndexWriters::DirectWriter do
   describe ".reindex(klass)" do
 
     before :each do
+      XapianDb.setup do |config|
+        config.adapter  :datamapper
+        config.database :memory
+        config.writer   :direct
+      end
       XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :name
@@ -48,7 +53,6 @@ describe XapianDb::IndexWriters::DirectWriter do
     end
 
     it "adds all instances of a class to the index" do
-      XapianDb.database.size.should == 0
       XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject
       XapianDb.database.size.should == 1
     end
@@ -59,7 +63,6 @@ describe XapianDb::IndexWriters::DirectWriter do
         require 'progressbar'
       rescue
       end
-      XapianDb.database.size.should == 0
       XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject, :verbose => true
       XapianDb.database.size.should == 1
     end

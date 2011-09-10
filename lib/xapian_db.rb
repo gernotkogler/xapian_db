@@ -110,26 +110,27 @@ module XapianDb
 
   # Update an object in the index
   # @param [Object] obj An instance of a class with a blueprint configuration
-  def self.index(obj)
+  def self.index(obj, commit=true)
     writer = @block_writer || XapianDb::Config.writer
-    writer.index obj
+    writer.index obj, commit
   end
 
   # Remove a document from the index
   # @param [String] xapian_id The document id
-  def self.delete_doc_with(xapian_id)
+  def self.delete_doc_with(xapian_id, commit=true)
     writer = @block_writer || XapianDb::Config.writer
-    writer.delete_doc_with xapian_id
+    writer.delete_doc_with xapian_id, commit
   end
 
   # Update or delete a xapian document belonging to an object depending on the ignore_if logic(if present)
   # @param [Object] object An instance of a class with a blueprint configuration
-  def self.reindex(object)
+  def self.reindex(object, commit=true)
+    writer = @block_writer || XapianDb::Config.writer
     blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class
     if blueprint.should_index?(object)
-      XapianDb.index object
+      writer.index object, commit
     else
-      XapianDb.delete_doc_with object.xapian_id
+      writer.delete_doc_with object.xapian_id, commit
     end
   end
 
@@ -150,9 +151,6 @@ module XapianDb
     return false unless configured_classes.size > 0
     configured_classes.each do |klass|
       if klass.respond_to?(:rebuild_xapian_index)
-        blueprint = XapianDb::DocumentBlueprint.blueprint_for klass
-        adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
-        options[:primary_key] = adapter.primary_key_for(klass)
         XapianDb::Config.writer.reindex_class(klass, options)
       end
     end

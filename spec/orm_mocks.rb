@@ -86,6 +86,9 @@ class ActiveRecordObject < PersistentObject
       :id
     end
 
+    def after_commit
+    end
+
     def includes(*associations)
     end
 

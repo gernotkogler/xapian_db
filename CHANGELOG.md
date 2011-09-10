@@ -1,3 +1,13 @@
+##1.1.2 (September 10th, 2011)
+
+Fixes:
+
+  - beanstalk_work flushes log messages (reinstall the worker script: rails generate xapian_db:install)
+
+Features:
+
+  - massive performance optimization in rebuild_xapian_index
+
 ##1.1.1 (September 9th, 2011)
 
 Fixes:
