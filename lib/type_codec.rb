@@ -76,6 +76,7 @@ module XapianDb
       # @param [Date] date a date object to encode
       # @return [String] the encoded date
       def self.encode(date)
+        return '' unless date
         begin
           date.strftime "%Y%m%d"
         rescue NoMethodError
