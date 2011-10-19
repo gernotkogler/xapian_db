@@ -143,8 +143,10 @@ If you use associations in your blueprints, it might be a good idea to specify a
     blueprint.base_query Person.includes(:addresses)
   end
 
-place these configurations either into the corresponding class or - I prefer to have the index configurations outside
+Place these configurations either into the corresponding class or - I prefer to have the index configurations outside
 the models - into the file config/xapian_blueprints.rb.
+
+IMPORTANT: Do not place them into an initializer, this will not work when cache_classes is set to false (default in config/development.rb).
 
 === Update the index
 
