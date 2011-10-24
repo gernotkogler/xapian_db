@@ -1,3 +1,9 @@
+##1.1.3 (October 24th, 2011)
+
+Fixes:
+
+  - weight option for attributes and indexed values was not correctly applied
+
 ##1.1.2 (September 10th, 2011)
 
 Fixes:

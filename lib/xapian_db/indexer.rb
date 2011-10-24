@@ -81,7 +81,7 @@ module XapianDb
             # Add value with field name
             term_generator.index_text(value.to_s.downcase, options.weight, "X#{method.upcase}")
             # Add value without field name
-            term_generator.index_text(value.to_s.downcase)
+            term_generator.index_text(value.to_s.downcase, options.weight)
           end
         end
       end
