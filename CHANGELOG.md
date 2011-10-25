@@ -1,3 +1,9 @@
+##1.1.4 (October 25th, 2011)
+
+Fixes:
+
+  - removed loading of the deprecated rake task from the railtie
+
 ##1.1.3 (October 24th, 2011)
 
 Fixes:
