@@ -168,7 +168,7 @@ module XapianDb
 
   # Execute a block and do not update the index
   def self.auto_indexing_disabled(&block)
-    execute_block :writer => XapianDb::IndexWriters::NoOpWriter.new do
+    execute_block :writer => XapianDb::IndexWriters::NoOpWriter do
       block.call
     end
 

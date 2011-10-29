@@ -21,7 +21,7 @@ describe XapianDb::IndexWriters::NoOpWriter do
     obj.stub!(:text).and_return("Some text")
     obj
   }
-  let(:writer) { XapianDb::IndexWriters::NoOpWriter.new }
+  let(:writer) { XapianDb::IndexWriters::NoOpWriter }
 
   describe "#index(obj)" do
     it "does nothing" do
