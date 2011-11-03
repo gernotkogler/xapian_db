@@ -1,8 +1,4 @@
-# -*- encoding: utf-8 -*-
-
-require 'yaml'
-YAML::ENGINE.yamler='psych' if defined?(YAML::ENGINE)
-
+# -*- coding: utf-8 -*-
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
@@ -24,6 +20,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec",            ">= 2.3.1"
   s.add_development_dependency "simplecov",        ">= 0.3.7"
   s.add_development_dependency "beanstalk-client", ">= 1.1.0"
+  s.add_development_dependency "rake"
+  s.add_development_dependency "progressbar"
 
    s.files         = Dir.glob("lib/**/*") + Dir.glob("tasks/*") + Dir.glob("xapian_source/*") + %w(LICENSE README.rdoc CHANGELOG.md Rakefile)
    s.require_path  = "lib"
