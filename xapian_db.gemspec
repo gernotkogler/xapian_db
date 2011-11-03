@@ -1,8 +1,4 @@
-# -*- encoding: utf-8 -*-
-
-require 'yaml'
-YAML::ENGINE.yamler='psych' if defined?(YAML::ENGINE)
-
+# -*- coding: utf-8 -*-
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
