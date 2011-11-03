@@ -17,6 +17,13 @@ describe XapianDb::IndexWriters::ResqueWorker do
   end
   let(:obj) { ActiveRecordObject.new(1, "Kogler") }
 
+  describe ".queue" do
+    it "returns the queue name specified in the config" do
+      XapianDb::Config.stub(:resque_queue) { 'my_queue' }
+      subject.queue.should == 'my_queue'
+    end
+  end
+
   describe ".index" do
     it "adds an object to the index" do
       obj.save

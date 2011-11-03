@@ -12,7 +12,7 @@ module XapianDb
 
       class << self
         def queue
-          :xapian_db
+          XapianDb::Config.resque_queue
         end
 
         def perform(task, options)
