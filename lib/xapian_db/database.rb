@@ -116,7 +116,7 @@ module XapianDb
       end
       enquiry       = Xapian::Enquire.new(reader)
       enquiry.query = final_query
-      Resultset.new(enquiry, :db_size => self.size)
+      Resultset.new(enquiry, :db_size => self.size, :limit => options[:limit])
     end
 
     # A very simple implementation of facets using Xapian collapse key.

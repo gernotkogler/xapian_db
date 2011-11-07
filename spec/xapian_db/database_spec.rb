@@ -471,6 +471,16 @@ describe XapianDb::Database do
       end
 
     end
+
+    describe "with a limit option" do
+
+      it "respects the limit" do
+        reference = XapianDb.database.search "xapian rocks"
+        result = XapianDb.database.find_similar_to reference, :limit => 1
+        result.size.should == 1
+      end
+
+    end
   end
 end
 
