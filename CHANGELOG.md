@@ -1,3 +1,14 @@
+##1.2.0 (November 8th, 2011)
+
+Fixes:
+
+  - find_similar_to supports the :limit option
+
+Features:
+
+  - new index worker / writer for resque (thanks, Michael)
+  - support for namespaced models (thanks, Albert)
+
 ##1.1.4 (October 25th, 2011)
 
 Fixes:
