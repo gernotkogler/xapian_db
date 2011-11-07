@@ -9,6 +9,10 @@ class String
     self # not really important what we return
   end
 
+  def parameterize 
+    self # not really important what we return
+  end
+
 end
 
 class IndexedObject
