@@ -331,7 +331,9 @@ However, dates need special handling to support date range queries. To support d
 
 Since Xapian allows only one database instance to write to the index, the default setup of XapianDb will not work
 with multiple app instances trying to write to the same database (you will get lock errors).
-Therefore, XapianDb provides a solution based on beanstalk to overcome this.
+Therefore, XapianDb provides two solutions based on queueing systems to overcome this. The first solution uses beanstalk and the second one uses resque.
+
+== Installation with beanstalk
 
 === 1. Install beanstalkd
 
@@ -389,3 +391,32 @@ If everything is fine, you should find a file namend beanstalk_worker.pid in tmp
 goes wrong, you'll find beanstalk_worker.log instead showing the stack trace.
 
 <b>Important: Do not start multiple instances of this daemon!</b>
+
+== Installation with Resque
+
+=== 1. Install and start redis
+
+Install and start redis as described on the {resque github page}[https://github.com/defunkt/resque].
+
+=== 2. Add the resque gem to your config
+
+  gem 'resque'
+  bundle install
+
+=== 3. Configure XapianDb to use resque in production
+
+  production:
+    database:     db/xapian_db/production
+    writer:       resque
+    resque_queue: my_queue
+
+If you don't specify a queue name XapianDb will use 'xapian_db' by default.
+
+=== 4. Start the resque worker
+
+   RAILS_ENV=production QUEUE=my_queue rake resque:work
+
+Be sure to specify the correct queue name when starting the worker.
+
+<b>If you don't provide a queue name, it WON'T take 'xapian_db' by default! Do not start multiple
+instances of this worker!</b>

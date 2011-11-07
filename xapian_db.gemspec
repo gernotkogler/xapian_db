@@ -21,6 +21,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec",            ">= 2.3.1"
   s.add_development_dependency "simplecov",        ">= 0.3.7"
   s.add_development_dependency "beanstalk-client", ">= 1.1.0"
+  s.add_development_dependency "rake"
+  s.add_development_dependency "progressbar"
+  s.add_development_dependency "resque",           ">= 1.19.0"
 
    s.files         = Dir.glob("lib/**/*") + Dir.glob("tasks/*") + Dir.glob("xapian_source/*") + %w(LICENSE README.rdoc CHANGELOG.md Rakefile)
    s.require_path  = "lib"

@@ -1,5 +1,4 @@
-# encoding: utf-8
-
+# -*- coding: utf-8 -*-
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::Config do
@@ -104,6 +103,17 @@ describe XapianDb::Config do
         end
       end
 
+      it "accepts the resque writer, if the resque gem is installed" do
+        if defined? XapianDb::IndexWriters::ResqueWriter
+          XapianDb::Config.setup do |config|
+            config.writer :resque
+          end
+          XapianDb::Config.writer.should == XapianDb::IndexWriters::ResqueWriter
+        else
+          pending "cannot run this spec without the resque gem installed"
+        end
+      end
+
       it "raises an error if the configured writer is unknown" do
         lambda{XapianDb::Config.setup do |config|
           config.writer :unknown
@@ -124,6 +134,19 @@ describe XapianDb::Config do
         XapianDb::Config.beanstalk_daemon_url.should == "localhost:9000"
       end
 
+    end
+
+    describe ".resque_queue" do
+      it "returns 'xapian_db' by default" do
+        XapianDb::Config.resque_queue.should == 'xapian_db'
+      end
+
+      it "accepts a name" do
+        XapianDb::Config.setup do |config|
+          config.resque_queue 'my_queue'
+        end
+        XapianDb::Config.resque_queue.should == 'my_queue'
+      end
     end
 
     describe ".language" do
