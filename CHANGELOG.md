@@ -1,3 +1,9 @@
+##1.2.1 (November 9th, 2011)
+
+Fixes:
+
+  - removed explicit dependency on resque
+
 ##1.2.0 (November 8th, 2011)
 
 Fixes:
