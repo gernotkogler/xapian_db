@@ -22,6 +22,11 @@ require File.dirname(__FILE__) + '/xapian_db/railtie' if defined?(Rails)
 # Try to require the beanstalk writer (depends on beanstalk-client)
 begin
   require File.dirname(__FILE__) + '/xapian_db/index_writers/beanstalk_writer'
+rescue LoadError
+end
+
+# Try to require the resque writer (depends on resque)
+begin
   require File.dirname(__FILE__) + '/xapian_db/index_writers/resque_writer'
 rescue LoadError
 end

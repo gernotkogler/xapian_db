@@ -1,3 +1,9 @@
+##1.2.1.1 (November 10th, 2011)
+
+Fixes:
+
+  - resque writer wasn't loaded when beanstalk wasn't installed (thanks, javierv)
+
 ##1.2.1 (November 9th, 2011)
 
 Fixes:
