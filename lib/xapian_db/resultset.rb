@@ -63,12 +63,11 @@ module XapianDb
       raise ArgumentError.new "unsupported options for resultset: #{options}" if options.size > 0
       raise ArgumentError.new "db_size option is required" unless db_size
 
-
-      limit       ||= @hits
-      per_page    ||= limit
+      limit    = limit.nil? ? @hits : limit.to_i
+      per_page = per_page.nil? ? limit : per_page.to_i
+      page     = page.nil? ? 1 : page.to_i
+      offset   = (page - 1) * per_page
       @total_pages  = (limit / per_page.to_f).ceil
-      page = page.nil? ? 1 : page.to_i
-      offset = (page - 1) * per_page
       count  = offset + per_page < limit ? per_page : limit - offset
       raise ArgumentError.new "page #{@page} does not exist" if @hits > 0 && offset >= limit
 

@@ -63,9 +63,9 @@ describe XapianDb::Resultset do
       lambda{XapianDb::Resultset.new(@enquiry, :unsupported => "?")}.should raise_error
     end
 
-    it "accepts a limit option" do
+    it "accepts a limit option (as a string or an integer)" do
       @mset.stub!(:matches).and_return(@matches[0..1])
-      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :limit => 2)
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :limit => "2")
 
       resultset.hits.should         == 3
       resultset.size.should         == 2
@@ -73,9 +73,9 @@ describe XapianDb::Resultset do
       resultset.total_pages.should  == 1
     end
 
-    it "accepts a per_page option" do
+    it "accepts a per_page option (as a string or an integer)" do
       @mset.stub!(:matches).and_return(@matches[0..1])
-      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2)
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => "2")
 
       resultset.hits.should         == 3
       resultset.size.should         == 2
@@ -83,9 +83,9 @@ describe XapianDb::Resultset do
       resultset.total_pages.should  == 2
     end
 
-    it "accepts a page number" do
+    it "accepts a page number (as a string or an integer)" do
       @mset.stub!(:matches).and_return(@matches[2..2])
-      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 2)
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => "2", :page => "2")
 
       resultset.hits.should         == 3
       resultset.size.should         == 1
