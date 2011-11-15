@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency "daemons",          ">= 1.0.10"
   s.add_dependency "xapian-ruby",      ">= 1.2.6"
 
+  s.add_development_dependency "guard"
   s.add_development_dependency "rspec",            ">= 2.3.1"
   s.add_development_dependency "simplecov",        ">= 0.3.7"
   s.add_development_dependency "beanstalk-client", ">= 1.1.0"
