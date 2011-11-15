@@ -27,6 +27,10 @@ describe XapianDb::Adapters::DatamapperAdapter do
       @object.should respond_to(:xapian_id)
     end
 
+    it "adds the method 'order_condition' to the configured class" do
+      @object.class.should respond_to(:order_condition)
+    end
+
     it "adds an after save hook to the configured class" do
       DatamapperObject.hooks[:after_save].should be_a_kind_of(Proc)
     end
