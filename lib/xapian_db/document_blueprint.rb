@@ -74,12 +74,13 @@ module XapianDb
       # @param [attribute] The name of an attribute
       # @return [Integer] The value number
       def value_number_for(attribute)
-        raise ArgumentError.new "attribute #{attribute} is not configured in any blueprint" if @attributes.nil?
         return 0 if attribute.to_sym == :indexed_class
+        return 1 if attribute.to_sym == :natural_sort_order
+        raise ArgumentError.new "attribute #{attribute} is not configured in any blueprint" if @attributes.nil?
         position = @attributes.index attribute.to_sym
         if position
-          # We add 1 because value slot 0 is reserved for the class name
-          return position + 1
+          # We add 2 because slot 0 and 1 are reserved for indexed_class and natural_sort_order
+          return position + 2
         else
           raise ArgumentError.new "attribute #{attribute} is not configured in any blueprint"
         end

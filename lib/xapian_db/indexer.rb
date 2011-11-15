@@ -32,15 +32,22 @@ module XapianDb
     # Store all configured fields
     def store_fields
 
-      # We store the class name of the object at position 0
-      @xapian_doc.add_value(0, @obj.class.name)
+      # class name of the object goes to position 0
+      @xapian_doc.add_value 0, @obj.class.name
+      # natural sort order goes to position 1
+      if @blueprint._natural_sort_order.is_a? Proc
+        sort_value = @obj.instance_eval &@blueprint._natural_sort_order
+      else
+        sort_value = @obj.send @blueprint._natural_sort_order
+      end
+      @xapian_doc.add_value 1, sort_value.to_s
 
       @blueprint.attribute_names.each do |attribute|
         block = @blueprint.block_for_attribute attribute
         if block
-          value = @obj.instance_eval(&block)
+          value = @obj.instance_eval &block
         else
-          value = @obj.send(attribute)
+          value = @obj.send attribute
         end
 
         codec          = XapianDb::TypeCodec.codec_for @blueprint.type_map[attribute]

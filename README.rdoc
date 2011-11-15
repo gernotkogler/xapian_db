@@ -143,6 +143,19 @@ If you use associations in your blueprints, it might be a good idea to specify a
     blueprint.base_query Person.includes(:addresses)
   end
 
+You can specify a natural sort order for each class using a method symbol or a block. If you don't specify an order expression in your xapian query, the matches
+are ordered by relevance and - within the same relevance - by the natural sort order. If you don't specify the natural sort order, it defaults to id. Examples:
+
+  XapianDb::DocumentBlueprint.setup(House) do |blueprint|
+    blueprint.natural_sort_order :number
+  end
+
+  XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+    blueprint.natural_sort_order do
+      "#{surname} #{name}"
+    end
+  end
+
 Place these configurations either into the corresponding class or - I prefer to have the index configurations outside
 the models - into the file config/xapian_blueprints.rb.
 

@@ -30,6 +30,8 @@ describe XapianDb::Indexer do
       @obj.stub!(:array).and_return([1, "two", Date.today])
       @indexer = XapianDb::Indexer.new(@db, @blueprint)
       @doc     = @indexer.build_document_for(@obj)
+
+      @position_offset = 2 # slots 0 and 1 are reserved
     end
 
     it "creates a Xapian::Document from an configured object" do
@@ -45,8 +47,8 @@ describe XapianDb::Indexer do
     end
 
     it "adds values for the configured methods" do
-      @doc.values[2].value.should == @obj.id.to_yaml
-      @doc.values[4].value.should == "Some Text".to_yaml
+      @doc.values[@position_offset + 1].value.should == @obj.id.to_yaml
+      @doc.values[@position_offset + 3].value.should == "Some Text".to_yaml
     end
 
     it "adds terms for the configured methods" do
@@ -57,11 +59,11 @@ describe XapianDb::Indexer do
     end
 
     it "handles fields with nil values" do
-      @doc.values[3].value.should == nil.to_yaml
+      @doc.values[@position_offset + 2].value.should == nil.to_yaml
     end
 
     it "handles fields with an array as the value" do
-      @doc.values[1].value.should == [1, "two", Date.today].to_yaml
+      @doc.values[@position_offset].value.should == [1, "two", Date.today].to_yaml
     end
 
     it "uses a stemmer if globally configured" do
@@ -93,7 +95,7 @@ describe XapianDb::Indexer do
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
       @indexer = XapianDb::Indexer.new(@db, @blueprint)
       doc = @indexer.build_document_for(@obj)
-      doc.values[1].value.should == "not zero".to_yaml
+      doc.values[@position_offset].value.should == "not zero".to_yaml
       (doc.terms.map(&:term) & %w(not zero)).should == %w(not zero)
     end
 

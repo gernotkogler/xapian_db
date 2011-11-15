@@ -1,8 +1,11 @@
-##1.2.2 (November 13th, 2011)
+##1.2.2 (November 15th, 2011)
 
 Features:
 
   - resultset accepts limit and paging options as strings
+  - added natural sort order option for blueprints (see README for details)
+
+IMPORTANT: FULL INDEX REBUILD REQUIRED FOR THIS RELEASE!
 
 ##1.2.1.1 (November 10th, 2011)
 

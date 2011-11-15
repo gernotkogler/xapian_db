@@ -74,10 +74,13 @@ module XapianDb
       sort_indices   = opts.delete :sort_indices
       sort_decending = opts.delete :sort_decending
 
+      sorter = Xapian::MultiValueKeyMaker.new
       if sort_indices
-        sorter = Xapian::MultiValueKeyMaker.new
         sort_indices.each { |index| sorter.add_value index }
         enquiry.set_sort_by_key_then_relevance(sorter, sort_decending)
+      else
+        sorter.add_value DocumentBlueprint.value_number_for(:natural_sort_order)
+        enquiry.set_sort_by_relevance_then_key sorter, true
       end
 
       opts[:spelling_suggestion] = @query_parser.spelling_suggestion
