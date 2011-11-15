@@ -39,6 +39,9 @@ module XapianDb
                "#{self.class}-#{self.id}"
              end
 
+             def order_condition(primary_key)
+               '%s.%s' % [self.name.parameterize.tableize, primary_key]
+             end
            end
 
            klass.class_eval do
