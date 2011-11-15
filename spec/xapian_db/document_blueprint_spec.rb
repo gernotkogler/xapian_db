@@ -398,6 +398,40 @@ describe XapianDb::DocumentBlueprint do
     end
   end
 
+  describe "#natural_sort_order" do
+
+    it "defaults to id if not specified" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)._natural_sort_order.should == :id
+    end
+
+    it "accepts a method symbol" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.natural_sort_order :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)._natural_sort_order.should == :name
+    end
+
+    it "accepts a block" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.natural_sort_order do
+          @id
+        end
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)._natural_sort_order.should be_a Proc
+    end
+
+    it "raises an ArgumentError, if a method name AND a block are given" do
+      lambda { XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.natural_sort_order :name do
+          @id
+        end
+      end }.should raise_error ArgumentError
+    end
+
+  end
+
 
   describe "#accessors_module" do
 

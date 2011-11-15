@@ -217,7 +217,7 @@ describe XapianDb::Database do
       XapianDb.database.search('"This is a complete sentence"').size.should == 1
     end
 
-    context "spelling correction" do
+    describe "spelling correction" do
       # For these specs we need a persistent database since spelling dictionaries
       # are not supported for in memory databases
       let(:test_db) { test_db = "/tmp/xapian_test" }
@@ -254,7 +254,7 @@ describe XapianDb::Database do
       end
     end
 
-    context "sorting" do
+    describe "sorting" do
 
       before :each do
         XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
@@ -275,6 +275,44 @@ describe XapianDb::Database do
         obj.stub!(:number).and_return(1)
         doc = @indexer.build_document_for(obj)
         XapianDb.database.store_doc doc
+      end
+
+      describe "without sort indices" do
+
+        describe "without a natural sort order specified" do
+
+          it "sorts the result by relevance, then id" do
+            result = XapianDb.database.search "same_sort"
+            result.map { |doc| doc.data.split("-").last.to_i }.should == [1, 2]
+          end
+
+        end
+
+        describe "with a natural sort order specified" do
+
+          before :each do
+            XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+              blueprint.attribute :text
+              blueprint.natural_sort_order :text
+            end
+
+            obj = IndexedObject.new(1)
+            obj.stub!(:text).and_return("Text B")
+            doc = @indexer.build_document_for(obj)
+            XapianDb.database.store_doc doc
+            obj = IndexedObject.new(2)
+            obj.stub!(:text).and_return("Text A")
+            doc = @indexer.build_document_for(obj)
+            XapianDb.database.store_doc doc
+          end
+
+          it "sorts the result by relevance, then natural sort" do
+            result = XapianDb.database.search "Text"
+            result.map { |doc| doc.data.split("-").last.to_i }.should == [2, 1]
+          end
+
+        end
+
       end
 
       it "accepts the :sort_indices option for a query" do

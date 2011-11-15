@@ -206,13 +206,14 @@ module XapianDb
     # ---------------------------------------------------------------------------------
 
     attr_accessor :_adapter
-    attr_reader :_base_query
+    attr_reader :_base_query, :_natural_sort_order
 
     # Construct the blueprint
     def initialize
-      @attributes_hash =      {}
+      @attributes_hash      = {}
       @indexed_methods_hash = {}
-      @type_map =             {}
+      @type_map             = {}
+      @_natural_sort_order  = :id
     end
 
     # Set the adapter
@@ -314,6 +315,15 @@ module XapianDb
     #   blueprint.base_query Person.includes(:addresses)
     def base_query(expression)
       @_base_query = expression
+    end
+
+    # Define the natural sort order.
+    # @param [String] name The name of the method that delivers the sort expression
+    # @param [Block] &block An optional block for complex configurations
+    # Pass a method name or a block, but not both
+    def natural_sort_order(name=nil, &block)
+      raise ArgumentError.new("natural_sort_order accepts a method name or a block, but not both") if name && block
+      @_natural_sort_order = name || block
     end
 
     # Options for an indexed method
