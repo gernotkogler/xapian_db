@@ -41,7 +41,6 @@ class PersistentObject
     self.class.all.delete self
     instance_eval &self.class.hooks[:after_destroy]
   end
-
 end
 
 # Test class for indexed datamapper objects; this class mimics some behaviour
@@ -81,6 +80,9 @@ end
 class ActiveRecordObject < PersistentObject
 
   class << self
+    def table_name
+      self.name
+    end
 
     def primary_key
       :id

@@ -40,10 +40,12 @@ module XapianDb
                "#{self.class}-#{self.id}"
              end
 
+             def order_condition(primary_key)
+               '%s.%s' % [self.table_name, primary_key]
+             end
            end
 
            klass.class_eval do
-
              # add the after commit logic
              after_commit do
                XapianDb.reindex(self)
