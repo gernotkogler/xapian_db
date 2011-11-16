@@ -67,8 +67,6 @@ module XapianDb
 
           # Process the objects in batches to reduce the memory footprint
           nr_of_batches = (obj_count / BATCH_SIZE) + 1
-          # order_expression = "#{klass.table_name}.#{primary_key}"
-          # raise "vor loop"
           nr_of_batches.times do |batch|
             base_query.all(:offset => batch * BATCH_SIZE, :limit => BATCH_SIZE, :order => klass.order_condition(primary_key)).each do |obj|
               reindex obj, false
