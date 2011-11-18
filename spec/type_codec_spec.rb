@@ -84,6 +84,10 @@ describe XapianDb::TypeCodec::DateCodec do
     it "raises an argument error if the given object is not a date" do
       lambda { described_class.encode("20110101") }.should raise_error "20110101 was expected to be a date"
     end
+
+    it "should return an empty string when a nil value is supplied" do
+      described_class.encode(nil).should == ""
+    end
   end
 
   describe "decode(string)" do
