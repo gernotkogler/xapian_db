@@ -93,9 +93,16 @@ module XapianDb
     # @param [Symbol] type The writer type; the following adapters are available:
     #   - :direct ({XapianDb::IndexWriters::DirectWriter})
     #   - :beanstalk ({XapianDb::IndexWriters::BeanstalkWriter})
+    #   - :resque ({XapianDb::IndexWriters::ResqueWriter})
     def writer(type)
       # We try to guess the writer name
-      @_writer = XapianDb::IndexWriters.const_get("#{camelize(type.to_s)}Writer")
+      begin
+        require File.dirname(__FILE__) + "/index_writers/#{type}_writer"
+        @_writer = XapianDb::IndexWriters.const_get("#{camelize(type.to_s)}Writer")
+      rescue LoadError
+        puts "XapianDb: cannot load #{type} writer; see README for supported writers and how to install neccessary queue infrastructure"
+        raise
+      end
     end
 
     # Set the url and port of the beanstalk daemon
