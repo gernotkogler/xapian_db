@@ -38,6 +38,13 @@ I tried hard but I couldn't find such a thing so I decided to write it, based on
 
 * ruby 1.9.2 or newer
 * rails 3.0 or newer (if you want to use it with rails)
+* xapian-core and xapian-ruby binaries installed
+
+== Installing xapian binaries
+
+On OSX, I recommend to install the binaries using homebrew like so: brew install xapian --ruby.
+Another option is to install and require the xapian-ruby gem; this works for linux, too. Make sure to add the gem to your Gemfile in this case.
+Make sure version 1.2.6 or newer is installed.
 
 == Getting started
 

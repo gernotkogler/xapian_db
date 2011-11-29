@@ -1,3 +1,9 @@
+##1.2.2.2 (November 29th, 2011)
+
+Changes:
+
+- removed dependency to xapian-ruby to allow custom installs of the xapian binaries (see chapter Installing xapian binaries in the README)
+
 ##1.2.2.1 (November 22th, 2011)
 
 Fixes:
