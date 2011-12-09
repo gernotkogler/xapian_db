@@ -33,15 +33,10 @@ module XapianDb
           beanstalk.put( { :task => "reindex_class_task", :class => klass.name }.to_yaml )
         end
 
-        private
-
         def beanstalk
           @beanstalk ||= Beanstalk::Pool.new([XapianDb::Config.beanstalk_daemon_url])
         end
-
       end
-
     end
-
   end
 end

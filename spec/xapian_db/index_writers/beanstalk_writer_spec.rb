@@ -1,54 +1,39 @@
 # encoding: utf-8
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../../lib/xapian_db/index_writers/beanstalk_writer')
 
 describe XapianDb::IndexWriters::BeanstalkWriter do
 
-  before :each do
-    XapianDb.setup do |config|
-      config.adapter  :active_record
-      config.database "/tmp/xapian_test"
-      config.writer   :beanstalk
+  class BeanstalkDummy
+    def put(args)
     end
-    XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
-      blueprint.attribute :id
-      blueprint.attribute :name
-    end
-    @obj = ActiveRecordObject.new(1, "Gernot")
-    @obj.save
-    XapianDb.database.delete_docs_of_class @obj.class
-    XapianDb.database.commit
   end
 
-  after :each do
-    FileUtils.rm_rf "/tmp/xapian_test"
+  let (:object) { ActiveRecordObject.new 1, "Gernot" }
+
+  before :each do
+    described_class.stub(:beanstalk).and_return(BeanstalkDummy.new)
   end
 
   describe ".index(obj)" do
-    it "adds an object to the index" do
-      XapianDb.database.size.should == 0
-      XapianDb::IndexWriters::BeanstalkWriter.index @obj
-      XapianDb.database.size.should == 1
+    it "puts the index task on the beanstalk queue" do
+      described_class.beanstalk.should_receive(:put).with({:task => "index_task", :class => object.class.name, :id => object.id }.to_yaml)
+      XapianDb::IndexWriters::BeanstalkWriter.index object
     end
   end
 
   describe ".delete_doc_with(xapian_id)" do
-    it "removes a document from the index" do
-      XapianDb.database.size.should == 0
-      XapianDb::IndexWriters::BeanstalkWriter.index @obj
-      XapianDb.database.size.should == 1
-      XapianDb::IndexWriters::BeanstalkWriter.delete_doc_with @obj.xapian_id
-      XapianDb.database.size.should == 0
+    it "puts the delete task on the beanstalk queue" do
+      described_class.beanstalk.should_receive(:put).with({ :task => "delete_doc_task", :xapian_id => object.xapian_id }.to_yaml)
+      XapianDb::IndexWriters::BeanstalkWriter.delete_doc_with object.xapian_id
     end
   end
 
   describe ".reindex(klass)" do
-
-    it "adds all instances of a class to the index" do
-      XapianDb.database.size.should == 0
+    it "puts the reindex task on the resque queue" do
+      described_class.beanstalk.should_receive(:put).with({ :task => "reindex_class_task", :class => object.class.name }.to_yaml)
       XapianDb::IndexWriters::BeanstalkWriter.reindex_class ActiveRecordObject
-      XapianDb.database.size.should == 1
     end
-
   end
 end

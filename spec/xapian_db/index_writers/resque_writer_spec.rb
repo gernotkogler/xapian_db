@@ -1,4 +1,7 @@
-require 'xapian_db'
+# encoding: utf-8
+
+require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../../lib/xapian_db/index_writers/resque_writer')
 
 describe XapianDb::IndexWriters::ResqueWriter do
 
@@ -11,10 +14,8 @@ describe XapianDb::IndexWriters::ResqueWriter do
   class DummyWorker
   end
 
-  subject { XapianDb::IndexWriters::ResqueWriter }
-
   before :each do
-    subject.stub(:worker_class) { DummyWorker }
+    described_class.stub(:worker_class) { DummyWorker }
   end
 
   describe ".index" do
@@ -22,21 +23,21 @@ describe XapianDb::IndexWriters::ResqueWriter do
 
     it "puts the index task on the resque queue" do
       Resque.should_receive(:enqueue).with(DummyWorker, :index, :class => 'TestIndexClass', :id => 28)
-      subject.index object
+      described_class.index object
     end
   end
 
   describe ".delete_doc_with" do
     it "puts the delete task on the resque queue" do
       Resque.should_receive(:enqueue).with(DummyWorker, :delete_doc, :xapian_id => 91)
-      subject.delete_doc_with 91
+      described_class.delete_doc_with 91
     end
   end
 
   describe ".reindex_class" do
     it "puts the reindex task on the resque queue" do
       Resque.should_receive(:enqueue).with(DummyWorker, :reindex_class, :class => 'TestIndexClass')
-      subject.reindex_class TestIndexClass
+      described_class.reindex_class TestIndexClass
     end
   end
 
