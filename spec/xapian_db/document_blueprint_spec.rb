@@ -18,10 +18,41 @@ describe XapianDb::DocumentBlueprint do
     end
   end
 
-  describe ".blueprint_for(klass_or_name)" do
+  describe ".configured?(name)" do
+
+    before :each do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+    end
+
+    it "returns true, if a blueprint with the given name is configured" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.configured?(:IndexedObject).should be_true
+    end
+
+    it "returns false, if no blueprints are configured" do
+      XapianDb::DocumentBlueprint.configured?(:IndexedObject).should be_false
+    end
+
+    it "returns false, if a blueprint with the given name is not configured" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.configured?(:NotConfigured).should be_false
+    end
+
+  end
+
+  describe ".blueprint_for(name)" do
+
+    before :each do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+    end
 
     it "returns the blueprint for a class" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
@@ -30,7 +61,6 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "returns the blueprint for the super class if no specific blueprint is configured" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
@@ -40,7 +70,6 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "can handle namespaces" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.setup("Namespace::IndexedObject") do |blueprint|
         blueprint.index :id
         blueprint.index :name
@@ -48,17 +77,15 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for("Namespace::IndexedObject").should be_a_kind_of XapianDb::DocumentBlueprint
     end
 
-    it "raises an exception if there is no blueprint configuration for a class" do
-      lambda {XapianDb::DocumentBlueprint.blueprint_for(:Object)}.should raise_error
+    it "returns nil if there is no blueprint configuration for a class" do
+      XapianDb::DocumentBlueprint.blueprint_for(:Object).should_not be
     end
 
-    it "raises an exception if there is no blueprint configuration at all" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-      lambda {XapianDb::DocumentBlueprint.blueprint_for(:Object)}.should raise_error
+    it "returns nil if there is no blueprint configuration at all" do
+      XapianDb::DocumentBlueprint.blueprint_for(:Object).should_not be
     end
 
     it "accepts a string for the class name" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
@@ -67,7 +94,6 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "accepts a symbol for the class name" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name

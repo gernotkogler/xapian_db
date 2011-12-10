@@ -47,8 +47,9 @@ module XapianDb
         @blueprints.delete_if { |indexed_class, blueprint| indexed_class == name }
         @blueprints[name] = blueprint
 
-        adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
+        # TODO: Needed for the specs only; should be removed after the specs can handle lazy class helper setup
         if eval("defined?(#{name}) && #{name}.is_a?(Class)")
+          adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
           adapter.add_class_helper_methods_to XapianDb::Utilities.constantize(name)
         end
 
@@ -57,6 +58,12 @@ module XapianDb
         # We can always do a field search on the name of the indexed class
         @searchable_prefixes << "indexed_class"
         @attributes = @blueprints.values.map { |blueprint| blueprint.attribute_names}.flatten.compact.uniq.sort || []
+      end
+
+      # is a blueprint configured for the given name?
+      # @return [Boolean]
+      def configured?(name)
+        @blueprints && @blueprints.has_key?(name.to_s)
       end
 
       # Get all configured classes
@@ -72,21 +79,23 @@ module XapianDb
       # Get the blueprint for a class
       # @return [DocumentBlueprint]
       def blueprint_for(klass_or_name)
-        if klass_or_name.is_a?(Class)
-          warn "xapian_db: blueprint_for(Class) is deprecated; use blueprint_for(Symbol) or blueprint_for(String) instead"
-        end
         if @blueprints
-          key = klass_or_name.to_s
-          while key != "Object"
+          if klass_or_name.is_a?(Class)
+            warn "xapian_db: blueprint_for(Class) is deprecated; use blueprint_for(Symbol) or blueprint_for(String) instead"
+            key = klass_or_name.name
+          else
+            key = klass_or_name.to_s
+          end
+          while key != "Object" && key != "BasicObject"
             if @blueprints.has_key? key
               return @blueprints[key]
             else
               klass = XapianDb::Utilities.constantize key
-              key = klass.superclass.to_s
+              key = klass.superclass.name
             end
           end
         end
-        raise "Blueprint for class #{klass} is not defined"
+        return nil
       end
 
       # Get the value number for an attribute. Please note that this is not the index in the values

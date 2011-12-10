@@ -55,6 +55,12 @@ module XapianDb
       load blueprints_file_path if File.exist?(blueprints_file_path)
     end
 
+    initializer "xapian_db.active_record" do |app|
+      ActiveSupport.on_load :active_record do
+        ActiveRecord::Base.extend XapianDb::IndexAware
+      end
+    end
+
     private
 
     # use the config options from the config file
