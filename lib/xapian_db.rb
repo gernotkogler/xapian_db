@@ -120,7 +120,7 @@ module XapianDb
   # @param [Object] object An instance of a class with a blueprint configuration
   def self.reindex(object, commit=true)
     writer = @block_writer || XapianDb::Config.writer
-    blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class
+    blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class.name
     if blueprint.should_index?(object)
       writer.index object, commit
     else

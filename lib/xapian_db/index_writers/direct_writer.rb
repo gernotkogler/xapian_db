@@ -19,7 +19,7 @@ module XapianDb
         # Update an object in the index
         # @param [Object] obj An instance of a class with a blueprint configuration
         def index(obj, commit=true)
-          blueprint = XapianDb::DocumentBlueprint.blueprint_for(obj.class)
+          blueprint = XapianDb::DocumentBlueprint.blueprint_for(obj.class.name)
           indexer   = XapianDb::Indexer.new(XapianDb.database, blueprint)
           doc       = indexer.build_document_for(obj)
           XapianDb.database.store_doc(doc)
@@ -36,7 +36,7 @@ module XapianDb
         # Update or delete a xapian document belonging to an object depending on the ignore_if logic(if present)
         # @param [Object] object An instance of a class with a blueprint configuration
         def reindex(object, commit=true)
-          blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class
+          blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class.name
           if blueprint.should_index?(object)
             index object, commit
           else
@@ -50,11 +50,10 @@ module XapianDb
         # @option options [Boolean] :verbose (false) Should the reindexing give status informations?
         def reindex_class(klass, options={})
           opts = {:verbose => false}.merge(options)
-          blueprint = XapianDb::DocumentBlueprint.blueprint_for klass
+          blueprint = XapianDb::DocumentBlueprint.blueprint_for klass.name
           adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
           primary_key = adapter.primary_key_for(klass)
           XapianDb.database.delete_docs_of_class(klass)
-          blueprint  = XapianDb::DocumentBlueprint.blueprint_for(klass)
           indexer    = XapianDb::Indexer.new(XapianDb.database, blueprint)
           base_query = blueprint._base_query || klass
           show_progressbar = false

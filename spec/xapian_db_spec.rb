@@ -79,10 +79,10 @@ describe XapianDb do
     describe "with an order expression" do
 
       before :each do
-        XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
           blueprint.attribute :text
         end
-        indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+        indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
         obj1 = IndexedObject.new(1)
         obj1.stub!(:text).and_return "A text"
         XapianDb.database.store_doc indexer.build_document_for(obj1)
@@ -118,7 +118,7 @@ describe XapianDb do
       XapianDb.setup do |config|
         config.database :memory
       end
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :text
       end
       XapianDb.facets(:text, "Something").should be_a_kind_of(Hash)
@@ -135,7 +135,7 @@ describe XapianDb do
         config.writer  :direct
       end
 
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.index :name
         blueprint.ignore_if {
           date > Date.today
@@ -181,7 +181,7 @@ describe XapianDb do
     end
 
     it "rebuilds the index for all blueprints" do
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.index :name
       end
       @object = ActiveRecordObject.new(1, "Kogler")
@@ -200,7 +200,7 @@ describe XapianDb do
     end
 
     it "ignores blueprints that describe plain ruby classes" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.adapter :generic
         blueprint.index :id
       end
@@ -220,7 +220,7 @@ describe XapianDb do
         config.adapter :active_record
         config.writer  :direct
       end
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.index :name
         blueprint.attribute :date, :as => :date
       end
@@ -262,7 +262,7 @@ describe XapianDb do
         config.adapter :active_record
         config.writer  :direct
       end
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.index :name
         blueprint.attribute :age, :as => :number
       end
@@ -304,7 +304,7 @@ describe XapianDb do
         config.adapter :active_record
         config.writer  :direct
       end
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.attribute :name, :as => :string
         blueprint.attribute :age, :as => :number
       end
@@ -342,7 +342,7 @@ describe XapianDb do
         config.writer   :direct
       end
 
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :name
       end
@@ -431,7 +431,7 @@ describe XapianDb do
         config.writer   :direct
       end
 
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :name
       end

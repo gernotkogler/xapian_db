@@ -14,7 +14,7 @@ describe XapianDb::Adapters::DatamapperAdapter do
       config.adapter :datamapper
       config.writer  :direct
     end
-    XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
+    XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
       blueprint.index :name
     end
 
@@ -86,7 +86,7 @@ describe XapianDb::Adapters::DatamapperAdapter do
     end
 
     it "should not index the object if an ignore expression in the blueprint is met" do
-      XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
         blueprint.index :name
         blueprint.ignore_if {name == "Kogler"}
       end
@@ -95,7 +95,7 @@ describe XapianDb::Adapters::DatamapperAdapter do
     end
 
     it "should index the object if an ignore expression in the blueprint is not met" do
-      XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
         blueprint.index :name
         blueprint.ignore_if {name == "not Kogler"}
       end
@@ -157,7 +157,7 @@ describe XapianDb::Adapters::DatamapperAdapter do
       end
       XapianDb.search("Kogler").size.should == 0
 
-      XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
         blueprint.index :name
         blueprint.ignore_if {name == "Kogler"}
       end

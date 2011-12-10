@@ -11,11 +11,11 @@ describe XapianDb::Database do
         config.adapter :generic
         config.database :memory
       end
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :text
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer   = XapianDb::Indexer.new(XapianDb.database, @blueprint)
       @obj       = IndexedObject.new(1)
       @obj.stub!(:text).and_return("Some Text")
@@ -44,11 +44,11 @@ describe XapianDb::Database do
         config.adapter :generic
         config.database :memory
       end
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :text
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer   = XapianDb::Indexer.new(XapianDb.database, @blueprint)
       @obj       = IndexedObject.new(1)
       @obj.stub!(:text).and_return("Some Text")
@@ -73,10 +73,10 @@ describe XapianDb::Database do
         config.adapter :generic
         config.database :memory
       end
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer   = XapianDb::Indexer.new(XapianDb.database, @blueprint)
     end
 
@@ -109,7 +109,7 @@ describe XapianDb::Database do
         end
       end
 
-      XapianDb::DocumentBlueprint.setup(LeaveMeAlone) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:LeaveMeAlone) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :text
       end
@@ -161,11 +161,11 @@ describe XapianDb::Database do
         config.adapter :generic
         config.database :memory
       end
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :text
         blueprint.index :text2
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer   = XapianDb::Indexer.new(XapianDb.database, @blueprint)
       @obj       = IndexedObject.new(1)
       @obj.stub!(:text).and_return("Some Text")
@@ -200,7 +200,7 @@ describe XapianDb::Database do
     end
 
     it "should support phrase searches" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :text
       end
       obj       = IndexedObject.new(1)
@@ -257,7 +257,7 @@ describe XapianDb::Database do
     describe "sorting" do
 
       before :each do
-        XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
           blueprint.attribute :text
           blueprint.attribute :text2
           blueprint.attribute :number
@@ -291,7 +291,7 @@ describe XapianDb::Database do
         describe "with a natural sort order specified" do
 
           before :each do
-            XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+            XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
               blueprint.attribute :text
               blueprint.natural_sort_order :text
             end
@@ -385,11 +385,11 @@ describe XapianDb::Database do
         config.language :en
       end
 
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :text
       end
 
-      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       obj = IndexedObject.new(1)
       obj.stub!(:text).and_return "Facet A"
       db.store_doc indexer.build_document_for(obj)
@@ -407,10 +407,10 @@ describe XapianDb::Database do
     end
 
     it "collects the facets across all indexed classes" do
-      XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:OtherIndexedObject) do |blueprint|
         blueprint.attribute :text
       end
-      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(OtherIndexedObject)
+      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:OtherIndexedObject)
       obj = OtherIndexedObject.new(1)
       obj.stub!(:text).and_return "Facet C"
       db.store_doc indexer.build_document_for(obj)
@@ -441,12 +441,12 @@ describe XapianDb::Database do
         config.database :memory
       end
 
-      XapianDb::DocumentBlueprint.setup(Class) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:Class) do |blueprint|
         blueprint.index :text
       end
 
       db = XapianDb.database
-      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(Class)
+      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:Class)
 
       obj = Class.new(1, "xapian rocks")
       db.store_doc indexer.build_document_for(obj)
@@ -491,12 +491,12 @@ describe XapianDb::Database do
           end
         end
 
-        XapianDb::DocumentBlueprint.setup(ClassToIgnore) do |blueprint|
+        XapianDb::DocumentBlueprint.setup(:ClassToIgnore) do |blueprint|
           blueprint.index :text
         end
 
         db = XapianDb.database
-        indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(ClassToIgnore)
+        indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:ClassToIgnore)
 
         obj = ClassToIgnore.new(1, "xapian is sweet")
         db.store_doc indexer.build_document_for(obj)

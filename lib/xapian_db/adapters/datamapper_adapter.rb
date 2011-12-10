@@ -48,7 +48,7 @@ module XapianDb
 
              # add the after save logic
              after :save do
-               blueprint = XapianDb::DocumentBlueprint.blueprint_for klass
+               blueprint = XapianDb::DocumentBlueprint.blueprint_for klass.to_s
                if blueprint.should_index?(self)
                  XapianDb.index(self)
                else

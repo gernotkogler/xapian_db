@@ -13,7 +13,7 @@ describe XapianDb::Indexer do
       end
       @db = XapianDb.create_db
 
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :array
         blueprint.attribute :id
         blueprint.attribute :no_value
@@ -23,7 +23,7 @@ describe XapianDb::Indexer do
         blueprint.index :text
       end
 
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @obj       = IndexedObject.new(1)
       @obj.stub!(:text).and_return("Some Text")
       @obj.stub!(:no_value).and_return(nil)
@@ -83,7 +83,7 @@ describe XapianDb::Indexer do
       XapianDb.setup do |config|
         config.language :de
       end
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :complex do
           if @id == 0
             "zero"
@@ -92,7 +92,7 @@ describe XapianDb::Indexer do
           end
         end
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer = XapianDb::Indexer.new(@db, @blueprint)
       doc = @indexer.build_document_for(@obj)
       doc.values[@position_offset].value.should == "not zero".to_yaml
@@ -103,7 +103,7 @@ describe XapianDb::Indexer do
       XapianDb.setup do |config|
         config.language :de
       end
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :complex do
           if @id == 0
             "zero"
@@ -112,7 +112,7 @@ describe XapianDb::Indexer do
           end
         end
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer = XapianDb::Indexer.new(@db, @blueprint)
       doc = @indexer.build_document_for(@obj)
       (doc.terms.map(&:term) & %w(not zero)).should == %w(not zero)
@@ -140,11 +140,11 @@ describe XapianDb::Indexer do
     end
     @db = XapianDb.create_db
 
-    XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
       blueprint.attribute :strange_object
     end
 
-    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     @obj       = IndexedObject.new(1)
     @obj.stub!(:strange_object).and_return ObjectReturningNilOnToS.new
     @indexer = XapianDb::Indexer.new(@db, @blueprint)

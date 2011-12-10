@@ -10,7 +10,7 @@ describe XapianDb::IndexWriters::DirectWriter do
       config.database :memory
       config.writer   :direct
     end
-    XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
       blueprint.attribute :id
       blueprint.attribute :text
     end
@@ -44,7 +44,7 @@ describe XapianDb::IndexWriters::DirectWriter do
         config.database :memory
         config.writer   :direct
       end
-      XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :name
       end

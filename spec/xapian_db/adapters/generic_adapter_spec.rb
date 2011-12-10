@@ -37,7 +37,7 @@ describe XapianDb::Adapters::GenericAdapter do
       XapianDb::Adapters::GenericAdapter.unique_key do
         "#{my_unique_key}"
       end
-      XapianDb::DocumentBlueprint.setup(MyClass)
+      XapianDb::DocumentBlueprint.setup(:MyClass)
       obj = MyClass.new(1)
       obj.xapian_id.should == obj.my_unique_key.to_s
     end

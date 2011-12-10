@@ -10,53 +10,69 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
       XapianDb::DocumentBlueprint.configured_classes.size.should == 0
 
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
       end
-      XapianDb::DocumentBlueprint.configured_classes.size.should == 1
-      XapianDb::DocumentBlueprint.configured_classes.first.should == IndexedObject
+      XapianDb::DocumentBlueprint.configured_classes.should == [IndexedObject]
     end
-
   end
 
-  describe ".blueprint_for(klass)" do
+  describe ".blueprint_for(klass_or_name)" do
 
     it "returns the blueprint for a class" do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
     end
 
     it "returns the blueprint for the super class if no specific blueprint is configured" do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
       end
       class InheritedIndexedObject < IndexedObject; end
-      XapianDb::DocumentBlueprint.blueprint_for(InheritedIndexedObject).should == XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      XapianDb::DocumentBlueprint.blueprint_for(:InheritedIndexedObject).should == XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     end
 
     it "can handle namespaces" do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-      XapianDb::DocumentBlueprint.setup(Namespace::IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup("Namespace::IndexedObject") do |blueprint|
         blueprint.index :id
         blueprint.index :name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(Namespace::IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
+      XapianDb::DocumentBlueprint.blueprint_for("Namespace::IndexedObject").should be_a_kind_of XapianDb::DocumentBlueprint
     end
 
     it "raises an exception if there is no blueprint configuration for a class" do
-      lambda {XapianDb::DocumentBlueprint.blueprint_for(Object)}.should raise_error
+      lambda {XapianDb::DocumentBlueprint.blueprint_for(:Object)}.should raise_error
     end
 
     it "raises an exception if there is no blueprint configuration at all" do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-      lambda {XapianDb::DocumentBlueprint.blueprint_for(Object)}.should raise_error
+      lambda {XapianDb::DocumentBlueprint.blueprint_for(:Object)}.should raise_error
+    end
+
+    it "accepts a string for the class name" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for("IndexedObject").should be_a_kind_of XapianDb::DocumentBlueprint
+    end
+
+    it "accepts a symbol for the class name" do
+      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
     end
 
   end
@@ -64,7 +80,7 @@ describe XapianDb::DocumentBlueprint do
   describe ".searchable_prefixes" do
 
     it "should return an array of all method names configured to be indexed" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
       end
@@ -73,7 +89,7 @@ describe XapianDb::DocumentBlueprint do
 
     it "should return %w(indexed_class) if no attributes and no indexes are configured" do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
       end
       XapianDb::DocumentBlueprint.searchable_prefixes.should == %w(indexed_class)
     end
@@ -82,7 +98,7 @@ describe XapianDb::DocumentBlueprint do
   describe ".attributes" do
 
     it "should return an array of all defined attributes" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :name
       end
@@ -91,7 +107,7 @@ describe XapianDb::DocumentBlueprint do
 
     it "should return an empty array if no attributes are configured" do
       XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
       end
@@ -102,7 +118,7 @@ describe XapianDb::DocumentBlueprint do
   describe ".type_info_for(attribute)" do
 
     before :each do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :date, :as => :date
         blueprint.attribute :untyped
       end
@@ -129,27 +145,45 @@ describe XapianDb::DocumentBlueprint do
 
   describe ".setup (class)" do
     it "stores a blueprint for a given class" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject)
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).should be_a_kind_of(XapianDb::DocumentBlueprint)
+      XapianDb::DocumentBlueprint.setup(:IndexedObject)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).should be_a_kind_of(XapianDb::DocumentBlueprint)
     end
 
     it "does replace the blueprint for a class if the class is reloaded" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject)
+      XapianDb::DocumentBlueprint.setup(:IndexedObject)
       XapianDb::DocumentBlueprint.configured_classes.size.should == 1
       # reload IndexedObject
       Object.send(:remove_const, :IndexedObject)
       load File.expand_path('../../basic_mocks.rb', __FILE__)
-      XapianDb::DocumentBlueprint.setup(IndexedObject)
+      XapianDb::DocumentBlueprint.setup(:IndexedObject)
       XapianDb::DocumentBlueprint.configured_classes.size.should == 1
     end
 
     it "raises an exception if a method with the same name has different type declarations" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :date, :as => :date
       end
-      lambda { XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
+      lambda { XapianDb::DocumentBlueprint.setup(:OtherIndexedObject) do |blueprint|
         blueprint.attribute :date, :as => :number
       end }.should raise_error ArgumentError
+    end
+
+    it "allows blueprint definitions with symbols" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject)
+      XapianDb::DocumentBlueprint.blueprint_for('IndexedObject').should_not be_nil
+    end
+
+    it "allows blueprint definitions with strings" do
+      XapianDb::DocumentBlueprint.setup('IndexedObject')
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).should_not be_nil
+    end
+
+    it "lazy-loads blueprint classes" do
+      lambda do
+        XapianDb::DocumentBlueprint.setup(:NotYetLoadedClass)
+        class NotYetLoadedClass; end
+      end.should_not raise_error
+      XapianDb::DocumentBlueprint.blueprint_for(:NotYetLoadedClass).should_not be_nil
     end
 
   end
@@ -157,7 +191,7 @@ describe XapianDb::DocumentBlueprint do
   describe ".value_number_for(:attribute)" do
 
     before :each do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :name
       end
@@ -183,7 +217,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "handles multiple blueprints whith the same indexed method at different positions" do
-      XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:OtherIndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :not_in_alphabetical_order
         blueprint.index :name
@@ -196,7 +230,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "calculates the value number in alphabetical order even if the attributes are not declared in alphabetical order" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :date_of_birth, :as => :date
         blueprint.attribute :empty_field
         blueprint.attribute :id
@@ -210,45 +244,45 @@ describe XapianDb::DocumentBlueprint do
 
   describe "#adapter (symbol)" do
     it "overides the adapter for the configured class" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.adapter :generic
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)._adapter.should be_equal XapianDb::Adapters::GenericAdapter
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)._adapter.should be_equal XapianDb::Adapters::GenericAdapter
     end
   end
 
   describe "#attribute" do
 
     before :each do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
       end
     end
 
     it "adds an attribute to the blueprint" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).attribute_names.should include(:id)
     end
 
     it "adds the attribute to the indexed methods by default" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_method_names.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).indexed_method_names.should include(:id)
     end
 
     it "does not index the attribute if the :index option ist set to false " do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id, :index => false
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_method_names.should_not include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).indexed_method_names.should_not include(:id)
     end
 
     it "allows to specify a weight for the attribute" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id, :weight=> 10
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).options_for_indexed_method(:id).weight.should == 10
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).options_for_indexed_method(:id).weight.should == 10
     end
 
     it "accepts a block to specify complex attribute evaluation" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :complex do
           if @id == 1
             "One"
@@ -257,12 +291,12 @@ describe XapianDb::DocumentBlueprint do
           end
         end
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:complex)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).attribute_names.should include(:complex)
     end
 
     it "throws an exception if the attribute name maps to a Xapian::Document method name" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:id)
-      lambda{XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).attribute_names.should include(:id)
+      lambda{XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :data
       end}.should raise_error ArgumentError
 
@@ -273,25 +307,25 @@ describe XapianDb::DocumentBlueprint do
   describe "#attributes" do
 
     it "allows to declare one single attribute" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attributes :id
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:id)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).attribute_names.should include(:id)
     end
 
     it "allows to declare multiple attributes in a single statement (but without options)" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attributes :id, :name, :first_name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:id, :name, :first_name)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).attribute_names.should include(:id, :name, :first_name)
     end
 
     it "throws an exception if the attribute name maps to a Xapian::Document method name" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attributes :id, :name, :first_name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).attribute_names.should include(:id)
-      lambda{XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).attribute_names.should include(:id)
+      lambda{XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attributes :data
       end}.should raise_error ArgumentError
     end
@@ -300,44 +334,44 @@ describe XapianDb::DocumentBlueprint do
   describe "#index" do
 
     before :each do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
       end
     end
 
     it "adds an indexed value to the blueprint" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).options_for_indexed_method(:id).should be_a_kind_of XapianDb::DocumentBlueprint::IndexOptions
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).options_for_indexed_method(:id).should be_a_kind_of XapianDb::DocumentBlueprint::IndexOptions
     end
 
     it "defaults the weight option to 1" do
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).options_for_indexed_method(:id).weight.should == 1
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).options_for_indexed_method(:id).weight.should == 1
     end
 
     it "accepts weight as an option" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id, :weight => 10
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).options_for_indexed_method(:id).weight.should == 10
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).options_for_indexed_method(:id).weight.should == 10
     end
 
     it "does not accept a type option" do
-      lambda { XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      lambda { XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :date, :as => :date
       end }.should raise_error ArgumentError
     end
 
     it "allows to declare two methods (can distinguish this from a method with an options hash)" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id, :name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_method_names.should include(:id, :name)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).indexed_method_names.should include(:id, :name)
     end
 
     it "allows to declare multiple methods (but without options)" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id, :name, :first_name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).indexed_method_names.should include(:id, :name, :first_name)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).indexed_method_names.should include(:id, :name, :first_name)
     end
 
   end
@@ -345,43 +379,43 @@ describe XapianDb::DocumentBlueprint do
   describe "#ignore_if" do
 
     it "accepts a block and stores the block as a Proc" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.ignore_if {
           active == false
         }
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject).instance_variable_get(:@ignore_expression).should be_a_kind_of Proc
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).instance_variable_get(:@ignore_expression).should be_a_kind_of Proc
     end
   end
 
   describe "#should_index? obj" do
 
     it "should return true if no ignore expression is given" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
       end
-      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       obj = IndexedObject.new 1
       blueprint.should_index?(obj).should be_true
     end
 
     it "should return false if the ignore expression evaluates to true" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.ignore_if {id == 1}
       end
-      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       obj = IndexedObject.new 1
       blueprint.should_index?(obj).should be_false
     end
 
     it "should return true if the ignore expression evaluates to false" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.ignore_if {id == 2}
       end
-      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       obj = IndexedObject.new 1
       blueprint.should_index?(obj).should be_true
     end
@@ -391,40 +425,40 @@ describe XapianDb::DocumentBlueprint do
   describe "base_query" do
 
     it "accepts a base query expression" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :array
         blueprint.base_query ActiveRecordObject.includes(:children)
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     end
   end
 
   describe "#natural_sort_order" do
 
     it "defaults to id if not specified" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)._natural_sort_order.should == :id
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)._natural_sort_order.should == :id
     end
 
     it "accepts a method symbol" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.natural_sort_order :name
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)._natural_sort_order.should == :name
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)._natural_sort_order.should == :name
     end
 
     it "accepts a block" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.natural_sort_order do
           @id
         end
       end
-      XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)._natural_sort_order.should be_a Proc
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)._natural_sort_order.should be_a Proc
     end
 
     it "raises an ArgumentError, if a method name AND a block are given" do
-      lambda { XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      lambda { XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.natural_sort_order :name do
           @id
         end
@@ -437,14 +471,14 @@ describe XapianDb::DocumentBlueprint do
   describe "#accessors_module" do
 
     before :each do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :array
         blueprint.attribute :date_of_birth, :as => :date
         blueprint.attribute :empty_field
         blueprint.attribute :id
         blueprint.attribute :name
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
 
       @doc = Xapian::Document.new
       @doc.add_value(0, "IndexedObject")
@@ -480,10 +514,10 @@ describe XapianDb::DocumentBlueprint do
 
   describe "#type_map" do
 
-    let(:blueprint) { XapianDb::DocumentBlueprint.blueprint_for(IndexedObject) }
+    let(:blueprint) { XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject) }
 
     before :each do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :date, :as => :date
         blueprint.attribute :untyped
       end
