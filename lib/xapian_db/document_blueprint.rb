@@ -47,10 +47,9 @@ module XapianDb
         @blueprints.delete_if { |indexed_class, blueprint| indexed_class == name }
         @blueprints[name] = blueprint
 
-        # TODO: Needed for the specs only; should be removed after the specs can handle lazy class helper setup
+        # Needed to add class helper methods to indexed pure ruby classes
         if eval("defined?(#{name}) && #{name}.is_a?(Class)")
-          adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
-          adapter.add_class_helper_methods_to XapianDb::Utilities.constantize(name)
+          blueprint._adapter.add_class_helper_methods_to XapianDb::Utilities.constantize(name)
         end
 
         @searchable_prefixes = @blueprints.values.map { |blueprint| blueprint.searchable_prefixes }.flatten.compact.uniq || []
@@ -227,8 +226,7 @@ module XapianDb
       end
 
       # Let the adapter add its document helper methods (if any)
-      adapter = @_adapter || XapianDb::Config.adapter || XapianDb::Adapters::GenericAdapter
-      adapter.add_doc_helper_methods_to(@accessors_module)
+      _adapter.add_doc_helper_methods_to(@accessors_module)
       @accessors_module
     end
 
@@ -236,8 +234,7 @@ module XapianDb
     # Blueprint DSL methods
     # ---------------------------------------------------------------------------------
 
-    attr_accessor :_adapter
-    attr_reader :_base_query, :_natural_sort_order
+    attr_reader :lazy_base_query, :_natural_sort_order
 
     # Construct the blueprint
     def initialize
@@ -255,6 +252,11 @@ module XapianDb
     def adapter(type)
       # We try to guess the adapter name
       @_adapter = XapianDb::Adapters.const_get("#{camelize(type.to_s)}Adapter")
+    end
+
+    # return the adpater to use for this blueprint
+    def _adapter
+      @_adapter || XapianDb::Config.adapter || XapianDb::Adapters::GenericAdapter
     end
 
     # Add an attribute to the blueprint. Attributes will be stored in the xapian documents an can be
@@ -338,14 +340,18 @@ module XapianDb
       @ignore_expression = block
     end
 
-    # Define a base query to select one or all objects of the indexed class. The reason for a
+# Define a base query to select one or all objects of the indexed class. The reason for a
     # base query is to optimize the query avoiding th 1+n problematic. The base query should only
     # include joins(...) and includes(...) calls.
     # @param [expression] a base query expression
     # @example Include the adresses
     #   blueprint.base_query Person.includes(:addresses)
-    def base_query(expression)
-      @_base_query = expression
+    def base_query(expression = nil, &block)
+      if expression
+        warn "xapian_db: directly passing a base query in a blueprint configuration is deprecated, wrap them in a block"
+        block = lambda { expression }
+      end
+      @lazy_base_query = block
     end
 
     # Define the natural sort order.

@@ -51,11 +51,14 @@ module XapianDb
         def reindex_class(klass, options={})
           opts = {:verbose => false}.merge(options)
           blueprint = XapianDb::DocumentBlueprint.blueprint_for klass.name
-          adapter = blueprint._adapter || XapianDb::Config.adapter || Adapters::GenericAdapter
-          primary_key = adapter.primary_key_for(klass)
+          primary_key = blueprint._adapter.primary_key_for(klass)
           XapianDb.database.delete_docs_of_class(klass)
           indexer    = XapianDb::Indexer.new(XapianDb.database, blueprint)
-          base_query = blueprint._base_query || klass
+          if blueprint.lazy_base_query
+            base_query = blueprint.lazy_base_query.call
+          else
+            base_query = klass
+          end
           show_progressbar = false
           obj_count = base_query.count
           if opts[:verbose]

@@ -277,6 +277,33 @@ describe XapianDb::DocumentBlueprint do
     end
   end
 
+  describe "#_adapter" do
+
+    it "returns the generic adapter if no configration is present" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.attribute :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)._adapter.should be_equal XapianDb::Adapters::GenericAdapter
+    end
+
+    it "returns the globally configured adapter if specified" do
+      XapianDb::Config.stub(:adapter).and_return(XapianDb::Adapters::ActiveRecordAdapter)
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
+        blueprint.attribute :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:ActiveRecordObject)._adapter.should be_equal XapianDb::Adapters::ActiveRecordAdapter
+    end
+
+    it "returns the adapter configured for this blueprint if specified" do
+      XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
+        blueprint.adapter :datamapper
+        blueprint.attribute :name
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:DatamapperObject)._adapter.should be_equal XapianDb::Adapters::DatamapperAdapter
+    end
+
+  end
+
   describe "#attribute" do
 
     before :each do
