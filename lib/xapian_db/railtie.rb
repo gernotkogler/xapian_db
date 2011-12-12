@@ -9,6 +9,11 @@ module XapianDb
   # @author Gernot Kogler
   class Railtie < ::Rails::Railtie
 
+    # require our rake tasks
+    rake_tasks do
+      load "#{File.dirname(__FILE__)}/../../tasks/xapian_rebuild_index.rake"
+    end
+
     # require our generators
     generators do
       require "#{File.dirname(__FILE__)}/../generators/install_generator.rb"
