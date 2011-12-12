@@ -34,7 +34,7 @@ module XapianDb
       def setup(klass_or_name, &block)
         if klass_or_name.is_a?(Class)
           warn "xapian_db: XapianDb::DocumentBlueprint.setup(Class) is deprecated; use XapianDb::DocumentBlueprint.setup(Symbol) or XapianDb::DocumentBlueprint.setup(String) instead"
-          name = klass_or_name.to_s
+          name = klass_or_name.name
         else
           name = klass_or_name.to_s
         end
