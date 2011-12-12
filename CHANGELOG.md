@@ -1,3 +1,14 @@
+##1.2.3 (December 12th, 2011)
+
+Changes:
+
+- avoid eager loading of model classes in a rails app. The blueprint configuration file (xapian_blueprints.rb) caused all referenced classes
+  to get loaded and parsed on every request. While not a problem in production environments, it could be a huge performance hit in development
+  (especially when using the asset pipleline with many assets).
+
+  The solution is based on the proof of concept by [Yves Senn](http://github.com/senny). Simply use symbols or strings instead of the classes in
+  your xapian_blueprints.rb and wrap base_queries inside a block. See the README for updated informations on how to configure blueprints.
+
 ##1.2.2.2 (November 29th, 2011)
 
 Changes:
