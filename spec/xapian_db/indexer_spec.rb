@@ -117,6 +117,21 @@ describe XapianDb::Indexer do
       doc = @indexer.build_document_for(@obj)
       (doc.terms.map(&:term) & %w(not zero)).should == %w(not zero)
     end
+
+    it "calls the natural sort order block if present" do
+      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.natural_sort_order do
+          "fixed"
+        end
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      obj       = IndexedObject.new(1)
+      indexer   = XapianDb::Indexer.new(@db, @blueprint)
+      doc       = indexer.build_document_for(obj)
+      doc.values[1].value.should == "fixed"
+    end
+
   end
 
   it "can handle attribute objects that return nil on to_s" do
