@@ -1,0 +1,24 @@
+defaults: &defaults
+  adapter: sqlite
+
+development:
+  database: db/rails_datamapper_development.sqlite3
+  <<: *defaults
+
+  # Add more repositories
+  # repositories:
+  #   repo1:
+  #     adapter:  postgres
+  #     database: sample_development
+  #     username: the_user
+  #     password: secrets
+  #     host:     localhost
+  #   repo2:
+  #     ...
+
+test:
+  database: db/rails_datamapper_test.sqlite3
+  <<: *defaults
+production:
+  database: db/rails_datamapper_production.sqlite3
+  <<: *defaults

@@ -1,0 +1,20 @@
+# default config
+defaults: &defaults
+  adapter:  datamapper
+  language: en
+  writer:   direct
+
+development:
+  database: db/xapian_db/development
+  <<: *defaults
+
+test:
+  database: ":memory:"
+  <<: *defaults
+
+production:
+  # Make sure the beanstalk daemon and the beanstalk worker are running
+  database: db/xapian_db/production
+  writer:   beanstalk
+  beanstalk_daemon: localhost:11300
+  <<: *defaults

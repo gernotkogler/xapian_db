@@ -61,8 +61,8 @@ puts "first name: #{doc.first_name}"
 puts "date of birth: #{doc.date_of_birth.strftime("%d.%m.%Y")}"
 
 # Get all facets (classes) for a search expression
-facets = db.facets("Frank")
+facets = db.facets(:first_name, "Frank")
 puts "facets:"
-facets.each do |klass, count|
-  puts "#{klass.name}: #{count} hits"
+facets.each do |value, count|
+  puts "#{value}: #{count} hits"
 end

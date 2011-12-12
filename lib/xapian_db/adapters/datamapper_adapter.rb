@@ -40,7 +40,7 @@ module XapianDb
              end
 
              def order_condition(primary_key)
-               '%s.%s' % [self.name.parameterize.tableize, primary_key]
+               primary_key.to_sym
              end
            end
 

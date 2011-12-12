@@ -1,0 +1,7 @@
+=simple_form_for @person do |form|
+  =form.input :name
+  =form.input :first_name
+  =form.input :date_of_birth
+  =form.input :notes
+  =form.button :submit
+=link_to "Back", people_path
