@@ -92,6 +92,7 @@ class ActiveRecordObject < PersistentObject
     end
 
     def includes(*associations)
+      self
     end
 
     def find(id)

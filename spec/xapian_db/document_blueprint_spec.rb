@@ -482,9 +482,26 @@ describe XapianDb::DocumentBlueprint do
         blueprint.attribute :array
         blueprint.base_query ActiveRecordObject.includes(:children)
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).lazy_base_query.should be
+    end
+
+    it "converts an explicit base query expression to a proc" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.attribute :array
+        blueprint.base_query ActiveRecordObject.includes(:children)
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).lazy_base_query.should be_a Proc
+    end
+
+    it "accepts a base query expression inside a block" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.attribute :array
+        blueprint.base_query { ActiveRecordObject.includes(:children) }
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).lazy_base_query.should be_a Proc
     end
   end
+
 
   describe "#natural_sort_order" do
 
