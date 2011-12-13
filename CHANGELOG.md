@@ -7,8 +7,9 @@ Changes:
   (especially when using the asset pipleline with many assets).
   The solution is based on the proof of concept by [Yves Senn](http://github.com/senny). Simply use symbols or strings instead of the classes in
   your xapian_blueprints.rb and wrap base_queries inside a block. See the README for updated informations on how to configure blueprints.
-
 - added a rails example app using datamapper
+- added a rake task to rebuild the index
+- internal refactorings / optimizations
 
 ##1.2.2.2 (November 29th, 2011)
 
