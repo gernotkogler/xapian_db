@@ -85,8 +85,12 @@ module XapianDb
     #   - :active_record ({XapianDb::Adapters::ActiveRecordAdapter})
     #   - :datamapper ({XapianDb::Adapters::DatamapperAdapter})
     def adapter(type)
-      # We try to guess the adapter name
-      @_adapter = XapianDb::Adapters.const_get("#{camelize(type.to_s)}Adapter")
+      begin
+        @_adapter = XapianDb::Adapters.const_get("#{camelize(type.to_s)}Adapter")
+      rescue NameError
+        require File.dirname(__FILE__) + "/adapters/#{type}_adapter"
+        @_adapter = XapianDb::Adapters.const_get("#{camelize(type.to_s)}Adapter")
+      end
     end
 
     # Set the index writer

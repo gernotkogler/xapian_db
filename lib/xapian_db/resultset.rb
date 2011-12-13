@@ -103,7 +103,7 @@ module XapianDb
     # @return [Xapian::Match] the decorated match
     def decorate(match)
       klass_name = match.document.values[0].value
-      blueprint  = XapianDb::DocumentBlueprint.blueprint_for(constantize klass_name)
+      blueprint  = XapianDb::DocumentBlueprint.blueprint_for klass_name
       match.document.extend blueprint.accessors_module
       match.document.instance_variable_set :@score, match.percent
       match

@@ -19,7 +19,7 @@ module XapianDb
     # @return [Xapian::Document] The xapian document (see http://xapian.org/docs/sourcedoc/html/classXapian_1_1Document.html)
     def build_document_for(obj)
       @obj = obj
-      @blueprint = DocumentBlueprint.blueprint_for(@obj.class)
+      @blueprint = DocumentBlueprint.blueprint_for(@obj.class.name)
       @xapian_doc = Xapian::Document.new
       @xapian_doc.data = @obj.xapian_id
       store_fields

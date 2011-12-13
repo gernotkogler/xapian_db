@@ -19,6 +19,12 @@ module XapianDb
       require "#{File.dirname(__FILE__)}/../generators/install_generator.rb"
     end
 
+    initializer "xapian_db.active_record" do |app|
+      ActiveSupport.on_load :active_record do
+        ActiveRecord::Base.extend XapianDb::ModelExtenders::ActiveRecord
+      end
+    end
+
     config.before_configuration do
 
       # Read the database configuration file if there is one

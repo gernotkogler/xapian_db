@@ -39,7 +39,7 @@ gem 'dm-observer',          DM_VERSION
 gem 'haml'
 gem 'forgery'
 gem 'simple_form'
-gem 'xapian_db'
+gem 'xapian_db', '>= 1.2.3'
 gem 'kaminari'
 gem 'uglifier'
 

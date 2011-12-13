@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../../lib/xapian_db/adapters/generic_adapter.rb')
 
 describe XapianDb::Adapters::GenericAdapter do
 
@@ -37,7 +38,7 @@ describe XapianDb::Adapters::GenericAdapter do
       XapianDb::Adapters::GenericAdapter.unique_key do
         "#{my_unique_key}"
       end
-      XapianDb::DocumentBlueprint.setup(MyClass)
+      XapianDb::DocumentBlueprint.setup(:MyClass)
       obj = MyClass.new(1)
       obj.xapian_id.should == obj.my_unique_key.to_s
     end

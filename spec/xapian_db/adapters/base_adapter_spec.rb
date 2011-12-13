@@ -36,16 +36,16 @@ describe XapianDb::Adapters::BaseAdapter do
         config.language :en
       end
 
-      XapianDb::DocumentBlueprint.setup(ClassA) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ClassA) do |blueprint|
         blueprint.index :text
       end
-      XapianDb::DocumentBlueprint.setup(ClassB) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ClassB) do |blueprint|
         blueprint.index :text
       end
 
       db = XapianDb.database
-      indexerA = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(ClassA)
-      indexerB = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(ClassB)
+      indexerA = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:ClassA)
+      indexerB = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:ClassB)
 
       # We add the name of the other class to the index to make sure we do not find it
       # only by the name of the class
@@ -84,10 +84,10 @@ describe XapianDb::Adapters::BaseAdapter do
     context "sorting" do
 
       before :each do
-        XapianDb::DocumentBlueprint.setup(ClassA) do |blueprint|
+        XapianDb::DocumentBlueprint.setup(:ClassA) do |blueprint|
           blueprint.attribute :text
         end
-        indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(ClassA)
+        indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(:ClassA)
         obj1 = ClassA.new(1, "B text")
         XapianDb.database.store_doc indexer.build_document_for(obj1)
         obj2 = ClassA.new(2, "A text")
@@ -123,10 +123,10 @@ describe XapianDb::Adapters::BaseAdapter do
           config.language :en
         end
 
-        XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
           blueprint.attribute :text
         end
-        indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+        indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
         obj = IndexedObject.new(1)
         obj.stub!(:text).and_return "some text"
 
@@ -153,12 +153,12 @@ describe XapianDb::Adapters::BaseAdapter do
           config.language :en
         end
 
-        XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+        XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
           blueprint.attribute :text
         end
 
         db = XapianDb.database
-        indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+        indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
         obj = IndexedObject.new(1)
         obj.stub!(:text).and_return "Facet A"
         db.store_doc indexer.build_document_for(obj)
@@ -176,10 +176,10 @@ describe XapianDb::Adapters::BaseAdapter do
       end
 
       it "scopes the facet query to the containing class" do
-        XapianDb::DocumentBlueprint.setup(OtherIndexedObject) do |blueprint|
+        XapianDb::DocumentBlueprint.setup(:OtherIndexedObject) do |blueprint|
           blueprint.attribute :text
         end
-        indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(OtherIndexedObject)
+        indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:OtherIndexedObject)
         obj = OtherIndexedObject.new(1)
         obj.stub!(:text).and_return "Facet C"
         db.store_doc indexer.build_document_for(obj)

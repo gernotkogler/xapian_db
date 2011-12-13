@@ -7,7 +7,7 @@ describe XapianDb::Resultset do
   before :each do
 
     # Setup a blueprint
-    XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
       blueprint.attribute :name
     end
 

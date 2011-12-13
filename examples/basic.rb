@@ -32,7 +32,7 @@ end
 # the structure of all documents for our class. Attribute values can
 # be accessed later for each retrieved doc. Attributes are indexed
 # by default.
-XapianDb::DocumentBlueprint.setup(Person) do |blueprint|
+XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|
   blueprint.attribute :name
   blueprint.attribute :first_name
   blueprint.attribute :date_of_birth, :as => :date
@@ -44,7 +44,7 @@ person_2 = Person.new :id => 2, :name => "Smith",  :first_name => "Frank", :date
 person_3 = Person.new :id => 3, :name => "Willis", :first_name => "Frank", :date_of_birth => Date.new(1968, 11, 4)
 
 # 6: Now add them to the database
-blueprint = XapianDb::DocumentBlueprint.blueprint_for(Person)
+blueprint = XapianDb::DocumentBlueprint.blueprint_for(:Person)
 indexer   = XapianDb::Indexer.new(db, blueprint)
 db.store_doc(indexer.build_document_for(person_1))
 db.store_doc(indexer.build_document_for(person_2))
