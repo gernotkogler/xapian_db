@@ -119,13 +119,13 @@ describe XapianDb::Indexer do
     end
 
     it "calls the natural sort order block if present" do
-      XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.natural_sort_order do
           "fixed"
         end
       end
-      blueprint = XapianDb::DocumentBlueprint.blueprint_for(IndexedObject)
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       obj       = IndexedObject.new(1)
       indexer   = XapianDb::Indexer.new(@db, @blueprint)
       doc       = indexer.build_document_for(obj)
