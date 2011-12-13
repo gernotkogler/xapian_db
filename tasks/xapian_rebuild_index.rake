@@ -5,7 +5,7 @@ require "xapian_db"
 
 namespace :xapian do
   desc "rebuild the xapian index"
-  task :reindex do
+  task :rebuild_index do
     XapianDb.rebuild_xapian_index :verbose => true
   end
 end
