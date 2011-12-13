@@ -5,6 +5,7 @@
 # @author Gernot Kogler
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../../lib/xapian_db/adapters/active_record_adapter.rb')
 
 describe XapianDb::Adapters::ActiveRecordAdapter do
 

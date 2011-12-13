@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require "#{File.dirname(__FILE__)}/../model_extenders/datamapper"
+
 module XapianDb
   module Adapters
 

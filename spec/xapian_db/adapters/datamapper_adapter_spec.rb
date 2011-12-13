@@ -5,6 +5,7 @@
 # @author Gernot Kogler
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../../lib/xapian_db/adapters/datamapper_adapter.rb')
 
 describe XapianDb::Adapters::DatamapperAdapter do
 

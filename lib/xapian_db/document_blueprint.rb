@@ -47,6 +47,12 @@ module XapianDb
         @blueprints.delete_if { |indexed_class, blueprint| indexed_class == name }
         @blueprints[name] = blueprint
 
+        # lazy load the adapter
+        unless defined? blueprint._adapter
+          adapter_file = blueprint._adapter.name.split("::").last.downcase + "_adapter"
+          require File.dirname(__FILE__) + "../adapters/#{adapter_file}"
+        end
+
         # Needed to add class helper methods to indexed pure ruby classes
         if eval("defined?(#{name}) && #{name}.is_a?(Class)")
           blueprint._adapter.add_class_helper_methods_to XapianDb::Utilities.constantize(name)
