@@ -5,6 +5,8 @@
 module XapianDb
   module Utilities
 
+    extend self
+
     # Convert a string to camel case
     # @param [String] The string to camelize
     # @return [String] The camelized string

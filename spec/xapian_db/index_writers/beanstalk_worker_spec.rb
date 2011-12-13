@@ -10,7 +10,7 @@ describe XapianDb::IndexWriters::BeanstalkWorker do
       config.database :memory
       config.writer   :direct
     end
-    XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+    XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
       blueprint.attribute :id
       blueprint.attribute :name
     end

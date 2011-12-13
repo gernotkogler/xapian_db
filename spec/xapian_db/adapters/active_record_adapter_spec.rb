@@ -5,6 +5,7 @@
 # @author Gernot Kogler
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../../lib/xapian_db/adapters/active_record_adapter.rb')
 
 describe XapianDb::Adapters::ActiveRecordAdapter do
 
@@ -15,7 +16,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       config.writer  :direct
     end
 
-    XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+    XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
       blueprint.index :name
     end
   end
@@ -90,7 +91,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
 
     it "should not index the object if an ignore expression in the blueprint is met" do
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.index :name
         blueprint.ignore_if {name == "Kogler"}
       end
@@ -99,7 +100,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
 
     it "should index the object if an ignore expression in the blueprint is not met" do
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.index :name
         blueprint.ignore_if {name == "not Kogler"}
       end
@@ -163,7 +164,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       end
       XapianDb.search("Kogler").size.should == 0
 
-      XapianDb::DocumentBlueprint.setup(ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.index :name
         blueprint.ignore_if {name == "Kogler"}
       end

@@ -9,8 +9,9 @@
 require 'xapian'
 require 'yaml'
 
-do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb beanstalk_writer.rb resque_writer.rb utilities.rb install_generator.rb)
-files = Dir.glob("#{File.dirname(__FILE__)}/**/*.rb").reject{|path| do_not_require.include?(File.basename(path))}
+do_not_require = %w(update_stopwords railtie base_adapter generic_adapter active_record_adapter datamapper_adapter
+                    beanstalk_writer resque_writer utilities install_generator datamapper)
+files = Dir.glob("#{File.dirname(__FILE__)}/**/*.rb").reject{|path| do_not_require.include?(File.basename(path, ".rb"))}
 # Require these first
 require "#{File.dirname(__FILE__)}/xapian_db/utilities"
 require "#{File.dirname(__FILE__)}/xapian_db/adapters/base_adapter"
@@ -120,7 +121,7 @@ module XapianDb
   # @param [Object] object An instance of a class with a blueprint configuration
   def self.reindex(object, commit=true)
     writer = @block_writer || XapianDb::Config.writer
-    blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class
+    blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class.name
     if blueprint.should_index?(object)
       writer.index object, commit
     else

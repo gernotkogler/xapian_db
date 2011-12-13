@@ -130,13 +130,13 @@ module XapianDb
      # return an empty hash if no search expression is given
       return {} if expression.nil? || expression.strip.empty?
       value_number         = XapianDb::DocumentBlueprint.value_number_for(attribute)
-      query_parser         = QueryParser.new(XapianDb.database)
-      query                = query_parser.parse(expression)
-      enquiry              = Xapian::Enquire.new(XapianDb.database.reader)
+      @query_parser        ||= QueryParser.new(self)
+      query                = @query_parser.parse(expression)
+      enquiry              = Xapian::Enquire.new(reader)
       enquiry.query        = query
       enquiry.collapse_key = value_number
       facets = {}
-      enquiry.mset(0, XapianDb.database.size).matches.each do |match|
+      enquiry.mset(0, size).matches.each do |match|
         facet_value = YAML::load match.document.value(value_number)
         # We must add 1 to the collapse_count since collapse_count means
         # "how many other matches are there?"

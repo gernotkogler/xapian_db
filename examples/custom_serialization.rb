@@ -44,7 +44,7 @@ XapianDb::Adapters::GenericAdapter.unique_key do
 end
 
 # 6: Define a document blueprint for our class
-XapianDb::DocumentBlueprint.setup(ArrayContainer) do |blueprint|
+XapianDb::DocumentBlueprint.setup(:ArrayContainer) do |blueprint|
   blueprint.attribute :array, :as => :csv
 end
 
@@ -53,7 +53,7 @@ object = ArrayContainer.new :id => 1, :array => %w(this is an array)
 puts "storing object wit array #{object.array}..."
 
 # 8: add them to the database
-blueprint = XapianDb::DocumentBlueprint.blueprint_for(ArrayContainer)
+blueprint = XapianDb::DocumentBlueprint.blueprint_for(:ArrayContainer)
 indexer   = XapianDb::Indexer.new(db, blueprint)
 db.store_doc(indexer.build_document_for(object))
 

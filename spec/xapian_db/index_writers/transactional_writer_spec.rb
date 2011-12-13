@@ -10,7 +10,7 @@ describe XapianDb::IndexWriters::TransactionalWriter do
       config.database :memory
       config.writer   :direct
     end
-    XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
       blueprint.attribute :id
       blueprint.attribute :text
     end

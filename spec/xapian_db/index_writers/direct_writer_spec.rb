@@ -10,7 +10,7 @@ describe XapianDb::IndexWriters::DirectWriter do
       config.database :memory
       config.writer   :direct
     end
-    XapianDb::DocumentBlueprint.setup(IndexedObject) do |blueprint|
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
       blueprint.attribute :id
       blueprint.attribute :text
     end
@@ -44,7 +44,7 @@ describe XapianDb::IndexWriters::DirectWriter do
         config.database :memory
         config.writer   :direct
       end
-      XapianDb::DocumentBlueprint.setup(DatamapperObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
         blueprint.attribute :id
         blueprint.attribute :name
       end
@@ -65,6 +65,21 @@ describe XapianDb::IndexWriters::DirectWriter do
       end
       XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject, :verbose => true
       XapianDb.database.size.should == 1
+    end
+
+    it "adds all instances of a class to the index" do
+      XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject
+      XapianDb.database.size.should == 1
+    end
+
+    it "uses the blueprint base query if specified" do
+      XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
+        blueprint.attribute :id
+        blueprint.attribute :name
+        blueprint.base_query { DatamapperObject }
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:DatamapperObject).lazy_base_query.should_receive(:call).and_return DatamapperObject
+      XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject
     end
 
   end
