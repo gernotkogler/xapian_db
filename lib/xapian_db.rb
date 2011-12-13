@@ -9,12 +9,19 @@
 require 'xapian'
 require 'yaml'
 
-do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb beanstalk_writer.rb resque_writer.rb utilities.rb install_generator.rb)
+do_not_require = %w(update_stopwords.rb railtie.rb base_adapter.rb beanstalk_writer.rb resque_writer.rb utilities.rb install_generator.rb datamapper.rb)
 files = Dir.glob("#{File.dirname(__FILE__)}/**/*.rb").reject{|path| do_not_require.include?(File.basename(path))}
 # Require these first
 require "#{File.dirname(__FILE__)}/xapian_db/utilities"
 require "#{File.dirname(__FILE__)}/xapian_db/adapters/base_adapter"
 files.each {|file| require file}
+
+# Load the datamapper model extender if dm-core is installed
+begin
+  Gem::Specification::find_by_name 'dm-core'
+  require "#{File.dirname(__FILE__)}/xapian_db/model_extenders/datamapper"
+rescue Gem::LoadError
+end
 
 # Configure XapianDB if we are in a Rails app
 require File.dirname(__FILE__) + '/xapian_db/railtie' if defined?(Rails)
