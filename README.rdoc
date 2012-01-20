@@ -1,5 +1,7 @@
 = XapianDb
 
+{<img src="https://secure.travis-ci.org/garaio/xapian_db.png" />}[http://travis-ci.org/garaio/xapian_db]
+
 == Important Information
 
 If you upgrade from an earlier version of xapian_db to 1.1, you MUST rebuild your entire index (XapianDb.rebuild_xapian_index)!
