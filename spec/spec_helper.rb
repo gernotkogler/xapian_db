@@ -33,5 +33,9 @@ RSpec.configure do |config|
     end
     ActiveRecordObject.reset
     DatamapperObject.reset
+
+    XapianDb.setup do |config|
+      config.adapter :generic
+    end
   end
 end
