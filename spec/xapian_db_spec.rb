@@ -378,6 +378,7 @@ describe XapianDb do
       end
 
       it "logs exceptions if used within a rails app" do
+        pending "side effects on travis ci"
         Rails = mock "Rails"
         logger = mock "logger"
         Rails.stub(:logger).and_return logger
