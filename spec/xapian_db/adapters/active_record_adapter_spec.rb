@@ -85,9 +85,15 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
   end
 
   describe "the after commit hook" do
-    it "should (re)index the object" do
+
+    it "should not (re)index the object, if it is a destroy transaction" do
+      XapianDb.should_not_receive(:reindex)
+      object.destroy
+    end
+
+    it "should (re)index the object, if it is a create/update action" do
+      XapianDb.should_receive(:reindex)
       object.save
-      XapianDb.search("Kogler").size.should == 1
     end
 
     it "should not index the object if an ignore expression in the blueprint is met" do

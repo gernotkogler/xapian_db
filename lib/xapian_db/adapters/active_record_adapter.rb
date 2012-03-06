@@ -48,7 +48,7 @@ module XapianDb
            klass.class_eval do
              # add the after commit logic
              after_commit do
-               XapianDb.reindex(self)
+               XapianDb.reindex(self) unless self.destroyed?
              end
 
              # add the after destroy logic

@@ -30,6 +30,7 @@ class PersistentObject
 
   def initialize(id, name, date = Date.today, age = 0)
     @id, @name, @date, @age = id, name, date, age
+    @destroyed = false
   end
 
   def save
@@ -39,8 +40,14 @@ class PersistentObject
 
   def destroy
     self.class.all.delete self
+    @destroyed = true
     instance_eval &self.class.hooks[:after_destroy]
   end
+
+  def destroyed?
+    @destroyed
+  end
+
 end
 
 # Test class for indexed datamapper objects; this class mimics some behaviour
@@ -88,9 +95,6 @@ class ActiveRecordObject < PersistentObject
       :id
     end
 
-    def after_commit
-    end
-
     def includes(*associations)
       self
     end
@@ -103,6 +107,7 @@ class ActiveRecordObject < PersistentObject
     def after_commit(&block)
       @hooks ||= {}
       @hooks["after_save".to_sym] = block
+      @hooks["after_destroy".to_sym] = block
     end
 
     # Simulate the after_destroy method of activerecord
