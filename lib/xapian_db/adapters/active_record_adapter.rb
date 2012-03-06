@@ -46,9 +46,11 @@ module XapianDb
            end
 
            klass.class_eval do
-             # add the after commit logic
-             after_commit do
-               XapianDb.reindex(self) unless self.destroyed?
+             # add the after commit logic, unless the blueprint has autoindexing turned off
+             if XapianDb::DocumentBlueprint.blueprint_for(klass.name).autoindex?
+               after_commit do
+                 XapianDb.reindex(self) unless self.destroyed?
+               end
              end
 
              # add the after destroy logic

@@ -301,6 +301,21 @@ describe XapianDb::DocumentBlueprint do
       end
       XapianDb::DocumentBlueprint.blueprint_for(:DatamapperObject)._adapter.should be_equal XapianDb::Adapters::DatamapperAdapter
     end
+  end
+
+  describe "#autoindex(boolean)" do
+    it "turns auto-indexing on or off for this blueprint" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.autoindex false
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).autoindex?.should be_false
+    end
+
+    it "is true by default" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).autoindex?.should be_true
+    end
 
   end
 

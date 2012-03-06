@@ -40,6 +40,14 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       ActiveRecordObject.hooks[:after_save].should be_a_kind_of(Proc)
     end
 
+    it "does not add an after save hook if autoindexing is turned off for this blueprint" do
+      ActiveRecordObject.reset
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
+        blueprint.autoindex false
+      end
+      ActiveRecordObject.hooks[:after_save].should_not be
+    end
+
     it "adds an after destroy hook to the configured class" do
       ActiveRecordObject.hooks[:after_destroy].should be_a_kind_of(Proc)
     end

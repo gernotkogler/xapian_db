@@ -248,6 +248,7 @@ module XapianDb
       @indexed_methods_hash = {}
       @type_map             = {}
       @_natural_sort_order  = :id
+      @autoindex            = true
     end
 
     # Set the adapter
@@ -263,6 +264,18 @@ module XapianDb
     # return the adpater to use for this blueprint
     def _adapter
       @_adapter || XapianDb::Config.adapter || XapianDb::Adapters::GenericAdapter
+    end
+
+    # Should objects for this blueprint be automatically reindexed?
+    # @param [Boolean] boolean Yes or no?
+    def autoindex(boolean)
+      @autoindex = boolean
+    end
+
+    # Get the autoindex value
+    # @return [Boolean] The autoindex value
+    def autoindex?
+      @autoindex
     end
 
     # Add an attribute to the blueprint. Attributes will be stored in the xapian documents an can be
