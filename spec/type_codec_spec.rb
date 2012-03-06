@@ -7,7 +7,10 @@ describe XapianDb::TypeCodec do
   describe ".codec_for(:type)" do
 
     it "returns a codec for the given type" do
+      described_class.codec_for(:string).should == XapianDb::TypeCodec::StringCodec
       described_class.codec_for(:date).should == XapianDb::TypeCodec::DateCodec
+      described_class.codec_for(:date_time).should == XapianDb::TypeCodec::DateTimeCodec
+      described_class.codec_for(:number).should == XapianDb::TypeCodec::NumberCodec
     end
 
     it "raises an argument error if the type is unknown" do
