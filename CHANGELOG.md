@@ -1,3 +1,14 @@
+##1.2.4 (March 6th, 2012)
+
+Features:
+
+  - Codec for DateTime objects added
+  - autoindex option for blueprints added
+
+Fixes:
+
+  - the ActiveRecord after_commit hook must not reindex the object if it is a destroy action
+
 ##1.2.3 (December 12th, 2011)
 
 Changes:

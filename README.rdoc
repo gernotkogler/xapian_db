@@ -130,12 +130,13 @@ You may add a filter expression to exclude objects from the index. This is handy
       blueprint.ignore_if {active == false}
     end
 
-You can add a type information to an attribute. As of now the special types :string, :date and :number are supported (and required for range queries):
+You can add a type information to an attribute. As of now the special types :string, :date, :date_time and :number are supported (and required for range queries):
 
     XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|
       blueprint.attribute :age,           :as => :number
       blueprint.attribute :date_of_birth, :as => :date
       blueprint.attribute :name,          :as => :string
+      blueprint.attribute :updated_at,    :as => :date_time
     end
 
 You can override the global adapter configuration in a specific blueprint. Let's say you use ActiveRecord, but you have
@@ -165,6 +166,15 @@ are ordered by relevance and - within the same relevance - by the natural sort o
       "#{surname} #{name}"
     end
   end
+
+If you want to manage the (re)indexing of your objects on your own, turn off autoindexing in your blueprint:
+
+  XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|
+    blueprint.autoindex false
+  end
+
+This will turn off the auto-reindexing for any object of the configured class. Use XapianDb.reindex(object) to trigger the reindexing logic in your code. Please note that destroying an object will always remove it from the xapian index.
+
 
 Place these configurations either into the corresponding class or - I prefer to have the index configurations outside
 the models - into the file config/xapian_blueprints.rb.
