@@ -103,6 +103,36 @@ describe XapianDb::TypeCodec::DateCodec do
 
 end
 
+describe XapianDb::TypeCodec::DateTimeCodec do
+
+  describe "encode(datetime)" do
+
+    it "encodes a datetime to a string with format yyyymmdd h:m:s+l" do
+      described_class.encode(DateTime.new(2011, 1, 1, 11, 30, 15)).should == "20110101 11:30:15+000"
+    end
+
+    it "raises an argument error if the given object is not a datetime" do
+      lambda { described_class.encode("20110101") }.should raise_error "20110101 was expected to be a datetime"
+    end
+
+    it "should return an empty string when a nil value is supplied" do
+      described_class.encode(nil).should == ""
+    end
+  end
+
+  describe "decode(string)" do
+
+    it "decodes a string representing a date to a date" do
+      described_class.decode("20110101 11:30:15+000").should == DateTime.new(2011, 1, 1, 11, 30, 15)
+    end
+
+    it "raises an argument error if the given string cannot be parsed by the date class" do
+      lambda { described_class.decode("not a datetime") }.should raise_error "'not a datetime' cannot be converted to a datetime"
+    end
+  end
+
+end
+
 describe XapianDb::TypeCodec::NumberCodec do
 
   describe "encode(number)" do

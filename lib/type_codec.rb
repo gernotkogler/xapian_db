@@ -96,6 +96,32 @@ module XapianDb
       end
     end
 
+    class DateTimeCodec
+
+      # Encode a datetime to a string in the format 'yyyymmdd h:m:s+l'
+      # @param [DateTime] datetime a datetime object to encode
+      # @return [String] the encoded datetime
+      def self.encode(datetime)
+        return '' unless datetime
+        begin
+          datetime.strftime "%Y%m%d %H:%M:%S+%L"
+        rescue NoMethodError
+          raise ArgumentError.new "#{datetime} was expected to be a datetime"
+        end
+      end
+
+      # Decode a string to a datetime
+      # @param [String] datetime_as_string a string representing a datetime
+      # @return [DateTime] the parsed datetime
+      def self.decode(datetime_as_string)
+        begin
+          DateTime.parse datetime_as_string
+        rescue ArgumentError
+          raise ArgumentError.new "'#{datetime_as_string}' cannot be converted to a datetime"
+        end
+      end
+    end
+
     class NumberCodec
 
       # Encode a number to a sortable string
