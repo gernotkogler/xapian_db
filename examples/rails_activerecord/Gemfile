@@ -10,7 +10,8 @@ gem 'kaminari'
 gem 'formtastic'
 gem 'jquery-rails'
 gem 'beanstalk-client'
-gem 'xapian_db', '>= 1.2.3'
+gem 'xapian_db', '>= 1.2.4'
+gem 'xapian-ruby'
 
 # Use unicorn as the web server
 # gem 'unicorn'
