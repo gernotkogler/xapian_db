@@ -1,3 +1,9 @@
+##1.2.4.1 (April 5th, 2012)
+
+Fixes:
+
+  - better indexing for attributes containing arrays (index rebuild recommended)
+
 ##1.2.4 (March 6th, 2012)
 
 Features:

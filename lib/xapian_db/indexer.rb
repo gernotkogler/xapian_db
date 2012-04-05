@@ -97,12 +97,14 @@ module XapianDb
     # Get the values to index from an object
     def get_values_to_index_from(obj)
 
-      # if it's an array, that's fine
-      return obj if obj.is_a? Array
+      # if it's an array, we collect the values for its elements recursive
+      if obj.is_a? Array
+        return obj.map { |element| get_values_to_index_from element }.flatten.compact
+      end
 
       # if the object responds to attributes and attributes is a hash,
       # we use the attributes values (works well for active_record and datamapper objects)
-      return obj.attributes.values if obj.respond_to?(:attributes) && obj.attributes.is_a?(Hash)
+      return obj.attributes.values.compact if obj.respond_to?(:attributes) && obj.attributes.is_a?(Hash)
 
       # The object is unkown and will be indexed by its to_s method; if to_s retruns nil, we
       # will not index it
