@@ -179,7 +179,9 @@ This will turn off the auto-reindexing for any object of the configured class. U
 Place these configurations either into the corresponding class or - I prefer to have the index configurations outside
 the models - into the file config/xapian_blueprints.rb.
 
-IMPORTANT: Do not place them into an initializer, this will not work when cache_classes is set to false (default in config/development.rb).
+<b>IMPORTANT</b>
+- Do not place them into an initializer, this will not work when cache_classes is set to false (default in config/development.rb)
+- Whenever you make a change to a blueprint configuration, you must rebuild your entire xapian index
 
 === Update the index
 
@@ -277,7 +279,8 @@ The results behave like an array:
   doc = results.first
   puts doc.score.to_s         # Get the relevance of the document
   puts doc.indexed_class      # Get the type of the indexed object as a string, e.g. "Person"
-  puts doc.name               # We can access the configured attributes
+  puts doc.name               # We can access a single attribute
+  puts doc.attributes         # We can access all attributes as a hash
   person = doc.indexed_object # Access the object behind this doc (lazy loaded)
 
 Use a search result with will_paginate in a view:

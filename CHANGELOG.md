@@ -1,3 +1,9 @@
+##1.2.4.2 (May 1st, 2012)
+
+Changes:
+
+  - access the attributes of a xapian document as a hash table (like active record)
+
 ##1.2.4.1 (April 5th, 2012)
 
 Fixes:

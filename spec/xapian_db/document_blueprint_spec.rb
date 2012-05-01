@@ -595,6 +595,14 @@ describe XapianDb::DocumentBlueprint do
       @doc.date_of_birth.should == Date.new(2011, 1, 1)
       @doc.array.should == [1, "two", Date.new(2011, 1, 1)]
     end
+
+    it "adds a method to access the document attributes as a hash" do
+      @doc.attributes.should == { "array"         => [1, "two", Date.new(2011, 1, 1)],
+                                  "date_of_birth" => Date.new(2011, 1, 1),
+                                  "empty_field"   => nil,
+                                  "id"            => 1,
+                                  "name"          => "Kogler" }
+    end
   end
 
   describe "#type_map" do

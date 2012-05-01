@@ -218,6 +218,10 @@ module XapianDb
           @score
         end
 
+        define_method :attributes do
+          blueprint = XapianDb::DocumentBlueprint.blueprint_for indexed_class
+          blueprint.attribute_names.inject({}) { |hash, attr| hash.tap { |hash| hash[attr.to_s] = self.send attr } }
+        end
       end
 
       # Add an accessor for each attribute
