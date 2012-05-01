@@ -1,3 +1,9 @@
+##1.2.4.3 (May 1st, 2012)
+
+Fixes:
+
+  - handle null values on date and datetime attributes correctly
+
 ##1.2.4.2 (May 1st, 2012)
 
 Changes:

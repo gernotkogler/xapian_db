@@ -76,7 +76,7 @@ module XapianDb
       # @param [Date] date a date object to encode
       # @return [String] the encoded date
       def self.encode(date)
-        return '' unless date
+        return nil if date.nil?
         begin
           date.strftime "%Y%m%d"
         rescue NoMethodError
@@ -88,6 +88,7 @@ module XapianDb
       # @param [String] date_as_string a string representing a date
       # @return [Date] the parsed date
       def self.decode(date_as_string)
+        return nil if date_as_string.nil? || date_as_string.strip == ""
         begin
           Date.parse date_as_string
         rescue ArgumentError
@@ -102,7 +103,7 @@ module XapianDb
       # @param [DateTime] datetime a datetime object to encode
       # @return [String] the encoded datetime
       def self.encode(datetime)
-        return '' unless datetime
+        return nil unless datetime
         begin
           datetime.strftime "%Y%m%d %H:%M:%S+%L"
         rescue NoMethodError
@@ -114,6 +115,7 @@ module XapianDb
       # @param [String] datetime_as_string a string representing a datetime
       # @return [DateTime] the parsed datetime
       def self.decode(datetime_as_string)
+        return nil if datetime_as_string.nil? || datetime_as_string.strip == ""
         begin
           DateTime.parse datetime_as_string
         rescue ArgumentError

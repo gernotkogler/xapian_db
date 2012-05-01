@@ -88,12 +88,20 @@ describe XapianDb::TypeCodec::DateCodec do
       lambda { described_class.encode("20110101") }.should raise_error "20110101 was expected to be a date"
     end
 
-    it "should return an empty string when a nil value is supplied" do
-      described_class.encode(nil).should == ""
+    it "should return nil when a nil value is supplied" do
+      described_class.encode(nil).should_not be
     end
   end
 
   describe "decode(string)" do
+
+    it "returns nil if nil is passed in" do
+      described_class.decode(nil).should_not be
+    end
+
+    it "returns nil if an empty string is passed in" do
+      described_class.decode(" ").should_not be
+    end
 
     it "decodes a string representing a date to a date" do
       described_class.decode("20110101").should == Date.new(2011, 1, 1)
@@ -118,12 +126,20 @@ describe XapianDb::TypeCodec::DateTimeCodec do
       lambda { described_class.encode("20110101") }.should raise_error "20110101 was expected to be a datetime"
     end
 
-    it "should return an empty string when a nil value is supplied" do
-      described_class.encode(nil).should == ""
+    it "should return nil when a nil value is supplied" do
+      described_class.encode(nil).should_not be
     end
   end
 
   describe "decode(string)" do
+
+    it "returns nil if nil is passed in" do
+      described_class.decode(nil).should_not be
+    end
+
+    it "returns nil if an empty string is passed in" do
+      described_class.decode(" ").should_not be
+    end
 
     it "decodes a string representing a date to a date" do
       described_class.decode("20110101 11:30:15+000").should == DateTime.new(2011, 1, 1, 11, 30, 15)
