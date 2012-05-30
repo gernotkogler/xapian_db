@@ -1,3 +1,9 @@
+##1.2.4.4 (May 30h, 2012)
+
+Fixes:
+
+  - do not add attributes with null values to a document
+
 ##1.2.4.3 (May 1st, 2012)
 
 Fixes:

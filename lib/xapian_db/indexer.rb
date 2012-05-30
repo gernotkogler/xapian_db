@@ -52,7 +52,7 @@ module XapianDb
 
         codec          = XapianDb::TypeCodec.codec_for @blueprint.type_map[attribute]
         encoded_string = codec.encode value
-        @xapian_doc.add_value DocumentBlueprint.value_number_for(attribute), encoded_string
+        @xapian_doc.add_value DocumentBlueprint.value_number_for(attribute), encoded_string unless encoded_string.nil?
       end
     end
 
