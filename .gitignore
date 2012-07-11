@@ -6,6 +6,7 @@ Gemfile.lock
 *.tmproj
 *.sublime-project
 *.sublime-workspace
+pkg
 doc
 .yardoc
 examples/**/db/xapian_db
