@@ -1,3 +1,9 @@
+##1.2.4.5 (July 19th, 2012)
+
+Fixes:
+
+  - Fixes requiring the environment when calling rake. Prevented eg creation of the database using rake db:create
+
 ##1.2.4.4 (May 30h, 2012)
 
 Fixes:
