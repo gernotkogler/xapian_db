@@ -32,12 +32,8 @@ module XapianDb
       # - attribute (see {#attribute} for details)
       # - index (see {#index} for details)
       def setup(klass_or_name, &block)
-        if klass_or_name.is_a?(Class)
-          warn "xapian_db: XapianDb::DocumentBlueprint.setup(Class) is deprecated; use XapianDb::DocumentBlueprint.setup(Symbol) or XapianDb::DocumentBlueprint.setup(String) instead"
-          name = klass_or_name.name
-        else
-          name = klass_or_name.to_s
-        end
+        name = class_name_from klass_or_name
+
         @blueprints ||= {}
         blueprint = DocumentBlueprint.new
         yield blueprint if block_given? # configure the blueprint through the block
@@ -47,16 +43,7 @@ module XapianDb
         @blueprints.delete_if { |indexed_class, blueprint| indexed_class == name }
         @blueprints[name] = blueprint
 
-        # lazy load the adapter
-        unless defined? blueprint._adapter
-          adapter_file = blueprint._adapter.name.split("::").last.downcase + "_adapter"
-          require File.dirname(__FILE__) + "../adapters/#{adapter_file}"
-        end
-
-        # Needed to add class helper methods to indexed pure ruby classes
-        if eval("defined?(#{name}) && #{name}.is_a?(Class)")
-          blueprint._adapter.add_class_helper_methods_to XapianDb::Utilities.constantize(name)
-        end
+        lazy_load_adapter_for blueprint, name
 
         @searchable_prefixes = @blueprints.values.map { |blueprint| blueprint.searchable_prefixes }.flatten.compact.uniq || []
 
@@ -145,6 +132,28 @@ module XapianDb
       end
 
       private
+
+      def class_name_from(klass_or_name)
+        if klass_or_name.is_a?(Class)
+          warn "xapian_db: XapianDb::DocumentBlueprint.setup(Class) is deprecated; use XapianDb::DocumentBlueprint.setup(Symbol) or XapianDb::DocumentBlueprint.setup(String) instead"
+          name = klass_or_name.name
+        else
+          name = klass_or_name.to_s
+        end
+      end
+
+      def lazy_load_adapter_for(blueprint, klass_name)
+        # lazy load the adapter
+        unless defined? blueprint._adapter
+          adapter_file = blueprint._adapter.name.split("::").last.downcase + "_adapter"
+          require File.dirname(__FILE__) + "../adapters/#{adapter_file}"
+        end
+
+        # Needed to add class helper methods to indexed pure ruby classes
+        if eval("defined?(#{klass_name}) && #{klass_name}.is_a?(Class)")
+          blueprint._adapter.add_class_helper_methods_to XapianDb::Utilities.constantize(klass_name)
+        end
+      end
 
       def validate_type_consistency_on(blueprint)
         blueprint.type_map.each do |method_name, type|
