@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "simplecov",        ">= 0.3.7"
   s.add_development_dependency "beanstalk-client", ">= 1.1.0"
   s.add_development_dependency "rake"
-  s.add_development_dependency "progressbar"
+  s.add_development_dependency "ruby-progressbar"
   s.add_development_dependency "resque",           ">= 1.19.0"
   s.add_development_dependency "xapian-ruby",      ">= 1.2.7.1"
 

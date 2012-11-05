@@ -64,7 +64,7 @@ module XapianDb
           if opts[:verbose]
             show_progressbar = defined?(ProgressBar)
             puts "reindexing #{obj_count} objects of #{klass}..."
-            pbar = ProgressBar.new("Status", obj_count) if show_progressbar
+            pbar = ProgressBar.create(:title => "Status", :total => obj_count, :format => ' %t %e %B %p%%') if show_progressbar
           end
 
           # Process the objects in batches to reduce the memory footprint
@@ -72,7 +72,7 @@ module XapianDb
           nr_of_batches.times do |batch|
             base_query.all(:offset => batch * BATCH_SIZE, :limit => BATCH_SIZE, :order => klass.order_condition(primary_key)).each do |obj|
               reindex obj, false
-              pbar.inc if show_progressbar
+              pbar.increment if show_progressbar
             end
           end
           XapianDb.database.commit
