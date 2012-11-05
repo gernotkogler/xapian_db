@@ -60,7 +60,7 @@ describe XapianDb::IndexWriters::DirectWriter do
     it "accepts a verbose option" do
       # For full coverage the progressbar gem should be installed
       begin
-        require 'progressbar'
+        require 'ruby-progressbar'
       rescue
       end
       XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject, :verbose => true
