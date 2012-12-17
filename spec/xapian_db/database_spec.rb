@@ -540,8 +540,21 @@ describe XapianDb::InMemoryDatabase do
       XapianDb.database.size.should == 1
     end
 
-  end
+    describe "#reset" do
 
+      it "reinitializes the database" do
+        doc = Xapian::Document.new
+        doc.data = "1" # We need data to store the doc
+        XapianDb.database.store_doc(doc)
+        XapianDb.database.commit
+        XapianDb.database.size.should == 1
+
+        XapianDb.database.reset
+        XapianDb.database.size.should == 0
+      end
+    end
+
+  end
 end
 
 describe XapianDb::PersistentDatabase do
@@ -576,4 +589,19 @@ describe XapianDb::PersistentDatabase do
     end
 
   end
+
+  describe "#reset" do
+
+    it "reinitializes the database" do
+      doc = Xapian::Document.new
+      doc.data = "1" # We need data to store the doc
+      XapianDb.database.store_doc(doc)
+      XapianDb.database.commit
+      XapianDb.database.size.should == 1
+
+      XapianDb.database.reset
+      XapianDb.database.size.should == 0
+    end
+  end
+
 end
