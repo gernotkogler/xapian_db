@@ -1,3 +1,9 @@
+##1.2.4.7 (Decmber 17th, 2012)
+
+Fixes:
+
+  - database reset removed since it has concurrency problems
+
 ##1.2.4.6 (Decmber 17th, 2012)
 
 Changes:

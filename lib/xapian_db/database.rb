@@ -218,15 +218,6 @@ module XapianDb
       writer.commit
     end
 
-    # Reset (empty) the database
-    def reset
-      # We must release the writer and run the garbage collector to remove the write lock
-      @writer = nil
-      GC.start
-      @writer = Xapian::WritableDatabase.new(@path, Xapian::DB_CREATE_OR_OVERWRITE)
-      @reader = Xapian::Database.new(@path)
-    end
-
   end
 
 end

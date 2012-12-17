@@ -142,7 +142,6 @@ module XapianDb
   # @option options [Boolean] :verbose (false) Should the reindexing give status informations?
   # @return [Boolean] Did we reindex anything?
   def self.rebuild_xapian_index(options={})
-    database.reset
     configured_classes = XapianDb::DocumentBlueprint.configured_classes
     return false unless configured_classes.size > 0
     configured_classes.each do |klass|
