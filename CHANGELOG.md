@@ -1,3 +1,10 @@
+##1.2.4.6 (Decmber 17th, 2012)
+
+Changes:
+
+  - progressbar gem replaced by ruby-progressbar
+  - XapianDb.rebuild_xapian_index resets the database to remove any stale index data
+
 ##1.2.4.5 (July 19th, 2012)
 
 Fixes:
