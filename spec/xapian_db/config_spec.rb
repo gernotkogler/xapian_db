@@ -27,19 +27,15 @@ describe XapianDb::Config do
         db_path = "/tmp/xapian_db"
         FileUtils.rm_rf db_path
 
+        XapianDb.should_receive :create_db
         XapianDb::Config.setup do |config|
           config.database db_path
         end
 
-        # Put a doc into the database
-        doc = Xapian::Document.new
-        XapianDb.database.store_doc(doc).should be_true
-
-        # Now reopen the database
+        XapianDb.should_receive :open_db
         XapianDb::Config.setup do |config|
           config.database db_path
         end
-        XapianDb.database.size.should == 1 # The doc should still be there
       end
 
       it "handles the existence of an empty index directory gracefully" do
