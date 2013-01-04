@@ -48,13 +48,18 @@ module XapianDb
       def resque_queue
         @config.instance_variable_get("@_resque_queue") || 'xapian_db'
       end
+
+      def term_min_length
+        @config.instance_variable_get("@_term_min_length") || 1
+      end
+
     end
 
     # ---------------------------------------------------------------------------------
     # DSL methods
     # ---------------------------------------------------------------------------------
 
-    attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_stemmer, :_stopper
+    attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_stemmer, :_stopper, :_term_min_length
 
     # Set the global database to use
     # @param [String] path The path to the database. Either apply a file sytem path or :memory
@@ -134,6 +139,11 @@ module XapianDb
       @_stopper = lang == :none ? nil : XapianDb::Repositories::Stopper.stopper_for(lang)
     end
 
+    # Set minimum length a term must have to get indexed; 2 is a good value to start
+    # @param [Integer] length The minimum length
+    def term_min_length(length)
+      @_term_min_length = length
+    end
   end
 
 end

@@ -178,6 +178,14 @@ describe XapianDb::Config do
       end
 
     end
-  end
 
+    describe ".term_min_length" do
+      it "accepts a number for the min length of the indexed terms" do
+        XapianDb::Config.setup do |config|
+          config.term_min_length 2
+        end
+        XapianDb::Config.term_min_length.should == 2
+      end
+    end
+  end
 end

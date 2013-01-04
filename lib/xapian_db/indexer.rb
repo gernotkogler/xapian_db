@@ -85,13 +85,17 @@ module XapianDb
         unless obj.nil?
           values = get_values_to_index_from obj
           values.each do |value|
+            terms = value.to_s.downcase
             # Add value with field name
-            term_generator.index_text(value.to_s.downcase, options.weight, "X#{method.upcase}")
+            term_generator.index_text(terms, options.weight, "X#{method.upcase}")
             # Add value without field name
-            term_generator.index_text(value.to_s.downcase, options.weight)
+            term_generator.index_text(terms, options.weight)
           end
         end
       end
+
+      terms_to_ignore = @xapian_doc.terms.select{ |term| term.term.length < XapianDb::Config.term_min_length }
+      terms_to_ignore.each { |term| @xapian_doc.remove_term term.term }
     end
 
     # Get the values to index from an object

@@ -2,6 +2,7 @@ require 'rubygems'
 require 'fileutils'
 require 'simplecov'
 require 'date'
+require 'pry'
 
 SimpleCov.start do
   add_filter '/spec/'
@@ -36,6 +37,7 @@ RSpec.configure do |config|
 
     XapianDb.setup do |config|
       config.adapter :generic
+      config.term_min_length 1
     end
   end
 end

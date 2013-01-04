@@ -50,6 +50,7 @@ module XapianDb
         config.beanstalk_daemon_url @beanstalk_daemon
         config.resque_queue @resque_queue
         config.language @language.try(:to_sym)
+        config.term_min_length @term_min_length
       end
 
     end
@@ -71,6 +72,7 @@ module XapianDb
       @beanstalk_daemon = env_config["beanstalk_daemon"]
       @resque_queue     = env_config["resque_queue"]
       @language         = env_config["language"]
+      @term_min_length  = env_config["term_min_length"]
     end
 
     # set default config options
@@ -79,6 +81,7 @@ module XapianDb
       @adapter          = :active_record
       @writer           = :direct
       @beanstalk_daemon = nil
+      @term_min_length  = 1
     end
 
   end

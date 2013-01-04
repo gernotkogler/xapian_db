@@ -153,4 +153,23 @@ describe XapianDb::Indexer do
     doc.terms.should have(3).items # The tree terms we always add to a document
   end
 
+  it "respects the term min length option" do
+    XapianDb.setup do |config|
+      config.term_min_length 2
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    @obj.stub!(:text).and_return "1 xy"
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    doc.terms.map(&:term).should_not include "1"
+  end
+
 end
