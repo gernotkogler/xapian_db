@@ -54,8 +54,6 @@ module XapianDb
       return build_empty_resultset if enquiry.nil?
       db_size              = options.delete :db_size
       @spelling_suggestion = options.delete :spelling_suggestion
-      @hits                = enquiry.mset(0, db_size).matches_estimated
-      return build_empty_resultset if @hits == 0
 
       limit                = options.delete :limit
       page                 = options.delete :page
@@ -63,18 +61,21 @@ module XapianDb
       raise ArgumentError.new "unsupported options for resultset: #{options}" if options.size > 0
       raise ArgumentError.new "db_size option is required" unless db_size
 
-      limit    = limit.nil? ? @hits : limit.to_i
+      limit    = limit.nil? ? db_size : limit.to_i
       per_page = per_page.nil? ? limit : per_page.to_i
       page     = page.nil? ? 1 : page.to_i
       offset   = (page - 1) * per_page
-      @total_pages  = (limit / per_page.to_f).ceil
       count  = offset + per_page < limit ? per_page : limit - offset
-      raise ArgumentError.new "page #{@page} does not exist" if @hits > 0 && offset >= limit
 
       result_window = enquiry.mset(offset, count)
+      @hits = result_window.matches_estimated
+      return build_empty_resultset if @hits == 0
+      raise ArgumentError.new "page #{@page} does not exist" if @hits > 0 && offset >= limit
+
       self.replace result_window.matches.map{|match| decorate(match).document}
+      @total_pages  = (limit / per_page.to_f).ceil
       @current_page = page
-      @limit_value = per_page
+      @limit_value  = per_page
     end
 
     # The previous page number
