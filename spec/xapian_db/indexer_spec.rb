@@ -172,4 +172,61 @@ describe XapianDb::Indexer do
     doc.terms.map(&:term).should_not include "1"
   end
 
+  it "does generate a prefixed term if the prefixed option is not set" do
+    XapianDb.setup do |config|
+      config.term_min_length 2
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    @obj.stub!(:text).and_return "xy"
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    doc.terms.map(&:term).should include "XTEXTxy"
+  end
+
+  it "does generate a prefixed term if the prefixed option is set to true" do
+    XapianDb.setup do |config|
+      config.term_min_length 2
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text, prefixed: true
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    @obj.stub!(:text).and_return "xy"
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    doc.terms.map(&:term).should include "XTEXTxy"
+  end
+
+  it "does not generate a prefixed term if the prefixed option is false" do
+    XapianDb.setup do |config|
+      config.term_min_length 2
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text, prefixed: false
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    @obj.stub!(:text).and_return "xy"
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    doc.terms.map(&:term).should_not include "XTEXTxy"
+  end
+
 end

@@ -87,7 +87,7 @@ module XapianDb
           values.each do |value|
             terms = value.to_s.downcase
             # Add value with field name
-            term_generator.index_text(terms, options.weight, "X#{method.upcase}")
+            term_generator.index_text(terms, options.weight, "X#{method.upcase}") if options.prefixed
             # Add value without field name
             term_generator.index_text(terms, options.weight)
           end

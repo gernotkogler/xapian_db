@@ -335,7 +335,7 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).indexed_method_names.should include(:id)
     end
 
-    it "does not index the attribute if the :index option ist set to false " do
+    it "does not index the attribute if the :index option ist set to false" do
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id, :index => false
       end
@@ -360,6 +360,13 @@ describe XapianDb::DocumentBlueprint do
         end
       end
       XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).attribute_names.should include(:complex)
+    end
+
+    it "allows to specify if the attribute should be prefixed" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.attribute :id, :prefixed => false
+      end
+      XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).options_for_indexed_method(:id).prefixed.should be_false
     end
 
     it "throws an exception if the attribute name maps to a Xapian::Document method name" do
