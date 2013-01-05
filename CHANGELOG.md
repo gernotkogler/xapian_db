@@ -1,4 +1,15 @@
-##1.2.4.7 (Decmber 17th, 2012)
+##1.2.5 (January 4th, 2013)
+
+Changes:
+
+  - Define the min length a term must have to make it into the index (see README)
+  - define if a method should be indexed with its method name so you can do field searches (e.g. name:kogler); defaults to true
+
+Fixes:
+
+  - query result creation optimized (lower memory footprint, better performance)
+
+##1.2.4.7 (December 17th, 2012)
 
 Fixes:
 

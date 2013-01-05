@@ -69,6 +69,7 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
   defaults: &defaults
     adapter: datamapper # Avaliable adapters: :active_record, :datamapper
     language: de        # Global language; can be overridden for specific blueprints
+    term_min_length: 2  # Ignore single character terms
 
   development:
     database: db/xapian_db/development
@@ -137,6 +138,12 @@ You can add a type information to an attribute. As of now the special types :str
       blueprint.attribute :date_of_birth, :as => :date
       blueprint.attribute :name,          :as => :string
       blueprint.attribute :updated_at,    :as => :date_time
+    end
+
+If you don't need field searches for an attribute, turn off the prefixed option (makes your index smaller and more efficient):
+
+    XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|
+      blueprint.attribute :complex_object, prefixed: false
     end
 
 You can override the global adapter configuration in a specific blueprint. Let's say you use ActiveRecord, but you have
