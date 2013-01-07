@@ -214,5 +214,18 @@ describe XapianDb::Config do
       end
     end
 
+    describe ".term_splitter_count" do
+      it "accepts a number for the term splitter size" do
+        XapianDb::Config.setup do |config|
+          config.term_splitter_count 3
+        end
+        XapianDb::Config.term_splitter_count.should == 3
+      end
+
+      it "defaults to 0" do
+        XapianDb::Config.term_splitter_count.should == 0
+      end
+    end
+
   end
 end

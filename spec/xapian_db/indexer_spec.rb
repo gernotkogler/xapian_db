@@ -229,4 +229,23 @@ describe XapianDb::Indexer do
     doc.terms.map(&:term).should_not include "XTEXTxy"
   end
 
+  it "splits each term if split_term_count != 0" do
+    XapianDb.setup do |config|
+      config.term_splitter_count 2
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text, prefixed: false
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    @obj.stub!(:text).and_return "test"
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    doc.terms.map(&:term)[3..-1].should == %w(t te test)
+  end
+
 end

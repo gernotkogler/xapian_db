@@ -56,13 +56,18 @@ module XapianDb
       def phrase_search_enabled?
         @config.instance_variable_get("@_phrase_search_enabled") || false
       end
+
+      def term_splitter_count
+        @config.instance_variable_get("@_term_splitter_count") || 0
+      end
     end
 
     # ---------------------------------------------------------------------------------
     # DSL methods
     # ---------------------------------------------------------------------------------
 
-    attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_stemmer, :_stopper, :_term_min_length, :_phrase_search_enabled
+    attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_stemmer, :_stopper, :_term_min_length,
+                :_phrase_search_enabled, :_term_splitter_count
 
     # Set the global database to use
     # @param [String] path The path to the database. Either apply a file sytem path or :memory
@@ -158,6 +163,9 @@ module XapianDb
       @_phrase_search_enabled = false
     end
 
+    def term_splitter_count(count)
+      @_term_splitter_count = count
+    end
   end
 
 end

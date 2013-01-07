@@ -51,6 +51,12 @@ module XapianDb
         config.resque_queue @resque_queue
         config.language @language.try(:to_sym)
         config.term_min_length @term_min_length
+        if @enable_phrase_search
+          config.enable_phrase_search
+        else
+          config.disable_phrase_search
+        end
+        config.term_splitter_count @term_splitter_count
       end
 
     end
@@ -66,22 +72,26 @@ module XapianDb
 
     # use the config options from the config file
     def self.configure_from(env_config)
-      @database_path    = env_config["database"] || ":memory:"
-      @adapter          = env_config["adapter"]  || :active_record
-      @writer           = env_config["writer"]   || :direct
-      @beanstalk_daemon = env_config["beanstalk_daemon"]
-      @resque_queue     = env_config["resque_queue"]
-      @language         = env_config["language"]
-      @term_min_length  = env_config["term_min_length"]
+      @database_path        = env_config["database"] || ":memory:"
+      @adapter              = env_config["adapter"]  || :active_record
+      @writer               = env_config["writer"]   || :direct
+      @beanstalk_daemon_url = env_config["beanstalk_daemon"]
+      @resque_queue         = env_config["resque_queue"]
+      @language             = env_config["language"]
+      @term_min_length      = env_config["term_min_length"]
+      @enable_phrase_search = env_config["enable_phrase_search"] == true
+      @term_splitter_count  = env_config["term_splitter_count"] || 0
     end
 
     # set default config options
     def self.configure_defaults
       Rails.env == "test" ? @database_path = ":memory:" : @database_path = "db/xapian_db/#{Rails.env}"
-      @adapter          = :active_record
-      @writer           = :direct
-      @beanstalk_daemon = nil
-      @term_min_length  = 1
+      @adapter              = :active_record
+      @writer               = :direct
+      @beanstalk_daemon     = nil
+      @term_min_length      = 1
+      @enable_phrase_search = false
+      @term_splitter_count  = 0
     end
 
   end

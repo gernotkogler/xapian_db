@@ -39,6 +39,7 @@ RSpec.configure do |config|
       config.adapter :generic
       config.term_min_length 1
       config.disable_phrase_search
+      config.term_splitter_count 0
     end
   end
 end
