@@ -38,6 +38,7 @@ RSpec.configure do |config|
     XapianDb.setup do |config|
       config.adapter :generic
       config.term_min_length 1
+      config.disable_phrase_search
     end
   end
 end

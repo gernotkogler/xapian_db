@@ -21,7 +21,7 @@ module XapianDb
       @query_flags |= Xapian::QueryParser::FLAG_BOOLEAN             # enable boolean operators
       @query_flags |= Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE    # enable case insensitive boolean operators
       @query_flags |= Xapian::QueryParser::FLAG_SPELLING_CORRECTION # enable spelling corrections
-      @query_flags |= Xapian::QueryParser::FLAG_PHRASE              # enable phrase searches
+      @query_flags |= Xapian::QueryParser::FLAG_PHRASE if XapianDb::Config.phrase_search_enabled?
     end
 
     # Parse an expression
