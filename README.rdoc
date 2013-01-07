@@ -83,6 +83,14 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
     database: db/xapian_db/production
     <<: *defaults
 
+==== Available options
+
+  - adapter: :active_record|:datamapper, default: :active_record
+  - language: any iso language code, default: :none (activates spelling corrections, stemmer and stop words if an iso language code ist set)
+  - term_min_length: <n>, default: 1 (do not index terms shorter than n)
+  - enable_phrase_search: true|false, default: false (see the xapian docs for an intro to phrase searching)
+  - term_splitter_count: <n>, default: 0 (see chapter Term Splitting)
+
 If you do not configure settings for an environment in this file, xapian_db applies the defaults.
 
 === Configure an index blueprint
@@ -369,6 +377,10 @@ you can use the auto_indexing_disabled method with a block and rebuild the whole
 XapianDb serializes objects to xapian documents using YAML by default. This way, type information is preserved und you get back what you put into a xapian document, not just a string.
 
 However, dates need special handling to support date range queries. To support date range queries and allow the addition of other custom data types in the future, XapianDb uses a simple, extensible mechanism to serialize / deserialize your objects. An example on how to extend this mechanism is provided in examples/custom_serialization.rb.
+
+== Term Splitting
+
+If you want to build a realtime search showing results while the user types, you might experience very poor performance and a huge memory load for the first typed characters (1*, 12*...). XapianDb allows you to configure the term_splitter_count to avoid this. If you configure a term_splitter_count of e.g. 2, the term "test" will get indexed with "t", "te" and "test". Now you can apply the "*" only for search terms that are longer than the configured term_splitter_count resulting in a much better performance and lower memory footprint.
 
 == Production setup
 

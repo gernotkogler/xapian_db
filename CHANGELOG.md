@@ -1,3 +1,10 @@
+##1.2.5.1 (January 7th, 2013)
+
+Changes:
+
+  - New option to enable / disable phrase search support
+  - term splitter option to boost "live queries" (see README)
+
 ##1.2.5 (January 4th, 2013)
 
 Changes:
