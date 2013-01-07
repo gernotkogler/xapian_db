@@ -130,10 +130,13 @@ module XapianDb
       # @param [Integer, BigDecimal, Float] number a number object to encode
       # @return [String] the encoded number
       def self.encode(number)
-        begin
-          Xapian::sortable_serialise number
-        rescue TypeError
-          raise ArgumentError.new "#{number} was expected to be a number"
+        case number.class.name
+          when "Fixnum", "Float"
+            Xapian::sortable_serialise number
+          when "BigDecimal"
+            Xapian::sortable_serialise number.to_f
+          else
+            raise ArgumentError.new "#{number} was expected to be a number"
         end
       end
 
