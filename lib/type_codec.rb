@@ -127,11 +127,11 @@ module XapianDb
     class NumberCodec
 
       # Encode a number to a sortable string
-      # @param [Integer, BigDecimal, Float] number a number object to encode
+      # @param [Integer, BigDecimal, Bignum, Float] number a number object to encode
       # @return [String] the encoded number
       def self.encode(number)
         case number.class.name
-          when "Fixnum", "Float"
+          when "Fixnum", "Float", "Bignum"
             Xapian::sortable_serialise number
           when "BigDecimal"
             Xapian::sortable_serialise number.to_f

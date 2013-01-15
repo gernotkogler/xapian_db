@@ -164,6 +164,11 @@ describe XapianDb::TypeCodec::NumberCodec do
       described_class.encode(BigDecimal("1")).should == Xapian::sortable_serialise(1)
     end
 
+    it "can handle big numbers" do
+      first_bignum = 2**(0.size * 8 - 2)
+      described_class.encode(first_bignum).should == Xapian::sortable_serialise(first_bignum)
+    end
+
     it "raises an argument error if the given object is not a number" do
       lambda { described_class.encode("X") }.should raise_error "X was expected to be a number"
     end
