@@ -10,6 +10,7 @@ SimpleCov.start do
 end
 
 require File.dirname(__FILE__) + '/../lib/xapian_db'
+require File.dirname(__FILE__) + '/../lib/xapian_db/adapters/generic_adapter'
 require File.dirname(__FILE__) + '/basic_mocks'
 require File.dirname(__FILE__) + '/orm_mocks'
 require File.dirname(__FILE__) + '/beanstalk_mock'
