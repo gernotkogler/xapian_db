@@ -5,7 +5,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe XapianDb do
 
   before :each do
-    XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+    XapianDb::DocumentBlueprint.reset
   end
 
   describe ".setup(&block)" do
@@ -175,7 +175,7 @@ describe XapianDb do
     end
 
     it "does nothing if no blueprints are configured" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.reset
       lambda{XapianDb.rebuild_xapian_index}.should_not raise_error
       XapianDb.rebuild_xapian_index.should be_false
     end

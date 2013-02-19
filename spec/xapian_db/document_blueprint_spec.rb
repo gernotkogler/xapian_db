@@ -4,10 +4,24 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::DocumentBlueprint do
 
+  describe ".reset" do
+
+    it "clears the blueprint configuration" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      XapianDb::DocumentBlueprint.reset
+
+      XapianDb::DocumentBlueprint.configured_classes.should == []
+    end
+
+  end
+
   describe ".configured_classes" do
 
     it "returns all configured classes" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.reset
       XapianDb::DocumentBlueprint.configured_classes.size.should == 0
 
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
@@ -21,7 +35,7 @@ describe XapianDb::DocumentBlueprint do
   describe ".configured?(name)" do
 
     before :each do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.reset
     end
 
     it "returns true, if a blueprint with the given name is configured" do
@@ -49,7 +63,7 @@ describe XapianDb::DocumentBlueprint do
   describe ".blueprint_for(name)" do
 
     before :each do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.reset
     end
 
     it "returns the blueprint for a class" do
@@ -114,7 +128,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "should return %w(indexed_class) if no attributes and no indexes are configured" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.reset
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
       end
       XapianDb::DocumentBlueprint.searchable_prefixes.should == %w(indexed_class)
@@ -132,7 +146,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "should return an empty array if no attributes are configured" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.reset
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :id
         blueprint.index :name
@@ -163,7 +177,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "returns nil if no blueprints are defined defined" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.reset
       XapianDb::DocumentBlueprint.type_info_for(:not_defined).should_not be
     end
 
@@ -237,7 +251,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "raises an argument error if no blueprints are defined" do
-      XapianDb::DocumentBlueprint.instance_variable_set(:@blueprints, nil)
+      XapianDb::DocumentBlueprint.reset
       XapianDb::DocumentBlueprint.instance_variable_set(:@attributes, nil)
       lambda { XapianDb::DocumentBlueprint.value_number_for(:not_indexed) }.should raise_error ArgumentError
     end

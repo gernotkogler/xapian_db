@@ -52,6 +52,11 @@ module XapianDb
         @attributes = @blueprints.values.map { |blueprint| blueprint.attribute_names}.flatten.compact.uniq.sort || []
       end
 
+      # reset the blueprint setup
+      def reset
+        @blueprints = {}
+      end
+
       # is a blueprint configured for the given name?
       # @return [Boolean]
       def configured?(name)
