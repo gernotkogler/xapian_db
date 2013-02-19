@@ -5,7 +5,7 @@ require "bundler/setup"
 require 'rails'
 require 'daemons'
 require "xapian_db"
-require 'yaml'
+require 'json'
 require 'rails/railtie' # execute xapian_db railtie
 
 # daemon script to manage the beanstalk worker daemon
@@ -33,7 +33,7 @@ module XapianDb
       loop do
         job = beanstalk.reserve
         begin
-          params = YAML::load job.body
+          params = JSON.parse(job.body).symbolize_keys!
           Rails.logger.info "XapianDb beanstalk worker: executing task #{params}"
           Rails.logger.flush
           task = params.delete :task

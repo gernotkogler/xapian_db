@@ -12,7 +12,7 @@ module Beanstalk
 
     def put(command)
       worker = XapianDb::IndexWriters::BeanstalkWorker.new
-      params = YAML::load command
+      params = JSON.parse(command).symbolize_keys!
       task = params.delete :task
       worker.send task, params
     end
