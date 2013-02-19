@@ -62,7 +62,7 @@ module XapianDb
       # @param [String] string a string
       # @return [String] the string
       def self.decode(string)
-        string
+        string.force_encoding("UTF-8")
       end
     end
 
