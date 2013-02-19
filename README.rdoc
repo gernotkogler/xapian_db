@@ -4,7 +4,10 @@
 
 == Important Information
 
-If you upgrade from an earlier version of xapian_db to 1.1, you MUST rebuild your entire index (XapianDb.rebuild_xapian_index)!
+Version 1.3 does not support YAML serialization for attributes anymore. If you don't apply a type information for an attribute (like attribute :birth, as: :date) in your blueprint,
+the attribute gets stored as a string. The new preferred type for complex attributes is JSON. Why the change? We were experiencing a unacceptable performance hit when we switched from Syck to Psych. The new philosophy for blueprints is therefore explicit type information. lib/type_codec.rb contains the most common codecs and of course, you can add your own (see examples/custom_serialization.rb).
+
+<b>Please note: You may want to fine tune your blueprints and you MUST rebuild your xapian index when switching to version 1.3</b>
 
 == What's in the box?
 
@@ -139,13 +142,14 @@ You may add a filter expression to exclude objects from the index. This is handy
       blueprint.ignore_if {active == false}
     end
 
-You can add a type information to an attribute. As of now the special types :string, :date, :date_time and :number are supported (and required for range queries):
+You can add a type information to an attribute (default format is string). As of now the special types :string, :date, :date_time and :number are supported (and required for range queries):
 
     XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|
       blueprint.attribute :age,           :as => :number
       blueprint.attribute :date_of_birth, :as => :date
       blueprint.attribute :name,          :as => :string
       blueprint.attribute :updated_at,    :as => :date_time
+      blueprint.attribute :address,       :as => :json
     end
 
 If you don't need field searches for an attribute, turn off the prefixed option (makes your index smaller and more efficient):
@@ -165,7 +169,7 @@ one more class that is not stored in the database, but you want it to be indexed
 If you use associations in your blueprints, it might be a good idea to specify a base query to speed up rebuild_xapian_index calls (avoiding 1+n queries):
 
   XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|
-    blueprint.index :addresses
+    blueprint.index :addresses, as: :json
     blueprint.base_query { |p| p.includes(:addresses) }
   end
 
@@ -374,7 +378,7 @@ you can use the auto_indexing_disabled method with a block and rebuild the whole
 
 == Add your own serializers for special objects
 
-XapianDb serializes objects to xapian documents using YAML by default. This way, type information is preserved und you get back what you put into a xapian document, not just a string.
+XapianDb serializes objects to xapian documents as strings by default.
 
 However, dates need special handling to support date range queries. To support date range queries and allow the addition of other custom data types in the future, XapianDb uses a simple, extensible mechanism to serialize / deserialize your objects. An example on how to extend this mechanism is provided in examples/custom_serialization.rb.
 

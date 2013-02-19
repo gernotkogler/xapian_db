@@ -1,4 +1,8 @@
-##1.2.5.1 (January 7th, 2013)
+##1.3 (February 19th, 2013)
+
+Breaking Changes:
+  - changed the internal serialization format for attributes; the new default is string, new codecs were added. YAML is not supported
+    anymore, although you could implement a YAML-Codec on your own if you need it (see examples/custom_serialization.rb)
 
 Changes:
 
