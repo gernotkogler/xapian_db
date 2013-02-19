@@ -4,9 +4,14 @@
 # To run the example, please install the xapian_db gem first
 
 require 'rubygems'
+require 'date'
 require 'xapian_db'
 
 puts "Setting up the demo..."
+
+XapianDb::Config.setup do |config|
+  config.adapter :generic
+end
 
 # 1: Open an in memory database
 db = XapianDb.create_db

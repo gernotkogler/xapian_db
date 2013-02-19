@@ -24,6 +24,10 @@ module XapianDb
   end
 end
 
+XapianDb::Config.setup do |config|
+  config.adapter :generic
+end
+
 # 2: Open an in memory database
 db = XapianDb.create_db
 

@@ -1,5 +1,5 @@
 =semantic_form_for @person do |form|
   =form.inputs :name, :first_name, :date_of_birth, :notes
-  =form.buttons
+  =form.submit
   =link_to "delete", person_path(@person), :method => :delete
 =link_to "Back", people_path
