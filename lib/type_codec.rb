@@ -171,6 +171,7 @@ module XapianDb
       # @param [Integer] integer an integer to encode
       # @return [String] the encoded integer
       def self.encode(number)
+        return nil if number.nil?
         case number.class.name
           when "Fixnum"
             Xapian::sortable_serialise number
@@ -184,6 +185,7 @@ module XapianDb
       # @return [Integer] the decoded integer
       def self.decode(encoded_integer)
         begin
+          return nil if encoded_integer.nil? || encoded_integer.to_s.strip == ""
           Xapian::sortable_unserialise(encoded_integer).to_i
         rescue TypeError
           raise ArgumentError.new "#{encoded_integer} cannot be unserialized"

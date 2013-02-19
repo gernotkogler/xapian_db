@@ -211,6 +211,10 @@ describe XapianDb::TypeCodec::IntegerCodec do
     it "raises an argument error if the given object is not an integer" do
       lambda { described_class.encode("X") }.should raise_error "X was expected to be an integer"
     end
+
+    it "should return nil when a nil value is supplied" do
+      described_class.encode(nil).should_not be
+    end
   end
 
   describe "decode(integer_as_string)" do
@@ -218,6 +222,10 @@ describe XapianDb::TypeCodec::IntegerCodec do
     it "decodes a string representing a number to a BigDecimal" do
       encoded_number = Xapian::sortable_serialise(1)
       described_class.decode(encoded_number).should == 1
+    end
+
+    it "returns nil if an empty string is passed in" do
+      described_class.decode(" ").should_not be
     end
 
     it "raises an argument error if the argument ist not a string" do
