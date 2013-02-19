@@ -69,6 +69,25 @@ describe XapianDb::TypeCodec::StringCodec do
   end
 end
 
+describe XapianDb::TypeCodec::BooleanCodec do
+
+  describe "encode(value)" do
+
+    it "encodes a booelan to a string" do
+      described_class.encode(true).should == "true"
+      described_class.encode(false).should == "false"
+    end
+  end
+
+  describe "decode(value)" do
+
+    it "returns the boolean value" do
+      described_class.decode("true").should be_true
+      described_class.decode("false").should be_false
+    end
+  end
+end
+
 describe XapianDb::TypeCodec::DateCodec do
 
   describe "encode(date)" do

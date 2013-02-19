@@ -66,6 +66,23 @@ module XapianDb
       end
     end
 
+    class BooleanCodec
+
+      # Encode a boolean value to a string
+      # @param [Object] value a value to encode
+      # @return [String] the string
+      def self.encode(value)
+        value.to_s
+      end
+
+      # Decode a string representing a boolean
+      # @param [String] string a string
+      # @return [Boolean] the boolean value
+      def self.decode(string)
+        string == "true"
+      end
+    end
+
     class DateCodec
 
       # Encode a date to a string in the format 'yyyymmdd'
