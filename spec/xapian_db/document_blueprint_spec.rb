@@ -168,8 +168,8 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.type_info_for(:date).should == :date
     end
 
-    it "should return :generic if no type is defined" do
-      XapianDb::DocumentBlueprint.type_info_for(:untyped).should == :generic
+    it "should return :string if no type is defined" do
+      XapianDb::DocumentBlueprint.type_info_for(:untyped).should == :string
     end
 
     it "returns nil if the attribute is not defined" do
@@ -578,21 +578,21 @@ describe XapianDb::DocumentBlueprint do
 
     before :each do
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
-        blueprint.attribute :array
+        blueprint.attribute :array, as: :json
         blueprint.attribute :date_of_birth, :as => :date
         blueprint.attribute :empty_field
-        blueprint.attribute :id
+        blueprint.attribute :id, as: :integer
         blueprint.attribute :name
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
 
       @doc = Xapian::Document.new
       @doc.add_value(0, "IndexedObject")
-      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:array), [1, "two", Date.new(2011, 1, 1)].to_yaml)
+      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:array), [1, "two", Date.new(2011, 1, 1)].to_json)
       @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:date_of_birth), "20110101")
-      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:empty_field), nil.to_yaml)
-      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:id), 1.to_yaml)
-      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:name), "Kogler".to_yaml)
+      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:empty_field), nil.to_s)
+      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:id), Xapian::sortable_serialise(1))
+      @doc.add_value(XapianDb::DocumentBlueprint.value_number_for(:name), "Kogler")
       @doc.extend @blueprint.accessors_module
     end
 
@@ -605,7 +605,7 @@ describe XapianDb::DocumentBlueprint do
     end
 
     it "adds accessor methods that can handle nil" do
-      @doc.empty_field.should be_nil
+      @doc.empty_field.should == ""
     end
 
     it "adds an accessor method for the class of the indexed object" do
@@ -614,13 +614,12 @@ describe XapianDb::DocumentBlueprint do
 
     it "adds accessor methods that deserialize values to native objects" do
       @doc.date_of_birth.should == Date.new(2011, 1, 1)
-      @doc.array.should == [1, "two", Date.new(2011, 1, 1)]
     end
 
     it "adds a method to access the document attributes as a hash" do
-      @doc.attributes.should == { "array"         => [1, "two", Date.new(2011, 1, 1)],
+      @doc.attributes.should == { "array"         => [1, "two", "2011-01-01"],
                                   "date_of_birth" => Date.new(2011, 1, 1),
-                                  "empty_field"   => nil,
+                                  "empty_field"   => "",
                                   "id"            => 1,
                                   "name"          => "Kogler" }
     end
@@ -645,8 +644,8 @@ describe XapianDb::DocumentBlueprint do
       blueprint.type_map[:date].should == :date
     end
 
-    it "contains :generic for an indexed method if no type is defined" do
-      blueprint.type_map[:untyped].should == :generic
+    it "contains :string for an indexed method if no type is defined" do
+      blueprint.type_map[:untyped].should == :string
     end
 
   end

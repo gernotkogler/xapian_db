@@ -316,7 +316,7 @@ module XapianDb
     def attribute(name, options={}, &block)
       raise ArgumentError.new("You cannot use #{name} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(name)
       do_not_index    = options.delete(:index) == false
-      @type_map[name] = (options.delete(:as) || :generic)
+      @type_map[name] = (options.delete(:as) || :string)
 
       if block_given?
         @attributes_hash[name] = {:block => block}.merge(options)
@@ -333,7 +333,7 @@ module XapianDb
       attributes.each do |attr|
         raise ArgumentError.new("You cannot use #{attr} as an attribute name since it is a reserved method name of Xapian::Document") if reserved_method_name?(attr)
         @attributes_hash[attr] = {}
-        @type_map[attr] = :generic
+        @type_map[attr] = :string
         self.index attr
       end
     end

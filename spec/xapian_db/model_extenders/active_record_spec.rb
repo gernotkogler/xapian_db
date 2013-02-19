@@ -6,6 +6,8 @@ describe XapianDb::ModelExtenders::ActiveRecord do
 
   let (:subject) { Object.extend XapianDb::ModelExtenders::ActiveRecord }
 
+  before { XapianDb::DocumentBlueprint.reset }
+
   describe ".inherited(klass)" do
 
     it "checks if a blueprint for the klass is specified" do

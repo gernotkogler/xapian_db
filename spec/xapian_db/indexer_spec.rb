@@ -4,6 +4,8 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe XapianDb::Indexer do
 
+  before { XapianDb::DocumentBlueprint.reset }
+
   describe "#build_document_for(obj)" do
 
     before :each do
@@ -14,8 +16,8 @@ describe XapianDb::Indexer do
       @db = XapianDb.create_db
 
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
-        blueprint.attribute :array
-        blueprint.attribute :id
+        blueprint.attribute :array, as: :json
+        blueprint.attribute :id, as: :integer
         blueprint.attribute :no_value
         blueprint.attribute :text
 
@@ -47,8 +49,8 @@ describe XapianDb::Indexer do
     end
 
     it "adds values for the configured methods" do
-      @doc.values[@position_offset + 1].value.should == @obj.id.to_yaml
-      @doc.values[@position_offset + 3].value.should == "Some Text".to_yaml
+      @doc.values[@position_offset + 1].value.should == Xapian::sortable_serialise(@obj.id)
+      @doc.values[@position_offset + 2].value.should == "Some Text"
     end
 
     it "adds terms for the configured methods" do
@@ -58,12 +60,12 @@ describe XapianDb::Indexer do
       @doc.terms.map(&:term).should include("two") # from the array field
     end
 
-    it "handles fields with nil values" do
-      @doc.values[@position_offset + 2].value.should == nil.to_yaml
+    it "does not add a value for a filed containing nil" do
+      @doc.values[@position_offset + 3].should_not be
     end
 
-    it "handles fields with an array as the value" do
-      @doc.values[@position_offset].value.should == [1, "two", Date.today].to_yaml
+    it "serializes arrays as jason, if specified" do
+      @doc.values[@position_offset].value.should == [1, "two", Date.today].to_json
     end
 
     it "uses a stemmer if globally configured" do
@@ -95,7 +97,7 @@ describe XapianDb::Indexer do
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer = XapianDb::Indexer.new(@db, @blueprint)
       doc = @indexer.build_document_for(@obj)
-      doc.values[@position_offset].value.should == "not zero".to_yaml
+      doc.values[@position_offset].value.should == "not zero"
       (doc.terms.map(&:term) & %w(not zero)).should == %w(not zero)
     end
 
@@ -119,6 +121,7 @@ describe XapianDb::Indexer do
     end
 
     it "calls the natural sort order block if present" do
+      XapianDb::DocumentBlueprint.reset
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :id
         blueprint.natural_sort_order do

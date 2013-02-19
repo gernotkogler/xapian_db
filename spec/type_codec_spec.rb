@@ -20,38 +20,31 @@ describe XapianDb::TypeCodec do
   end
 end
 
-describe XapianDb::TypeCodec::GenericCodec do
+describe XapianDb::TypeCodec::JsonCodec do
 
   describe "encode(object)" do
 
-    it "encodes an object to its yaml representation" do
-      object = "some text"
-      described_class.encode(object).should == object.to_yaml
+    it "encodes an object to its json representation" do
+      hash = { x: "y" }
+      described_class.encode(hash).should == hash.to_json
     end
 
-    it "encodes an objects attributes hash if it has one" do
-      hash = { :id => 1, :name => "Kogler" }
+    it "raises an ArgumentError if the object does not respond to to_json" do
       object = Object.new
-      object.stub!(:attributes).and_return hash
-      described_class.encode(object).should == hash.to_yaml
-    end
-
-    it "raises an ArgumentError if the object does not respond to to_yaml" do
-      object = Object.new
-      object.stub!(:to_yaml).and_raise NoMethodError
+      object.stub!(:to_json).and_raise NoMethodError
       lambda { described_class.encode(object) }.should raise_error ArgumentError
     end
 
   end
 
-  describe "decode(yaml_string)" do
+  describe "decode(json_string)" do
 
-    it "decodes a yaml string representing the object to the object" do
-      yaml_string = "some text".to_yaml
-      described_class.decode(yaml_string).should == YAML::load(yaml_string)
+    it "decodes a json string representing the object to the object" do
+      json_string = { x: "y" }.to_json
+      described_class.decode(json_string).should == JSON.parse(json_string)
     end
 
-    it "raises an ArgumentError if the given argument cannot pe parsed by YAML" do
+    it "raises an ArgumentError if the given argument cannot pe parsed by JSON" do
       argument = 1
       lambda { described_class.decode(argument) }.should raise_error ArgumentError
     end
@@ -179,6 +172,33 @@ describe XapianDb::TypeCodec::NumberCodec do
     it "decodes a string representing a number to a BigDecimal" do
       encoded_number = Xapian::sortable_serialise(1.5)
       described_class.decode(encoded_number).should == BigDecimal.new("1.5")
+    end
+
+    it "raises an argument error if the argument ist not a string" do
+      lambda { described_class.decode(1) }.should raise_error "1 cannot be unserialized"
+    end
+  end
+
+end
+
+describe XapianDb::TypeCodec::IntegerCodec do
+
+  describe "encode(integer)" do
+
+    it "encodes an integer using the xapian sortable_serialise method" do
+      described_class.encode(1).should == Xapian::sortable_serialise(1)
+    end
+
+    it "raises an argument error if the given object is not an integer" do
+      lambda { described_class.encode("X") }.should raise_error "X was expected to be an integer"
+    end
+  end
+
+  describe "decode(integer_as_string)" do
+
+    it "decodes a string representing a number to a BigDecimal" do
+      encoded_number = Xapian::sortable_serialise(1)
+      described_class.decode(encoded_number).should == 1
     end
 
     it "raises an argument error if the argument ist not a string" do

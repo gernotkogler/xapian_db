@@ -264,7 +264,7 @@ describe XapianDb::Database do
         XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
           blueprint.attribute :text
           blueprint.attribute :text2
-          blueprint.attribute :number
+          blueprint.attribute :number, as: :integer
         end
 
         obj = IndexedObject.new(1)

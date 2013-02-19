@@ -24,31 +24,27 @@ module XapianDb
       end
     end
 
-    class GenericCodec
+    class JsonCodec
 
-      # Encode an object to its yaml representation
+      # Encode an object to its json representation
       # @param [Object] object an object to encode
-      # @return [String] the yaml string
+      # @return [String] the json string
       def self.encode(object)
         begin
-          if object.respond_to?(:attributes)
-            object.attributes.to_yaml
-          else
-            object.to_yaml
-          end
+          object.to_json
         rescue NoMethodError
-          raise ArgumentError.new "#{object} does not support yaml serialization"
+          raise ArgumentError.new "#{object} does not support json serialization"
         end
       end
 
-      # Decode an object from a yaml string
-      # @param [String] yaml_string a yaml string representing the object
-      # @return [Object] the parsed object
-      def self.decode(yaml_string)
+      # Decode an object from a json string
+      # @param [String] json_string a json string representing the object
+      # @return [Hash] a ruby hash
+      def self.decode(json_string)
         begin
-          YAML::load yaml_string
+          JSON.parse json_string
         rescue TypeError
-          raise ArgumentError.new "'#{yaml_string}' cannot be loaded by YAML"
+          raise ArgumentError.new "'#{json_string}' cannot be parsed"
         end
       end
     end
@@ -148,6 +144,32 @@ module XapianDb
           BigDecimal.new(Xapian::sortable_unserialise(encoded_number).to_s)
         rescue TypeError
           raise ArgumentError.new "#{encoded_number} cannot be unserialized"
+        end
+      end
+    end
+
+    class IntegerCodec
+
+      # Encode an integer to a sortable string
+      # @param [Integer] integer an integer to encode
+      # @return [String] the encoded integer
+      def self.encode(number)
+        case number.class.name
+          when "Fixnum"
+            Xapian::sortable_serialise number
+          else
+            raise ArgumentError.new "#{number} was expected to be an integer"
+        end
+      end
+
+      # Decode a string to an integer
+      # @param [String] integer_as_string a string representing an integer
+      # @return [Integer] the decoded integer
+      def self.decode(encoded_integer)
+        begin
+          Xapian::sortable_unserialise(encoded_integer).to_i
+        rescue TypeError
+          raise ArgumentError.new "#{encoded_integer} cannot be unserialized"
         end
       end
     end

@@ -7,7 +7,7 @@
 # @author Gernot Kogler
 
 require 'xapian'
-require 'yaml'
+require 'json'
 
 do_not_require = %w(update_stopwords railtie base_adapter generic_adapter active_record_adapter datamapper_adapter
                     beanstalk_writer resque_writer utilities install_generator datamapper)

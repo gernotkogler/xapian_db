@@ -137,7 +137,7 @@ module XapianDb
       enquiry.collapse_key = value_number
       facets = {}
       enquiry.mset(0, size).matches.each do |match|
-        facet_value = YAML::load match.document.value(value_number)
+        facet_value = match.document.value(value_number)
         # We must add 1 to the collapse_count since collapse_count means
         # "how many other matches are there?"
         facets[facet_value] = match.collapse_count + 1
