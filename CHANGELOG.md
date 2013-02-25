@@ -1,3 +1,9 @@
+##1.3.1 (February 25th, 2013)
+
+Fixes:
+
+  - json codec handles nil values gracefully
+
 ##1.3 (February 19th, 2013)
 
 Breaking Changes:

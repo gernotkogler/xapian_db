@@ -35,6 +35,10 @@ describe XapianDb::TypeCodec::JsonCodec do
       lambda { described_class.encode(object) }.should raise_error ArgumentError
     end
 
+    it "returns nil if the object is nil" do
+      described_class.encode(nil).should be_nil
+    end
+
   end
 
   describe "decode(json_string)" do
@@ -42,6 +46,14 @@ describe XapianDb::TypeCodec::JsonCodec do
     it "decodes a json string representing the object to the object" do
       json_string = { x: "y" }.to_json
       described_class.decode(json_string).should == JSON.parse(json_string)
+    end
+
+    it "decodes nil to nil" do
+      described_class.decode(nil).should be_nil
+    end
+
+    it "decodes an empty string to nil" do
+      described_class.decode("").should be_nil
     end
 
     it "raises an ArgumentError if the given argument cannot pe parsed by JSON" do

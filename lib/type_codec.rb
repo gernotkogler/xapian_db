@@ -30,6 +30,7 @@ module XapianDb
       # @param [Object] object an object to encode
       # @return [String] the json string
       def self.encode(object)
+        return nil if object.nil?
         begin
           object.to_json
         rescue NoMethodError
@@ -41,6 +42,7 @@ module XapianDb
       # @param [String] json_string a json string representing the object
       # @return [Hash] a ruby hash
       def self.decode(json_string)
+        return nil if json_string.nil? || json_string == ""
         begin
           JSON.parse json_string
         rescue TypeError
