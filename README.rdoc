@@ -1,7 +1,5 @@
 = XapianDb
 
-{<img src="https://secure.travis-ci.org/garaio/xapian_db.png" />}[http://travis-ci.org/garaio/xapian_db]
-
 == Important Information
 
 Version 1.3 does not support YAML serialization for attributes anymore. If you don't apply a type information for an attribute (like attribute :birth, as: :date) in your blueprint,
