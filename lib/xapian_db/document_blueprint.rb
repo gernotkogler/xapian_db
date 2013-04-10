@@ -362,7 +362,7 @@ module XapianDb
           # Is it a method name with options?
           if args.last.is_a? Hash
             options = args.last
-            assert_valid_keys options, :weight, :prefixed
+            assert_valid_keys options, :weight, :prefixed, :no_split
             @indexed_methods_hash[args.first] = IndexOptions.new(options.merge(:block => block))
           else
             add_indexes_from args
@@ -403,7 +403,7 @@ module XapianDb
     # Options for an indexed method
     class IndexOptions
 
-      attr_reader :weight, :prefixed, :block
+      attr_reader :weight, :prefixed, :no_split, :block
 
       # Constructor
       # @param [Hash] options
@@ -411,6 +411,7 @@ module XapianDb
       def initialize(options = {})
         @weight   = options[:weight] || 1
         @prefixed = options[:prefixed].nil? ? true : options[:prefixed]
+        @no_split = options[:no_split]
         @block    = options[:block]
       end
 

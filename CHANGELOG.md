@@ -1,3 +1,10 @@
+##1.3.2 (April 10th, 2013)
+
+Changes:
+
+  - new no_split option for attributes and indexes; useful if you use a global term_splitter_count but want to disable splitting for
+    a certain attribute
+
 ##1.3.1 (February 25th, 2013)
 
 Fixes:

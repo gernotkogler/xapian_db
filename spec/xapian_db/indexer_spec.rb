@@ -251,4 +251,23 @@ describe XapianDb::Indexer do
     doc.terms.map(&:term)[3..-1].should == %w(t te test)
   end
 
+  it "does not split each term if split_term_count != 0 but the no_split-option is set on the attribute" do
+    XapianDb.setup do |config|
+      config.term_splitter_count 2
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text, prefixed: false, no_split: true
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    @obj.stub!(:text).and_return "test"
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    doc.terms.map(&:term)[3..-1].should == %w(test)
+  end
+
 end

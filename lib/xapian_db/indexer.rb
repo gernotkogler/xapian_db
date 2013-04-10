@@ -86,7 +86,7 @@ module XapianDb
           values = get_values_to_index_from obj
           values.each do |value|
             terms = value.to_s.downcase
-            terms = split(terms) if XapianDb::Config.term_splitter_count > 0
+            terms = split(terms) if XapianDb::Config.term_splitter_count > 0 && !options.no_split
             # Add value with field name
             term_generator.index_text(terms, options.weight, "X#{method.upcase}") if options.prefixed
             # Add value without field name
