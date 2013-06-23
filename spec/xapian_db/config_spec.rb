@@ -230,9 +230,9 @@ describe XapianDb::Config do
     describe ".enable_query_flag <QUERY_FLAG>" do
       it "adds the query flag to the enabled flags collection" do
         XapianDb::Config.setup do |config|
-          config.enable_query_flag Xapian::QueryParser::FLAG_WILDCARD
+          config.enable_query_flag Xapian::QueryParser::FLAG_PHRASE
         end
-        XapianDb::Config.query_flags.should == [Xapian::QueryParser::FLAG_WILDCARD]
+        XapianDb::Config.query_flags.should include(Xapian::QueryParser::FLAG_PHRASE)
       end
     end
 

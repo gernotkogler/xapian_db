@@ -57,6 +57,8 @@ module XapianDb
           config.disable_phrase_search
         end
         config.term_splitter_count @term_splitter_count
+        @enabled_query_flags.each  { |flag| config.enable_query_flag flag }
+        @disabled_query_flags.each { |flag| config.disable_query_flag flag }
       end
 
     end
@@ -81,6 +83,24 @@ module XapianDb
       @term_min_length      = env_config["term_min_length"]
       @enable_phrase_search = env_config["enable_phrase_search"] == true
       @term_splitter_count  = env_config["term_splitter_count"] || 0
+
+      if env_config["enabled_query_flags"]
+        @enabled_query_flags = []
+        env_config["enabled_query_flags"].split(",").each { |flag_name| @enabled_query_flags << const_get("Xapian::QueryParser::%s" % flag_name.strip) }
+      else
+        @enabled_query_flags = [ Xapian::QueryParser::FLAG_WILDCARD,
+                                 Xapian::QueryParser::FLAG_BOOLEAN,
+                                 Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE,
+                                 Xapian::QueryParser::FLAG_SPELLING_CORRECTION
+                               ]
+      end
+
+      if env_config["disabled_query_flags"]
+        @disabled_query_flags = []
+        env_config["disabled_query_flags"].split(",").each { |flag_name| @disabled_query_flags << const_get("Xapian::QueryParser::%s" % flag_name.strip) }
+      else
+        @disabled_query_flags = []
+      end
     end
 
     # set default config options
@@ -92,7 +112,11 @@ module XapianDb
       @term_min_length      = 1
       @enable_phrase_search = false
       @term_splitter_count  = 0
+      @enabled_query_flags  = [ Xapian::QueryParser::FLAG_WILDCARD,
+                                Xapian::QueryParser::FLAG_BOOLEAN,
+                                Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE,
+                                Xapian::QueryParser::FLAG_SPELLING_CORRECTION
+                              ]
     end
-
   end
 end

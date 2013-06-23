@@ -62,7 +62,11 @@ module XapianDb
       end
 
       def query_flags
-        @config.instance_variable_get("@_enabled_query_flags") || []
+        @config.instance_variable_get("@_enabled_query_flags") || [ Xapian::QueryParser::FLAG_WILDCARD,
+                                                                    Xapian::QueryParser::FLAG_BOOLEAN,
+                                                                    Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE,
+                                                                    Xapian::QueryParser::FLAG_SPELLING_CORRECTION
+                                                                  ]
       end
     end
 
@@ -174,6 +178,7 @@ module XapianDb
     def enable_query_flag(flag)
       @_enabled_query_flags ||= []
       @_enabled_query_flags << flag
+      @_enabled_query_flags.uniq!
     end
 
     def disable_query_flag(flag)

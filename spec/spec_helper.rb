@@ -41,6 +41,11 @@ RSpec.configure do |config|
       config.term_min_length 1
       config.disable_phrase_search
       config.term_splitter_count 0
+      config.enable_query_flag Xapian::QueryParser::FLAG_WILDCARD
+      config.enable_query_flag Xapian::QueryParser::FLAG_BOOLEAN
+      config.enable_query_flag Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE
+      config.enable_query_flag Xapian::QueryParser::FLAG_SPELLING_CORRECTION
+      config.disable_query_flag Xapian::QueryParser::FLAG_PHRASE
     end
   end
 end
