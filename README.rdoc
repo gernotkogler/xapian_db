@@ -1,12 +1,5 @@
 = XapianDb
 
-== Important Information
-
-Version 1.3 does not support YAML serialization for attributes anymore. If you don't apply a type information for an attribute (like attribute :birth, as: :date) in your blueprint,
-the attribute gets stored as a string. The new preferred type for complex attributes is JSON. Why the change? We were experiencing a unacceptable performance hit when we switched from Syck to Psych. The new philosophy for blueprints is therefore explicit type information. lib/type_codec.rb contains the most common codecs and of course, you can add your own (see examples/custom_serialization.rb).
-
-<b>Please note: You may want to fine tune your blueprints and you MUST rebuild your xapian index when switching to version 1.3</b>
-
 == What's in the box?
 
 XapianDb is a ruby gem that combines features of nosql databases and fulltext indexing into one piece. The result: Rich documents and very fast queries. It is based on {Xapian}[http://xapian.org/], an efficient and powerful indexing library.
@@ -71,6 +64,7 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
     adapter: datamapper # Avaliable adapters: :active_record, :datamapper
     language: de        # Global language; can be overridden for specific blueprints
     term_min_length: 2  # Ignore single character terms
+    enable_query_flags: FLAG_PHRASE, FLAG_SPELLING_CORRECTION
 
   development:
     database: db/xapian_db/development
@@ -89,8 +83,18 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
   - adapter: :active_record|:datamapper, default: :active_record
   - language: any iso language code, default: :none (activates spelling corrections, stemmer and stop words if an iso language code ist set)
   - term_min_length: <n>, default: 1 (do not index terms shorter than n)
-  - enable_phrase_search: true|false, default: false (see the xapian docs for an intro to phrase searching)
   - term_splitter_count: <n>, default: 0 (see chapter Term Splitting)
+  - enable_query_flags: <list of flags, separated by colons>
+  - disable_query_flags: <list of flags, separated by colons>
+
+  The following query flags are enabled by default:
+
+    - FLAG_WILDCARD
+    - FLAG_BOOLEAN
+    - FLAG_BOOLEAN_ANY_CASE
+    - FLAG_SPELLING_CORRECTION
+
+  See the xapian docs for all available query flags
 
 If you do not configure settings for an environment in this file, xapian_db applies the defaults.
 
@@ -246,7 +250,7 @@ You can query objects of a specific class:
 
   results = Person.search "name:Foo"
 
-You can search for exact phrases:
+You can search for exact phrases (if the query flag is turned on):
 
   results = XapianDb.search('"this exact sentence"')
 

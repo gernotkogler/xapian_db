@@ -1,3 +1,13 @@
+##1.3.3 (June 23th, 2013)
+
+Changes:
+
+  - xapian query parser flags are now configurable (see README)
+
+Breaking Changes:
+
+- enable_phrase_search config option is no longer supported (use config.enable_query_flag Xapian::QueryParser::FLAG_PHRASE instead)
+
 ##1.3.2 (April 10th, 2013)
 
 Changes:
