@@ -201,7 +201,7 @@ describe XapianDb::Database do
 
     it "should support phrase searches" do
       XapianDb.setup do |config|
-        config.enable_phrase_search
+        config.enable_query_flag Xapian::QueryParser::FLAG_PHRASE
       end
 
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|

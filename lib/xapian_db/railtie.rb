@@ -51,11 +51,6 @@ module XapianDb
         config.resque_queue @resque_queue
         config.language @language.try(:to_sym)
         config.term_min_length @term_min_length
-        if @enable_phrase_search
-          config.enable_phrase_search
-        else
-          config.disable_phrase_search
-        end
         config.term_splitter_count @term_splitter_count
         @enabled_query_flags.each  { |flag| config.enable_query_flag flag }
         @disabled_query_flags.each { |flag| config.disable_query_flag flag }

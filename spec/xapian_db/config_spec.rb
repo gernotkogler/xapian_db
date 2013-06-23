@@ -188,32 +188,6 @@ describe XapianDb::Config do
       end
     end
 
-    describe ".enable_phrase_search" do
-      it "enables phrase search support" do
-        XapianDb::Config.setup do |config|
-          config.enable_phrase_search
-        end
-        XapianDb::Config.phrase_search_enabled?.should be_true
-      end
-    end
-
-    describe ".disable_phrase_search" do
-      it "disables phrase search support" do
-        XapianDb::Config.setup do |config|
-          config.disable_phrase_search
-        end
-        XapianDb::Config.phrase_search_enabled?.should be_false
-      end
-    end
-
-    describe "#phrase_search_enabled" do
-      it "is false by default" do
-        XapianDb::Config.setup do |config|
-        end
-        XapianDb::Config.phrase_search_enabled?.should be_false
-      end
-    end
-
     describe ".term_splitter_count" do
       it "accepts a number for the term splitter size" do
         XapianDb::Config.setup do |config|
