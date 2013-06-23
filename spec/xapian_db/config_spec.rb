@@ -227,5 +227,24 @@ describe XapianDb::Config do
       end
     end
 
+    describe ".enable_query_flag <QUERY_FLAG>" do
+      it "adds the query flag to the enabled flags collection" do
+        XapianDb::Config.setup do |config|
+          config.enable_query_flag Xapian::QueryParser::FLAG_WILDCARD
+        end
+        XapianDb::Config.query_flags.should == [Xapian::QueryParser::FLAG_WILDCARD]
+      end
+    end
+
+    describe ".disable_query_flag <QUERY_FLAG>" do
+      it "removes the query flag from the enabled flags collection" do
+        XapianDb::Config.instance_variable_set :@_enabled_query_flags, [Xapian::QueryParser::FLAG_WILDCARD]
+        XapianDb::Config.setup do |config|
+          config.disable_query_flag Xapian::QueryParser::FLAG_WILDCARD
+        end
+        XapianDb::Config.query_flags.should_not include(Xapian::QueryParser::FLAG_WILDCARD)
+      end
+    end
+
   end
 end

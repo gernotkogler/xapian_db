@@ -60,6 +60,10 @@ module XapianDb
       def term_splitter_count
         @config.instance_variable_get("@_term_splitter_count") || 0
       end
+
+      def query_flags
+        @config.instance_variable_get("@_enabled_query_flags") || []
+      end
     end
 
     # ---------------------------------------------------------------------------------
@@ -67,7 +71,7 @@ module XapianDb
     # ---------------------------------------------------------------------------------
 
     attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_stemmer, :_stopper, :_term_min_length,
-                :_phrase_search_enabled, :_term_splitter_count
+                :_phrase_search_enabled, :_term_splitter_count, :_enabled_query_flags
 
     # Set the global database to use
     # @param [String] path The path to the database. Either apply a file sytem path or :memory
@@ -166,6 +170,16 @@ module XapianDb
     def term_splitter_count(count)
       @_term_splitter_count = count
     end
-  end
 
+    def enable_query_flag(flag)
+      @_enabled_query_flags ||= []
+      @_enabled_query_flags << flag
+    end
+
+    def disable_query_flag(flag)
+      @_enabled_query_flags ||= []
+      @_enabled_query_flags.delete flag
+    end
+
+  end
 end
