@@ -37,11 +37,11 @@ module XapianDb
                  raise ArgumentError.new "invalid order clause: attributes #{undefined_attrs.inspect} are not defined" unless undefined_attrs.empty?
                  options[:sort_indices] = attr_names.map {|attr_name| XapianDb::DocumentBlueprint.value_number_for(attr_name) }
                end
-               result = XapianDb.database.search "#{class_scope} and (#{expression})", options
+               result = XapianDb.database.search "#{class_scope} AND (#{expression})", options
 
                # Remove the class scope from the spelling suggestion (if any)
                if result.spelling_suggestion
-                 scope_length = "#{class_scope} and (".size
+                 scope_length = "#{class_scope} AND (".size
                  result.spelling_suggestion = result.spelling_suggestion.slice scope_length..-2
                end
                result

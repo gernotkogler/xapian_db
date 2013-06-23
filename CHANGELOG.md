@@ -1,3 +1,9 @@
+##1.3.3.1 (June 23th, 2013)
+
+Fixes:
+
+  - injected logical operators must be upper case in order to support Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE set to false
+
 ##1.3.3 (June 23th, 2013)
 
 Changes:
