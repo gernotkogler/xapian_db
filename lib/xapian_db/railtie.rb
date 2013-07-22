@@ -49,6 +49,7 @@ module XapianDb
         config.writer @writer.try(:to_sym)
         config.beanstalk_daemon_url @beanstalk_daemon
         config.resque_queue @resque_queue
+        config.sidekiq_queue @sidekiq_queue
         config.language @language.try(:to_sym)
         config.term_min_length @term_min_length
         config.term_splitter_count @term_splitter_count
@@ -74,6 +75,7 @@ module XapianDb
       @writer               = env_config["writer"]   || :direct
       @beanstalk_daemon_url = env_config["beanstalk_daemon"]
       @resque_queue         = env_config["resque_queue"]
+      @sidekiq_queue        = env_config["sidekiq_queue"]
       @language             = env_config["language"]
       @term_min_length      = env_config["term_min_length"]
       @enable_phrase_search = env_config["enable_phrase_search"] == true
