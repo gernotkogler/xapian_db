@@ -110,6 +110,17 @@ describe XapianDb::Config do
         end
       end
 
+      it "accepts the sidekiq writer, if the sidekiq gem is installed" do
+        if defined? XapianDb::IndexWriters::SidekiqWriter
+          XapianDb::Config.setup do |config|
+            config.writer :sidekiq
+          end
+          XapianDb::Config.writer.should == XapianDb::IndexWriters::SidekiqWriter
+        else
+          pending "cannot run this spec without the sidekiq gem installed"
+        end
+      end
+
       it "raises an error if the configured writer is unknown" do
         lambda{XapianDb::Config.setup do |config|
           config.writer :unknown
