@@ -7,7 +7,7 @@ module XapianDb
     class SidekiqWorker
 
       extend XapianDb::Utilities
-      include Sidekiq::Worker
+      include Sidekiq::Worker if Kernel.const_defined? :Sidekiq
 
       APPROVED_TASKS = [:index, :delete_doc, :reindex_class]
 

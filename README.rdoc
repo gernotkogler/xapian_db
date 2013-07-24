@@ -398,7 +398,7 @@ If you want to build a realtime search showing results while the user types, you
 
 Since Xapian allows only one database instance to write to the index, the default setup of XapianDb will not work
 with multiple app instances trying to write to the same database (you will get lock errors).
-Therefore, XapianDb provides two solutions based on queueing systems to overcome this. The first solution uses beanstalk and the second one uses resque.
+Therefore, XapianDb provides three solutions based on queueing systems to overcome this. The first solution uses beanstalk, the second one uses resque and the third uses sidekiq.
 
 == Installation with beanstalk
 
@@ -487,3 +487,29 @@ Be sure to specify the correct queue name when starting the worker.
 
 <b>If you don't provide a queue name, it WON'T take 'xapian_db' by default! Do not start multiple
 instances of this worker!</b>
+
+== Installation with Sidekiq
+
+=== 1. Install and start redis
+
+Install and start redis as described on the {resque github page}[https://github.com/defunkt/resque].
+
+=== 2. Add the sidekiq gem to your config
+
+  gem 'sidekiq'
+  bundle install
+
+=== 3. Configure XapianDb to use sidekiq in production
+
+  production:
+    database:     db/xapian_db/production
+    writer:       sidekiq
+    resque_queue: my_queue
+
+If you don't specify a queue name XapianDb will use 'xapian_db' by default.
+
+=== 4. Start sidekiq
+
+  RAILS_ENV=production bundle exec sidekiq -q my_queue
+
+<b>If you don't provide a queue name, it WON'T take 'xapian_db' by default!</b>
