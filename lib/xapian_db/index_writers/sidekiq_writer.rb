@@ -8,6 +8,10 @@ module XapianDb
   module IndexWriters
     class SidekiqWriter
 
+      SidekiqWorker.class_eval do
+        include Sidekiq::Worker
+      end
+
       class << self
 
         # Update an object in the index
@@ -29,7 +33,7 @@ module XapianDb
         end
 
         def worker_class
-          XapianDb::IndexWriters::SidekiqWorker
+          SidekiqWorker
         end
         private :worker_class
       end
