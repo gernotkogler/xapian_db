@@ -510,6 +510,4 @@ If you don't specify a queue name XapianDb will use 'xapian_db' by default.
 
 === 4. Start sidekiq
 
-  RAILS_ENV=production bundle exec sidekiq -q my_queue
-
-<b>If you don't provide a queue name, it WON'T take 'xapian_db' by default!</b>
+  RAILS_ENV=production bundle exec sidekiq
