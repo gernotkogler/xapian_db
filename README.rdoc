@@ -504,7 +504,7 @@ Install and start redis as described on the {resque github page}[https://github.
   production:
     database:     db/xapian_db/production
     writer:       sidekiq
-    resque_queue: my_queue
+    sidekiq_queue: my_queue
 
 If you don't specify a queue name XapianDb will use 'xapian_db' by default.
 
