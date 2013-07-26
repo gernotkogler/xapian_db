@@ -10,7 +10,7 @@ require 'xapian'
 require 'json'
 
 do_not_require = %w(update_stopwords railtie base_adapter generic_adapter active_record_adapter datamapper_adapter
-                    beanstalk_writer resque_writer utilities install_generator datamapper)
+                    beanstalk_writer resque_writer sidekiq_writer utilities install_generator datamapper)
 files = Dir.glob("#{File.dirname(__FILE__)}/**/*.rb").reject{|path| do_not_require.include?(File.basename(path, ".rb"))}
 # Require these first
 require "#{File.dirname(__FILE__)}/xapian_db/utilities"

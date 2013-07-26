@@ -49,6 +49,10 @@ module XapianDb
         @config.instance_variable_get("@_resque_queue") || 'xapian_db'
       end
 
+      def sidekiq_queue
+        @config.instance_variable_get("@_sidekiq_queue") || 'xapian_db'
+      end
+
       def term_min_length
         @config.instance_variable_get("@_term_min_length") || 1
       end
@@ -70,8 +74,8 @@ module XapianDb
     # DSL methods
     # ---------------------------------------------------------------------------------
 
-    attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_stemmer, :_stopper,
-                :_term_min_length, :_term_splitter_count, :_enabled_query_flags
+    attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_sidekiq_queue, 
+                :_stemmer, :_stopper, :_term_min_length, :_term_splitter_count, :_enabled_query_flags
 
     # Set the global database to use
     # @param [String] path The path to the database. Either apply a file sytem path or :memory
@@ -115,6 +119,7 @@ module XapianDb
     #   - :direct ({XapianDb::IndexWriters::DirectWriter})
     #   - :beanstalk ({XapianDb::IndexWriters::BeanstalkWriter})
     #   - :resque ({XapianDb::IndexWriters::ResqueWriter})
+    #   - :sidekiq ({XapianDb::IndexWriters::SidekiqWriter})
     def writer(type)
       # We try to guess the writer name
       begin
@@ -136,6 +141,12 @@ module XapianDb
     # @param [String] name The name of the resque queue
     def resque_queue(name)
       @_resque_queue = name
+    end
+
+    # Set the name of the sidekiq queue
+    # @param [String] name The name of the sidekiq queue
+    def sidekiq_queue(name)
+      @_sidekiq_queue = name
     end
 
     # Set the language.
