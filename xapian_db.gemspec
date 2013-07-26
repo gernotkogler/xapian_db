@@ -5,7 +5,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name         = %q{xapian_db}
-  s.version      = "1.3.3.1"
+  s.version      = "1.3.4"
   s.authors      = ["Gernot Kogler"]
   s.summary      = %q{Ruby library to use a Xapian db as a key/value store with high performance fulltext search}
   s.description  = %q{XapianDb is a ruby gem that combines features of nosql databases and fulltext indexing. It is based on Xapian, an efficient and powerful indexing library}

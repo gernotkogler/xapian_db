@@ -1,3 +1,10 @@
+##1.3.4 (July 26th, 2013)
+
+Changes:
+
+  - support for sidekiq queues
+
+
 ##1.3.3.1 (June 23th, 2013)
 
 Fixes:
