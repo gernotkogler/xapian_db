@@ -84,8 +84,8 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
   - language: any iso language code, default: :none (activates spelling corrections, stemmer and stop words if an iso language code ist set)
   - term_min_length: <n>, default: 1 (do not index terms shorter than n)
   - term_splitter_count: <n>, default: 0 (see chapter Term Splitting)
-  - enable_query_flags: <list of flags, separated by colons>
-  - disable_query_flags: <list of flags, separated by colons>
+  - enabled_query_flags: <list of flags, separated by colons>
+  - disabled_query_flags: <list of flags, separated by colons>
 
   The following query flags are enabled by default:
 
@@ -94,7 +94,7 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
     - FLAG_BOOLEAN_ANY_CASE
     - FLAG_SPELLING_CORRECTION
 
-  See the xapian docs for all available query flags
+  See the xapian docs for all available query flags; if you use the enabled_query_flags option, you must list all query flags that you want to enable since enabled_query_flags overwrites the defaults
 
 If you do not configure settings for an environment in this file, xapian_db applies the defaults.
 
