@@ -20,10 +20,25 @@ class PersistentObject
       @objects.size
     end
 
-    def all(options={})
+    def where(conditions)
       @objects
     end
 
+    def offset(number)
+      self
+    end
+
+    def limit(number)
+      self
+    end
+
+    def order(number)
+      self
+    end
+
+    def each(&block)
+      @objects.each{ |object| yield object }
+    end
   end
 
   attr_accessor :id, :name, :date, :age
@@ -34,12 +49,12 @@ class PersistentObject
   end
 
   def save
-    self.class.all << self
+    self.class.where("1=1") << self
     instance_eval &self.class.hooks[:after_save] if self.class.hooks[:after_save]
   end
 
   def destroy
-    self.class.all.delete self
+    self.class.where("1=1").delete self
     @destroyed = true
     instance_eval &self.class.hooks[:after_destroy]
   end
