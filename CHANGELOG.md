@@ -1,3 +1,9 @@
+##1.3.5.1 (August 16th, 2013)
+
+Fixes:
+
+  - namespaced models work again with rails 4
+
 ##1.3.5 (August 3rd, 2013)
 
 Changes:
