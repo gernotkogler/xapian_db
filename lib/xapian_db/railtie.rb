@@ -35,6 +35,7 @@ module XapianDb
         env_config ? configure_from(env_config) : configure_defaults
       else
         # No config file, set the defaults
+        Rails.logger.warn "#{Rails.root}/config/xapian_db.yml not found, using built in defaults"
         configure_defaults
       end
 
@@ -114,6 +115,7 @@ module XapianDb
                                 Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE,
                                 Xapian::QueryParser::FLAG_SPELLING_CORRECTION
                               ]
+      @disabled_query_flags = []
     end
   end
 end
