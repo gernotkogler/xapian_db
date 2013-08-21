@@ -84,8 +84,8 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
   - language: any iso language code, default: :none (activates spelling corrections, stemmer and stop words if an iso language code ist set)
   - term_min_length: <n>, default: 1 (do not index terms shorter than n)
   - term_splitter_count: <n>, default: 0 (see chapter Term Splitting)
-  - enabled_query_flags: <list of flags, separated by colons>
-  - disabled_query_flags: <list of flags, separated by colons>
+  - enabled_query_flags: <list of flags, separated by commas>
+  - disabled_query_flags: <list of flags, separated by commas>
 
   The following query flags are enabled by default:
 
