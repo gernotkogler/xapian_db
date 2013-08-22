@@ -84,7 +84,9 @@ module XapianDb
 
       if env_config["enabled_query_flags"]
         @enabled_query_flags = []
-        env_config["enabled_query_flags"].split(",").each { |flag_name| @enabled_query_flags << const_get("Xapian::QueryParser::%s" % flag_name.strip) }
+        env_config["enabled_query_flags"].split(",").each do |flag_name|
+          @enabled_query_flags << Xapian::QueryParser.const_get(flag_name.strip)
+        end
       else
         @enabled_query_flags = [ Xapian::QueryParser::FLAG_WILDCARD,
                                  Xapian::QueryParser::FLAG_BOOLEAN,
@@ -95,7 +97,9 @@ module XapianDb
 
       if env_config["disabled_query_flags"]
         @disabled_query_flags = []
-        env_config["disabled_query_flags"].split(",").each { |flag_name| @disabled_query_flags << const_get("Xapian::QueryParser::%s" % flag_name.strip) }
+        env_config["disabled_query_flags"].split(",").each do |flag_name|
+          @disabled_query_flags << Xapian::QueryParser.const_get(flag_name.strip)
+        end
       else
         @disabled_query_flags = []
       end
