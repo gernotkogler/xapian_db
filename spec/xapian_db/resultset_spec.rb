@@ -66,11 +66,11 @@ describe XapianDb::Resultset do
     it "accepts a limit option (as a string or an integer)" do
       @mset.stub!(:matches).and_return(@matches[0..1])
       resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :limit => "2")
-
       resultset.hits.should         == 3
       resultset.size.should         == 2
       resultset.current_page.should == 1
-      resultset.total_pages.should  == 1
+      resultset.total_pages.should  == 2
+      resultset.total_count.should  == @matches.size
     end
 
     it "accepts a per_page option (as a string or an integer)" do
