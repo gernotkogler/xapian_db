@@ -73,7 +73,7 @@ module XapianDb
       raise ArgumentError.new "page #{@page} does not exist" if @hits > 0 && offset >= limit
 
       self.replace result_window.matches.map{|match| decorate(match).document}
-      @total_pages  = (limit / per_page.to_f).ceil
+      @total_pages  = (@hits / per_page.to_f).ceil
       @current_page = page
       @limit_value  = per_page
     end
