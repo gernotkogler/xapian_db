@@ -22,6 +22,7 @@ module XapianDb
     # @return [Integer]
     attr_reader :hits
     alias_method :total_count, :hits
+    alias_method :total_entries, :hits
 
     # The number of pages
     # @return [Integer]

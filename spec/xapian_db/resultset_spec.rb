@@ -48,15 +48,20 @@ describe XapianDb::Resultset do
     end
   end
 
+  it "is compatible with will_paginate pagination" do
+    resultset = XapianDb::Resultset.new(nil, {})
+    resultset.should respond_to(:total_entries)
+  end
+
   describe ".initialize(enquiry, options)" do
 
     it "creates a valid, empty result set if we pass nil for the enquiry" do
       resultset = XapianDb::Resultset.new(nil, {})
-      resultset.hits.should         == 0
-      resultset.size.should         == 0
-      resultset.current_page.should == 0
-      resultset.total_pages.should  == 0
-      resultset.limit_value.should  == 0
+      resultset.hits.should          == 0
+      resultset.size.should          == 0
+      resultset.current_page.should  == 0
+      resultset.total_pages.should   == 0
+      resultset.limit_value.should   == 0
     end
 
     it "raises an exception if an unsupported option is passed" do
@@ -66,11 +71,12 @@ describe XapianDb::Resultset do
     it "accepts a limit option (as a string or an integer)" do
       @mset.stub!(:matches).and_return(@matches[0..1])
       resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :limit => "2")
-      resultset.hits.should         == 3
-      resultset.size.should         == 2
-      resultset.current_page.should == 1
-      resultset.total_pages.should  == 2
-      resultset.total_count.should  == @matches.size
+      resultset.hits.should          == 3
+      resultset.size.should          == 2
+      resultset.current_page.should  == 1
+      resultset.total_pages.should   == 2
+      resultset.total_count.should   == @matches.size
+      resultset.total_entries.should == @matches.size
     end
 
     it "accepts a per_page option (as a string or an integer)" do
