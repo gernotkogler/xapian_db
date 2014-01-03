@@ -1,3 +1,10 @@
+##1.3.5.2 (January 3rd, 2014)
+
+Fixes:
+
+  - total_pages are calculated correctly when a limit option is passed (Thanks, Jan)
+  - fix for will_paginate support
+
 ##1.3.5.1 (August 16th, 2013)
 
 Fixes:
