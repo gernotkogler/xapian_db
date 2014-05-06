@@ -199,6 +199,16 @@ describe XapianDb::Database do
       XapianDb.database.search("text2:findme_in_text2").size.should == 1
     end
 
+      it "should retry if a Xapian::DatabaseModifiedError occurs" do
+      XapianDb.database.store_doc(@doc).should be_true
+
+      # first try
+      XapianDb::Resultset.should_receive(:new).and_raise IOError.new "DatabaseModifiedError: The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation"
+      # second try
+      XapianDb::Resultset.should_receive(:new).and_return [1]
+      XapianDb.database.search("text2:findme_in_text2").size.should == 1
+      end
+
     it "should support phrase searches" do
       XapianDb.setup do |config|
         config.enable_query_flag Xapian::QueryParser::FLAG_PHRASE

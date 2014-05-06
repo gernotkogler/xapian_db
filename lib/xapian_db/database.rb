@@ -85,7 +85,19 @@ module XapianDb
 
       opts[:spelling_suggestion] = @query_parser.spelling_suggestion
       opts[:db_size]             = self.size
-      result = Resultset.new(enquiry, opts)
+
+      retries = 0
+      begin
+        result = Resultset.new(enquiry, opts)
+      rescue IOError => ex
+        raise unless ex.message =~ /DatabaseModifiedError: /
+        raise if retries >= 5
+        sleep 0.1
+        retries += 1
+        Rails.logger.warn "XapianDb: DatabaseModifiedError, retry #{retries}" if defined?(Rails)
+        @reader.reopen
+        retry
+      end
 
       Rails.logger.debug "XapianDb search (#{(Time.now - start) * 1000}ms) #{expression}" if defined?(Rails)
       result

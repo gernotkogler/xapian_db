@@ -51,15 +51,14 @@ module XapianDb
     # @option options [String] :spelling_suggestion (nil) The spelling corrected query (if a language is configured)
     def initialize(enquiry, options={})
 
-      enquiry = enquiry
       return build_empty_resultset if enquiry.nil?
-      db_size              = options.delete :db_size
-      @spelling_suggestion = options.delete :spelling_suggestion
-
-      limit                = options.delete :limit
-      page                 = options.delete :page
-      per_page             = options.delete :per_page
-      raise ArgumentError.new "unsupported options for resultset: #{options}" if options.size > 0
+      params               = options.dup
+      db_size              = params.delete :db_size
+      @spelling_suggestion = params.delete :spelling_suggestion
+      limit                = params.delete :limit
+      page                 = params.delete :page
+      per_page             = params.delete :per_page
+      raise ArgumentError.new "unsupported options for resultset: #{params}" if params.size > 0
       raise ArgumentError.new "db_size option is required" unless db_size
 
       limit    = limit.nil? ? db_size : limit.to_i

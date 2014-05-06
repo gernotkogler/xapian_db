@@ -1,3 +1,9 @@
+##1.3.5.3 (May 22th, 2014)
+
+Fixes:
+
+  - retry the search when a Xapian::DatabaseModifiedError occurs
+
 ##1.3.5.2 (January 3rd, 2014)
 
 Fixes:
