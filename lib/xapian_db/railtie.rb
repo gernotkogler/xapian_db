@@ -44,7 +44,7 @@ module XapianDb
         if @database_path == ":memory:"
           config.database :memory
         else
-          config.database File.expand_path @database_path
+          config.database Rails.root.join(@database_path).to_s
         end
         config.adapter @adapter.try(:to_sym)
         config.writer @writer.try(:to_sym)

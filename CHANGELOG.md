@@ -1,3 +1,9 @@
+##1.3.5.4 (Nov 18th, 2014)
+
+Fixes:
+
+  - path to database fixed in railtie
+
 ##1.3.5.3 (May 22th, 2014)
 
 Fixes:
