@@ -1,8 +1,9 @@
-##1.3.5.4 (Nov 18th, 2014)
+##1.3.5.4 (Jan 13th, 2015)
 
 Fixes:
 
   - path to database fixed in railtie
+  - fix for xapian > 1.2.15
 
 ##1.3.5.3 (May 22th, 2014)
 

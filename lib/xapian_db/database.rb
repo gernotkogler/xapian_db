@@ -207,14 +207,10 @@ module XapianDb
       @reader = Xapian::Database.new(@path)
     end
 
-    # Get the readable instance of the database. On each access this method reopens the readable database
-    # to make sure you get the latest changes to the index
+    # Get a readable instance of the database
     # @return [Xapian::Database] A readable xapian database (see http://xapian.org/docs/apidoc/html/classXapian_1_1Database.html)
     def reader
-      # Always reopen the readable database so we get live index data
-      # TODO: make this configurable
-      @reader.reopen
-      @reader
+      Xapian::Database.new(@path)
     end
 
     # The writer is instantiated layzily to avoid a permanent write lock on the database. Please note that
