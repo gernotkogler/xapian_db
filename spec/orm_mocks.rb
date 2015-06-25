@@ -130,7 +130,9 @@ class ActiveRecordObject < PersistentObject
       @hooks ||= {}
       @hooks["after_destroy".to_sym] = block
     end
-
   end
 
+  def previous_changes
+    Hash.new
+  end
 end

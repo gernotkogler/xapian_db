@@ -1,3 +1,9 @@
+##1.3.6 (June 25th, 2015)
+
+Changes:
+
+  - Ability do define and handle dependencies between blueprints (see README)
+
 ##1.3.5.4 (Jan 13th, 2015)
 
 Fixes:

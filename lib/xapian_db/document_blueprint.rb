@@ -50,6 +50,7 @@ module XapianDb
         # We can always do a field search on the name of the indexed class
         @searchable_prefixes << "indexed_class"
         @attributes = @blueprints.values.map { |blueprint| blueprint.attribute_names}.flatten.compact.uniq.sort || []
+        blueprint
       end
 
       # reset the blueprint setup
@@ -66,11 +67,17 @@ module XapianDb
       # Get all configured classes
       # @return [Array<Class>]
       def configured_classes
-       if @blueprints
-         @blueprints.keys.map {|class_name| XapianDb::Utilities.constantize(class_name) }
-       else
-         []
-       end
+        if @blueprints
+          @blueprints.keys.map {|class_name| XapianDb::Utilities.constantize(class_name) }
+        else
+          []
+        end
+      end
+
+      def dependencies_for(klass_name, change_set)
+        @blueprints.values.map(&:dependencies)
+                          .flatten
+                          .select{ |dependency| dependency.dependent_on == klass_name && dependency.interested_in?(change_set) }
       end
 
       # Get the blueprint for a class
@@ -167,7 +174,6 @@ module XapianDb
           end
         end
       end
-
     end
 
     # ---------------------------------------------------------------------------------
@@ -258,13 +264,14 @@ module XapianDb
     # Blueprint DSL methods
     # ---------------------------------------------------------------------------------
 
-    attr_reader :lazy_base_query, :_natural_sort_order
+    attr_reader :lazy_base_query, :_natural_sort_order, :dependencies
 
     # Construct the blueprint
     def initialize
       @attributes_hash      = {}
       @indexed_methods_hash = {}
       @type_map             = {}
+      @dependencies         = []
       @_natural_sort_order  = :id
       @autoindex            = true
     end
@@ -377,7 +384,7 @@ module XapianDb
       @ignore_expression = block
     end
 
-# Define a base query to select one or all objects of the indexed class. The reason for a
+    # Define a base query to select one or all objects of the indexed class. The reason for a
     # base query is to optimize the query avoiding th 1+n problematic. The base query should only
     # include joins(...) and includes(...) calls.
     # @param [expression] a base query expression
@@ -400,6 +407,10 @@ module XapianDb
       @_natural_sort_order = name || block
     end
 
+    def dependency(klass_name, when_changed: [], &block)
+      @dependencies << Dependency.new(klass_name.to_s, when_changed, block)
+    end
+
     # Options for an indexed method
     class IndexOptions
 
@@ -414,7 +425,24 @@ module XapianDb
         @no_split = options[:no_split]
         @block    = options[:block]
       end
+    end
 
+    class Dependency
+
+      attr_reader :dependent_on, :trigger_attributes, :block
+
+      # Constructor
+      # @param [String] klass_name Name of the dependent class
+      # @param [Array] trigger_attributes List of attributes to watch for changes (if empty, triggers on any change)
+      # @option [Block] block Block that is called when changes are detected; the block must return an array of indexeable objects
+      def initialize(klass_name, trigger_attributes, block)
+        @dependent_on, @trigger_attributes, @block = klass_name, trigger_attributes.map(&:to_s), block
+      end
+
+      def interested_in?(change_set)
+        return true if @trigger_attributes.empty?
+        (@trigger_attributes & change_set.keys).any?
+      end
     end
 
     private
@@ -431,7 +459,5 @@ module XapianDb
       @reserved_method_names ||= Xapian::Document.instance_methods
       @reserved_method_names.include?(attr_name.to_sym)
     end
-
   end
-
 end

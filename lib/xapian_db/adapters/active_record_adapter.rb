@@ -49,7 +49,12 @@ module XapianDb
              # add the after commit logic, unless the blueprint has autoindexing turned off
              if XapianDb::DocumentBlueprint.blueprint_for(klass.name).autoindex?
                after_commit do
-                 XapianDb.reindex(self) unless self.destroyed?
+                 unless self.destroyed?
+                   XapianDb.reindex(self)
+                   XapianDb::DocumentBlueprint.dependencies_for(klass.name, self.previous_changes).each do |dependency|
+                     dependency.block.call(self).each{ |model| XapianDb.reindex model }
+                   end
+                 end
                end
              end
 
@@ -64,7 +69,6 @@ module XapianDb
                XapianDb.reindex_class(klass, options)
              end
            end
-
          end
 
          # Implement the document helper methods on a module
@@ -90,11 +94,8 @@ module XapianDb
                klass =  constantize klass_name
                @indexed_object = klass.find(id.to_i)
              end
-
            end
-
          end
-
        end
      end
    end

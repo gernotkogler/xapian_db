@@ -59,7 +59,6 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     it "adds the helper methods from the base class" do
       ActiveRecordObject.should respond_to(:search)
     end
-
   end
 
   describe ".add_doc_helper_methods_to(obj)" do
@@ -75,7 +74,6 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       XapianDb::Adapters::ActiveRecordAdapter.add_doc_helper_methods_to(mod)
       mod.instance_methods.should include(:indexed_object)
     end
-
   end
 
   describe ".xapian_id" do
@@ -122,6 +120,25 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       XapianDb.search("Kogler").size.should == 1
     end
 
+    it "should (re)index a dependent object if necessary" do
+      source_object    = ActiveRecordObject.new 1, 'Müller'
+      dependent_object = ActiveRecordObject.new 1, 'Meier'
+
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
+        blueprint.index :name
+
+        # doesn't make a lot of sense to declare a circular dependency but for this spec it doesn't matter
+        blueprint.dependency :ActiveRecordObject, when_changed: %i(name) do |person|
+          [dependent_object]
+        end
+      end
+      source_object.stub!(:previous_changes).and_return({ 'name' => 'something' })
+
+      XapianDb.should_receive(:reindex).with source_object
+      XapianDb.should_receive(:reindex).with dependent_object
+
+      source_object.save
+    end
   end
 
   describe "the after destroy hook" do

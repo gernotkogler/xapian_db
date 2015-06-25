@@ -5,7 +5,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name         = %q{xapian_db}
-  s.version      = "1.3.5.4"
+  s.version      = "1.3.6"
   s.authors      = ["Gernot Kogler"]
   s.license      = 'MIT'
   s.summary      = %q{Ruby library to use a Xapian db as a key/value store with high performance fulltext search}
@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = ">=1.3.6"
 
-  s.add_dependency "daemons",          ">= 1.0.10"
+  s.add_dependency "daemons", ">= 1.0.10"
 
   s.add_development_dependency "guard"
   s.add_development_dependency "rspec",            ">= 2.3.1"

@@ -194,6 +194,18 @@ are ordered by relevance and - within the same relevance - by the natural sort o
     end
   end
 
+You may use attributes from associated objekts in a blueprint; if you do that and an associated object is updated, your objects should be reindexed, too. You can tell XapnaDB about those dependencies like so:
+
+  XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|
+    blueprint.attribue :address, :as => :json
+
+    blueprint.dependency :Address, when_changed: %i(street zip city) do |address|
+      Person.joins{ address }.where{ adresses.id == my{ address.id } }
+    end
+  end
+
+The block you supply to the dependency declaration must return a collection of objects that should get reindexed, too.
+
 If you want to manage the (re)indexing of your objects on your own, turn off autoindexing in your blueprint:
 
   XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|

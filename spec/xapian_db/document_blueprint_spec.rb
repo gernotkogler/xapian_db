@@ -15,7 +15,6 @@ describe XapianDb::DocumentBlueprint do
 
       XapianDb::DocumentBlueprint.configured_classes.should == []
     end
-
   end
 
   describe ".configured_classes" do
@@ -57,7 +56,6 @@ describe XapianDb::DocumentBlueprint do
       end
       XapianDb::DocumentBlueprint.configured?(:NotConfigured).should be_false
     end
-
   end
 
   describe ".blueprint_for(name)" do
@@ -114,7 +112,44 @@ describe XapianDb::DocumentBlueprint do
       end
       XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).should be_a_kind_of XapianDb::DocumentBlueprint
     end
+  end
 
+  describe ".dependencies_for(klass_name, change_set)" do
+
+    it "returns dependency objects that match the klass name" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+
+      XapianDb::DocumentBlueprint.setup(:OtherIndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+
+        blueprint.dependency :IndexedObject do |person|
+        end
+      end
+
+      expect(XapianDb::DocumentBlueprint.dependencies_for 'IndexedObject', Hash.new).to have(1).item
+    end
+
+    it "returns dependency objects that match the klass name and the attributes they're interested in, when specified" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+
+      XapianDb::DocumentBlueprint.setup(:OtherIndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+
+        blueprint.dependency :IndexedObject, when_changed: %i(name) do |person|
+        end
+      end
+
+      expect(XapianDb::DocumentBlueprint.dependencies_for 'IndexedObject', Hash.new).to be_empty # no change for name
+      expect(XapianDb::DocumentBlueprint.dependencies_for 'IndexedObject', { 'name' => 'something' }).to have(1).item
+    end
   end
 
   describe ".searchable_prefixes" do
@@ -180,7 +215,6 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.reset
       XapianDb::DocumentBlueprint.type_info_for(:not_defined).should_not be
     end
-
   end
 
   describe ".setup (class)" do
@@ -225,7 +259,6 @@ describe XapianDb::DocumentBlueprint do
       end.should_not raise_error
       XapianDb::DocumentBlueprint.blueprint_for(:NotYetLoadedClass).should_not be_nil
     end
-
   end
 
   describe ".value_number_for(:attribute)" do
@@ -279,7 +312,6 @@ describe XapianDb::DocumentBlueprint do
       end
       XapianDb::DocumentBlueprint.value_number_for(:array).should == @position_offset
     end
-
   end
 
   describe "#adapter (symbol)" do
@@ -330,7 +362,6 @@ describe XapianDb::DocumentBlueprint do
       end
       XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).autoindex?.should be_true
     end
-
   end
 
   describe "#attribute" do
@@ -388,9 +419,7 @@ describe XapianDb::DocumentBlueprint do
       lambda{XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :data
       end}.should raise_error ArgumentError
-
     end
-
   end
 
   describe "#attributes" do
@@ -462,7 +491,6 @@ describe XapianDb::DocumentBlueprint do
       end
       XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).indexed_method_names.should include(:id, :name, :first_name)
     end
-
   end
 
   describe "#ignore_if" do
@@ -508,7 +536,6 @@ describe XapianDb::DocumentBlueprint do
       obj = IndexedObject.new 1
       blueprint.should_index?(obj).should be_true
     end
-
   end
 
   describe "base_query" do
@@ -537,7 +564,6 @@ describe XapianDb::DocumentBlueprint do
       XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject).lazy_base_query.should be_a Proc
     end
   end
-
 
   describe "#natural_sort_order" do
 
@@ -570,9 +596,28 @@ describe XapianDb::DocumentBlueprint do
         end
       end }.should raise_error ArgumentError
     end
-
   end
 
+  describe "#dependency(klass_name, when_changed: [], &block)" do
+
+    it "adds a dependency to the blueprint" do
+      dependent_object = OtherIndexedObject.new 1
+      blueprint = XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+
+        blueprint.dependency :OtherIndexedObject, when_changed: %i(name) do |person|
+          [dependent_object]
+        end
+      end
+
+      expect(blueprint.dependencies).to have(1).item
+      dependency = blueprint.dependencies.first
+      expect(dependency.dependent_on).to eq 'OtherIndexedObject'
+      expect(dependency.trigger_attributes).to eq ['name']
+      expect(dependency.block.call).to eq [dependent_object]
+    end
+  end
 
   describe "#accessors_module" do
 
@@ -647,7 +692,5 @@ describe XapianDb::DocumentBlueprint do
     it "contains :string for an indexed method if no type is defined" do
       blueprint.type_map[:untyped].should == :string
     end
-
   end
-
 end
