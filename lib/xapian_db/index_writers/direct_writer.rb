@@ -17,12 +17,16 @@ module XapianDb
       class << self
 
         # Update an object in the index
-        # @param [Object] obj An instance of a class with a blueprint configuration
-        def index(obj, commit=true)
-          blueprint = XapianDb::DocumentBlueprint.blueprint_for(obj.class.name)
+        # @param [Object] object An instance of a class with a blueprint configuration
+        def index(object, commit=true)
+          blueprint = XapianDb::DocumentBlueprint.blueprint_for(object.class.name)
           indexer   = XapianDb::Indexer.new(XapianDb.database, blueprint)
-          doc       = indexer.build_document_for(obj)
+          doc       = indexer.build_document_for(object)
           XapianDb.database.store_doc(doc)
+          changes = object.respond_to?(:previous_changes) ? object.previous_changes : Hash.new
+          XapianDb::DocumentBlueprint.dependencies_for(object.class.name, changes).each do |dependency|
+            dependency.block.call(object).each{ |model| reindex model, commit }
+          end
           XapianDb.database.commit if commit
         end
 

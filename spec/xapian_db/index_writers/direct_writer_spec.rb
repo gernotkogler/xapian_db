@@ -24,6 +24,23 @@ describe XapianDb::IndexWriters::DirectWriter do
       XapianDb::IndexWriters::DirectWriter.index @obj
       XapianDb.database.size.should == 1
     end
+
+    it "should (re)index a dependent object if necessary" do
+      source_object    = ActiveRecordObject.new 1, 'Müller'
+      dependent_object = ActiveRecordObject.new 1, 'Meier'
+
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
+        blueprint.index :name
+
+        # doesn't make a lot of sense to declare a circular dependency but for this spec it doesn't matter
+        blueprint.dependency :ActiveRecordObject, when_changed: %i(name) do |person|
+          [dependent_object]
+        end
+      end
+      source_object.stub!(:previous_changes).and_return({ 'name' => 'something' })
+      XapianDb::IndexWriters::DirectWriter.should_receive(:reindex).with dependent_object, true
+      XapianDb::IndexWriters::DirectWriter.index source_object
+    end
   end
 
   describe ".delete_doc_with(xapian_id)" do
