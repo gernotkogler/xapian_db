@@ -37,9 +37,10 @@ describe XapianDb::IndexWriters::DirectWriter do
           [dependent_object]
         end
       end
-      source_object.stub!(:previous_changes).and_return({ 'name' => 'something' })
-      XapianDb::IndexWriters::DirectWriter.should_receive(:reindex).with dependent_object, true
-      XapianDb::IndexWriters::DirectWriter.index source_object
+      changed_data = { 'name' => ['Name old', 'Name new'] }
+      source_object.stub!(:previous_changes).and_return changed_data
+      XapianDb::IndexWriters::DirectWriter.should_receive(:reindex).with dependent_object, true, changed_data: changed_data
+      XapianDb::IndexWriters::DirectWriter.index source_object, true, changed_data: changed_data
     end
   end
 

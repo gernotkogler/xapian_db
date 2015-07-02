@@ -105,9 +105,9 @@ module XapianDb
 
   # Update an object in the index
   # @param [Object] obj An instance of a class with a blueprint configuration
-  def self.index(obj, commit=true)
+  def self.index(obj, commit=true, changed_data: Hash.new)
     writer = @block_writer || XapianDb::Config.writer
-    writer.index obj, commit
+    writer.index obj, commit, changed_data: changed_data
   end
 
   # Remove a document from the index
@@ -119,11 +119,11 @@ module XapianDb
 
   # Update or delete a xapian document belonging to an object depending on the ignore_if logic(if present)
   # @param [Object] object An instance of a class with a blueprint configuration
-  def self.reindex(object, commit=true)
+  def self.reindex(object, commit=true, changed_data: Hash.new)
     writer = @block_writer || XapianDb::Config.writer
     blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class.name
     if blueprint.should_index?(object)
-      writer.index object, commit
+      writer.index object, commit, changed_data: changed_data
     else
       writer.delete_doc_with object.xapian_id, commit
     end
@@ -191,5 +191,4 @@ module XapianDb
       @block_writer = nil
     end
   end
-
 end

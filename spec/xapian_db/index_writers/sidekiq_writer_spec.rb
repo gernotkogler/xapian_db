@@ -22,8 +22,9 @@ describe XapianDb::IndexWriters::SidekiqWriter do
     let(:object) { TestIndexClass.new }
 
     it "puts the index task on the sidekiq queue" do
-      Sidekiq::Client.should_receive(:enqueue).with(DummyWorker, :index, :class => 'TestIndexClass', :id => 28)
-      described_class.index object
+      changed_data = { 'name' => ['Name old', 'Name new'] }
+      Sidekiq::Client.should_receive(:enqueue).with(DummyWorker, :index, class: 'TestIndexClass', id: 28, changed_data: changed_data)
+      described_class.index object, true, changed_data: changed_data
     end
   end
 
@@ -40,5 +41,4 @@ describe XapianDb::IndexWriters::SidekiqWriter do
       described_class.reindex_class TestIndexClass
     end
   end
-
 end

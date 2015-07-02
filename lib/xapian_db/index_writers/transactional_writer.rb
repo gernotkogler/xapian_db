@@ -20,7 +20,7 @@ module XapianDb
 
       # Update an object in the index
       # @param [Object] obj An instance of a class with a blueprint configuration
-      def index(obj, commit=false)
+      def index(obj, commit=false, changed_data: Hash.new)
         @index_requests << obj
       end
 
@@ -45,8 +45,6 @@ module XapianDb
         @delete_requests.each { |xapian_id| writer.delete_doc_with xapian_id, false }
         XapianDb.database.commit
       end
-
     end
-
   end
 end

@@ -13,7 +13,7 @@ module XapianDb
       def index_task(options)
         klass = constantize options[:class]
         obj   = klass.respond_to?(:get) ? klass.get(options[:id]) : klass.find(options[:id])
-        DirectWriter.index obj
+        DirectWriter.index obj, true, changed_data: options[:changed_data]
       end
 
       def delete_doc_task(options)
@@ -24,7 +24,6 @@ module XapianDb
         klass = constantize options[:class]
         DirectWriter.reindex_class klass, :verbose => false
       end
-
     end
   end
 end

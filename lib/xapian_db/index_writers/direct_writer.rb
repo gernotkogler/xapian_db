@@ -18,14 +18,13 @@ module XapianDb
 
         # Update an object in the index
         # @param [Object] object An instance of a class with a blueprint configuration
-        def index(object, commit=true)
+        def index(object, commit=true, changed_data: Hash.new)
           blueprint = XapianDb::DocumentBlueprint.blueprint_for(object.class.name)
           indexer   = XapianDb::Indexer.new(XapianDb.database, blueprint)
           doc       = indexer.build_document_for(object)
           XapianDb.database.store_doc(doc)
-          changes = object.respond_to?(:previous_changes) ? object.previous_changes : Hash.new
-          XapianDb::DocumentBlueprint.dependencies_for(object.class.name, changes).each do |dependency|
-            dependency.block.call(object).each{ |model| reindex model, commit }
+          XapianDb::DocumentBlueprint.dependencies_for(object.class.name, changed_data).each do |dependency|
+            dependency.block.call(object).each{ |model| reindex model, commit, changed_data: changed_data }
           end
           XapianDb.database.commit if commit
         end
@@ -39,10 +38,10 @@ module XapianDb
 
         # Update or delete a xapian document belonging to an object depending on the ignore_if logic(if present)
         # @param [Object] object An instance of a class with a blueprint configuration
-        def reindex(object, commit=true)
+        def reindex(object, commit=true, changed_data: Hash.new)
           blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class.name
           if blueprint.should_index?(object)
-            index object, commit
+            index object, commit, changed_data: changed_data
           else
             delete_doc_with object.xapian_id, commit
           end
