@@ -37,10 +37,10 @@ describe XapianDb::IndexWriters::DirectWriter do
           [dependent_object]
         end
       end
-      changed_data = { 'name' => ['Name old', 'Name new'] }
-      source_object.stub!(:previous_changes).and_return changed_data
-      XapianDb::IndexWriters::DirectWriter.should_receive(:reindex).with dependent_object, true, changed_data: changed_data
-      XapianDb::IndexWriters::DirectWriter.index source_object, true, changed_data: changed_data
+      changed_attrs = ['name']
+      source_object.stub!(:previous_changes).and_return changed_attrs
+      XapianDb::IndexWriters::DirectWriter.should_receive(:reindex).with dependent_object, true, changed_attrs: changed_attrs
+      XapianDb::IndexWriters::DirectWriter.index source_object, true, changed_attrs: changed_attrs
     end
   end
 
@@ -99,7 +99,5 @@ describe XapianDb::IndexWriters::DirectWriter do
       XapianDb::DocumentBlueprint.blueprint_for(:DatamapperObject).lazy_base_query.should_receive(:call).and_return DatamapperObject
       XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject
     end
-
   end
-
 end

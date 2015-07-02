@@ -13,7 +13,7 @@ module XapianDb
       def index_task(options)
         klass = constantize options[:class]
         obj   = klass.respond_to?(:get) ? klass.get(options[:id]) : klass.find(options[:id])
-        DirectWriter.index obj, true, changed_data: options[:changed_data]
+        DirectWriter.index obj, true, changed_attrs: options[:changed_attrs]
       end
 
       def delete_doc_task(options)

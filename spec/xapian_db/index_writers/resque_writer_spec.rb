@@ -22,9 +22,9 @@ describe XapianDb::IndexWriters::ResqueWriter do
     let(:object) { TestIndexClass.new }
 
     it "puts the index task on the resque queue" do
-      changed_data = { 'name' => ['Name old', 'Name new'] }
-      Resque.should_receive(:enqueue).with(DummyWorker, :index, class: 'TestIndexClass', id: 28, changed_data: changed_data )
-      described_class.index object, true, changed_data: changed_data
+      changed_attrs = ['name']
+      Resque.should_receive(:enqueue).with(DummyWorker, :index, class: 'TestIndexClass', id: 28, changed_attrs: changed_attrs )
+      described_class.index object, true, changed_attrs: changed_attrs
     end
   end
 

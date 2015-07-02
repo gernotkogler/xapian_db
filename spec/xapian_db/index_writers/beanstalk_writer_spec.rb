@@ -16,11 +16,11 @@ describe XapianDb::IndexWriters::BeanstalkWriter do
     described_class.stub(:beanstalk).and_return(BeanstalkDummy.new)
   end
 
-  describe ".index(obj, commit=true, changed_data: Hash.new)" do
+  describe ".index(obj, commit=true, changed_attrs: [])" do
     it "puts the index task on the beanstalk queue" do
-      changed_data = { 'name' => ['Name old', 'Name new'] }
-      described_class.beanstalk.should_receive(:put).with({task: "index_task", class: object.class.name, id: object.id, changed_data: changed_data }.to_json)
-      XapianDb::IndexWriters::BeanstalkWriter.index object, true, changed_data: changed_data
+      changed_attrs = ['name']
+      described_class.beanstalk.should_receive(:put).with({task: "index_task", class: object.class.name, id: object.id, changed_attrs: changed_attrs }.to_json)
+      XapianDb::IndexWriters::BeanstalkWriter.index object, true, changed_attrs: changed_attrs
     end
   end
 

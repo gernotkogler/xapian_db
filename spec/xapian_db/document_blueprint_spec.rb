@@ -114,7 +114,7 @@ describe XapianDb::DocumentBlueprint do
     end
   end
 
-  describe ".dependencies_for(klass_name, change_set)" do
+  describe ".dependencies_for(klass_name, changed_attrs)" do
 
     it "returns dependency objects that match the klass name" do
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
@@ -130,7 +130,7 @@ describe XapianDb::DocumentBlueprint do
         end
       end
 
-      expect(XapianDb::DocumentBlueprint.dependencies_for 'IndexedObject', Hash.new).to have(1).item
+      expect(XapianDb::DocumentBlueprint.dependencies_for 'IndexedObject', []).to have(1).item
     end
 
     it "returns dependency objects that match the klass name and the attributes they're interested in, when specified" do
@@ -147,8 +147,8 @@ describe XapianDb::DocumentBlueprint do
         end
       end
 
-      expect(XapianDb::DocumentBlueprint.dependencies_for 'IndexedObject', Hash.new).to be_empty # no change for name
-      expect(XapianDb::DocumentBlueprint.dependencies_for 'IndexedObject', { 'name' => 'something' }).to have(1).item
+      expect(XapianDb::DocumentBlueprint.dependencies_for 'IndexedObject', []).to be_empty # no change for name
+      expect(XapianDb::DocumentBlueprint.dependencies_for 'IndexedObject', ['name']).to have(1).item
     end
   end
 

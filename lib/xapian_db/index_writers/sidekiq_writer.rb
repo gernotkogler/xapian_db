@@ -16,8 +16,8 @@ module XapianDb
 
         # Update an object in the index
         # @param [Object] obj An instance of a class with a blueprint configuration
-        def index(obj, commit=true, changed_data: Hash.new)
-          Sidekiq::Client.enqueue worker_class, :index, :class => obj.class.name, :id => obj.id, :changed_data => changed_data
+        def index(obj, commit=true, changed_attrs: [])
+          Sidekiq::Client.enqueue worker_class, :index, :class => obj.class.name, :id => obj.id, :changed_attrs => changed_attrs
         end
 
         # Remove an object from the index

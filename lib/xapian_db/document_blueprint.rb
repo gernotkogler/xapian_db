@@ -74,10 +74,10 @@ module XapianDb
         end
       end
 
-      def dependencies_for(klass_name, change_set)
+      def dependencies_for(klass_name, changed_attrs)
         @blueprints.values.map(&:dependencies)
                           .flatten
-                          .select{ |dependency| dependency.dependent_on == klass_name && dependency.interested_in?(change_set) }
+                          .select{ |dependency| dependency.dependent_on == klass_name && dependency.interested_in?(changed_attrs) }
       end
 
       # Get the blueprint for a class
@@ -439,9 +439,9 @@ module XapianDb
         @dependent_on, @trigger_attributes, @block = klass_name, trigger_attributes.map(&:to_s), block
       end
 
-      def interested_in?(change_set)
+      def interested_in?(changed_attrs)
         return true if @trigger_attributes.empty?
-        (@trigger_attributes & change_set.keys).any?
+        (@trigger_attributes & changed_attrs).any?
       end
     end
 

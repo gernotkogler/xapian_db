@@ -20,7 +20,7 @@ module XapianDb
 
       # Update an object in the index
       # @param [Object] obj An instance of a class with a blueprint configuration
-      def index(obj, commit=false, changed_data: Hash.new)
+      def index(obj, commit=false, changed_attrs: [])
         @index_requests << obj
       end
 

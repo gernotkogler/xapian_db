@@ -50,7 +50,7 @@ module XapianDb
              if XapianDb::DocumentBlueprint.blueprint_for(klass.name).autoindex?
                after_commit do
                  unless self.destroyed?
-                   XapianDb.reindex(self, true, changed_data: self.previous_changes)
+                   XapianDb.reindex(self, true, changed_attrs: self.previous_changes.keys)
                  end
                end
              end
