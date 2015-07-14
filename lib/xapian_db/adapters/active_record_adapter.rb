@@ -77,7 +77,7 @@ module XapianDb
 
              # Implement access to the model id
              define_method :id do
-               return @id unless @d.nil?
+               return @id unless @id.nil?
                # retrieve the class and id from data
                klass_name, id = data.split("-")
                @id = id.to_i
