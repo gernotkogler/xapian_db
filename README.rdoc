@@ -258,6 +258,10 @@ You can query attributes:
 
   results = XapianDb.search "name:Foo"
 
+You can force the sort order:
+
+  results = XapianDb.search "name:Foo", order: [:name]
+
 You can query objects of a specific class:
 
   results = Person.search "name:Foo"

@@ -73,6 +73,12 @@ module XapianDb
       enquiry.query  = query
       sort_indices   = opts.delete :sort_indices
       sort_decending = opts.delete :sort_decending
+      order          = opts.delete :order
+      raise ArgumentError.new "you can't use sort_indices and order, only one of them" if sort_indices && order
+
+      if order
+        sort_indices = order.map{ |attr_name| XapianDb::DocumentBlueprint.value_number_for attr_name.to_sym }
+      end
 
       sorter = Xapian::MultiValueKeyMaker.new
       if sort_indices

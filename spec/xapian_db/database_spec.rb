@@ -199,7 +199,7 @@ describe XapianDb::Database do
       XapianDb.database.search("text2:findme_in_text2").size.should == 1
     end
 
-      it "should retry if a Xapian::DatabaseModifiedError occurs" do
+    it "should retry if a Xapian::DatabaseModifiedError occurs" do
       XapianDb.database.store_doc(@doc).should be_true
 
       # first try
@@ -207,7 +207,7 @@ describe XapianDb::Database do
       # second try
       XapianDb::Resultset.should_receive(:new).and_return [1]
       XapianDb.database.search("text2:findme_in_text2").size.should == 1
-      end
+    end
 
     it "should support phrase searches" do
       XapianDb.setup do |config|
@@ -324,9 +324,7 @@ describe XapianDb::Database do
             result = XapianDb.database.search "Text"
             result.map { |doc| doc.data.split("-").last.to_i }.should == [2, 1]
           end
-
         end
-
       end
 
       it "accepts the :sort_indices option for a query" do
@@ -383,6 +381,19 @@ describe XapianDb::Database do
         result.size.should == 2
         result.first.number.should == 1
         result.last.number.should == 10
+      end
+
+      it "accepts the :order option for a query" do
+        # sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text2)]
+        result = XapianDb.database.search "text", order: [:text2]
+        result.size.should == 2
+        result.first.text2.should == "A text"
+        result.last.text2.should == "B text"
+      end
+
+      it "raises an argument error if sort_indices and order are both used" do
+        sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text2)]
+        expect{ XapianDb.database.search "text", sort_indices: sort_indices, order: [:text2] }.to raise_error "you can't use sort_indices and order, only one of them"
       end
 
     end
