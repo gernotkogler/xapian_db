@@ -51,6 +51,9 @@ module XapianDb
                after_commit do
                  unless self.destroyed?
                    XapianDb.reindex(self, true, changed_attrs: self.previous_changes.keys)
+                   XapianDb::DocumentBlueprint.dependencies_for(klass.name, self.previous_changes.keys).each do |dependency|
+                     dependency.block.call(self).each{ |model| XapianDb.reindex model, true, changed_attrs: self.previous_changes.keys }
+                   end
                  end
                end
              end

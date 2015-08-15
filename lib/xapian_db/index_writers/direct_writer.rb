@@ -23,9 +23,6 @@ module XapianDb
           indexer   = XapianDb::Indexer.new(XapianDb.database, blueprint)
           doc       = indexer.build_document_for(object)
           XapianDb.database.store_doc(doc)
-          XapianDb::DocumentBlueprint.dependencies_for(object.class.name, changed_attrs).each do |dependency|
-            dependency.block.call(object).each{ |model| reindex model, commit, changed_attrs: changed_attrs }
-          end
           XapianDb.database.commit if commit
         end
 
