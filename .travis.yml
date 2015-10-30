@@ -1,6 +1,11 @@
 language: ruby
 rvm:
-  - 1.9.3
-notifications:
-  email:
-    - gernot@kogler-informatik.ch
+  - 2.0.0
+  - 2.2
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - uuid-dev # needed for compiling xapian-ruby
