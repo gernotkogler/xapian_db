@@ -9,7 +9,7 @@ describe XapianDb::Utilities do
   describe ".constantize(camel_cased_word)" do
 
     it "can resolve Namespaces" do
-      constantize("Namespace::IndexedObject").should be_equal Namespace::IndexedObject
+      expect(constantize("Namespace::IndexedObject")).to be_equal Namespace::IndexedObject
     end
 
   end

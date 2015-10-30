@@ -12,7 +12,7 @@ describe XapianDb::Adapters::BaseAdapter do
 
     it "adds a class method to search for objects of a specific class" do
       XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to PersistentObject
-      PersistentObject.should respond_to :search
+      expect(PersistentObject).to respond_to :search
     end
   end
 
@@ -65,20 +65,20 @@ describe XapianDb::Adapters::BaseAdapter do
     end
 
     it "should only find objects of a given class" do
-      XapianDb.database.search("find me").size.should == 2
+      expect(XapianDb.database.search("find me").size).to eq(2)
       result = ClassA.search("find me")
-      result.size.should == 1
-      result.first.indexed_class.should == "ClassA"
+      expect(result.size).to eq(1)
+      expect(result.first.indexed_class).to eq("ClassA")
     end
 
     it "should remove the class scope from a spelling suggestion" do
       result = ClassA.search("find mee")
-      result.spelling_suggestion.should == "find me"
+      expect(result.spelling_suggestion).to eq("find me")
     end
 
     it "should handle empty search expressions" do
-      ClassA.search(nil).size.should == 0
-      ClassA.search(" ").size.should == 0
+      expect(ClassA.search(nil).size).to eq(0)
+      expect(ClassA.search(" ").size).to eq(0)
     end
 
     context "sorting" do
@@ -96,19 +96,19 @@ describe XapianDb::Adapters::BaseAdapter do
       end
 
       it "should raise an argument error if the :order option contains an unknown attribute" do
-        lambda { ClassA.search "text", :order => :unkown }.should raise_error ArgumentError
+        expect { ClassA.search "text", :order => :unkown }.to raise_error ArgumentError
       end
 
       it "should accept an :order option" do
         result = ClassA.search "text", :order => :text
-        result.first.text.should == "A text"
-        result.last.text.should == "B text"
+        expect(result.first.text).to eq("A text")
+        expect(result.last.text).to eq("B text")
       end
 
       it "should accept an :sort_decending option" do
         result = ClassA.search "text", :order => :text, :sort_decending => true
-        result.first.text.should == "B text"
-        result.last.text.should == "A text"
+        expect(result.first.text).to eq("B text")
+        expect(result.last.text).to eq("A text")
       end
 
     end
@@ -128,7 +128,7 @@ describe XapianDb::Adapters::BaseAdapter do
         end
         indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
         obj = IndexedObject.new(1)
-        obj.stub!(:text).and_return "some text"
+        allow(obj).to receive(:text).and_return "some text"
 
         XapianDb.database.store_doc indexer.build_document_for(obj)
         XapianDb.database.commit
@@ -136,7 +136,7 @@ describe XapianDb::Adapters::BaseAdapter do
 
       it "delegates the search to the database with a class option" do
         result = IndexedObject.search "some text"
-        XapianDb.database.should_receive(:find_similar_to).with(result, :class => IndexedObject)
+        expect(XapianDb.database).to receive(:find_similar_to).with(result, :class => IndexedObject)
         IndexedObject.find_similar_to result
       end
     end
@@ -160,19 +160,19 @@ describe XapianDb::Adapters::BaseAdapter do
         db = XapianDb.database
         indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
         obj = IndexedObject.new(1)
-        obj.stub!(:text).and_return "Facet A"
+        allow(obj).to receive(:text).and_return "Facet A"
         db.store_doc indexer.build_document_for(obj)
         obj = IndexedObject.new(2)
-        obj.stub!(:text).and_return "Facet B"
+        allow(obj).to receive(:text).and_return "Facet B"
         db.store_doc indexer.build_document_for(obj)
         XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to IndexedObject
       end
 
       it "should return a hash containing the values of the attributes and their count" do
         facets = IndexedObject.facets :text, "facet"
-        facets.size.should == 2
-        facets["Facet A"].should == 1
-        facets["Facet B"].should == 1
+        expect(facets.size).to eq(2)
+        expect(facets["Facet A"]).to eq(1)
+        expect(facets["Facet B"]).to eq(1)
       end
 
       it "scopes the facet query to the containing class" do
@@ -181,11 +181,11 @@ describe XapianDb::Adapters::BaseAdapter do
         end
         indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:OtherIndexedObject)
         obj = OtherIndexedObject.new(1)
-        obj.stub!(:text).and_return "Facet C"
+        allow(obj).to receive(:text).and_return "Facet C"
         db.store_doc indexer.build_document_for(obj)
 
         facets = IndexedObject.facets :text, "facet"
-        facets.keys.should_not include("Facet C")
+        expect(facets.keys).not_to include("Facet C")
       end
 
     end

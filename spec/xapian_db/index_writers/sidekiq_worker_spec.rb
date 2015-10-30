@@ -19,8 +19,8 @@ describe XapianDb::IndexWriters::SidekiqWorker do
 
   describe ".queue" do
     it "returns the queue name specified in the config" do
-      XapianDb::Config.stub(:sidekiq_queue) { 'my_queue' }
-      subject.queue.should == 'my_queue'
+      allow(XapianDb::Config).to receive(:sidekiq_queue) { 'my_queue' }
+      expect(subject.queue).to eq('my_queue')
     end
   end
 
@@ -28,18 +28,18 @@ describe XapianDb::IndexWriters::SidekiqWorker do
     it "adds an object to the index" do
       obj.save
       XapianDb.database.delete_docs_of_class obj.class
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
       subject.perform 'index', 'class' => obj.class.name, 'id' => obj.id
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
   end
 
   describe ".delete_doc" do
     it "removes an object from the index" do
       obj.save
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
       subject.perform 'delete_doc', 'xapian_id' => obj.xapian_id
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
     end
   end
 
@@ -47,9 +47,9 @@ describe XapianDb::IndexWriters::SidekiqWorker do
     it "adds all instances of a class to the index" do
       obj.save
       XapianDb.database.delete_docs_of_class obj.class
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
       subject.perform 'reindex_class', 'class' => obj.class.name
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
   end
 

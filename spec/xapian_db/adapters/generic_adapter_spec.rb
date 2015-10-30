@@ -31,7 +31,7 @@ describe XapianDb::Adapters::GenericAdapter do
 
     it "should raise an exception if the unique key is not configured" do
       XapianDb::Adapters::GenericAdapter.unique_key # undef the unique key
-      lambda{XapianDb::Adapters::GenericAdapter.add_class_helper_methods_to(MyClass)}.should raise_error
+      expect{XapianDb::Adapters::GenericAdapter.add_class_helper_methods_to(MyClass)}.to raise_error
     end
 
     it "should add the method 'xapian_id' to the configured class" do
@@ -40,12 +40,12 @@ describe XapianDb::Adapters::GenericAdapter do
       end
       XapianDb::DocumentBlueprint.setup(:MyClass)
       obj = MyClass.new(1)
-      obj.xapian_id.should == obj.my_unique_key.to_s
+      expect(obj.xapian_id).to eq(obj.my_unique_key.to_s)
     end
 
     it "adds the helper methods from the base class" do
       XapianDb::Adapters::GenericAdapter.add_class_helper_methods_to MyClass
-      MyClass.should respond_to(:search)
+      expect(MyClass).to respond_to(:search)
     end
 
   end

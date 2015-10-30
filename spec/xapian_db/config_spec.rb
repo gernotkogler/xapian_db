@@ -10,7 +10,7 @@ describe XapianDb::Config do
         XapianDb::Config.setup do |config|
           config.database :memory
         end
-        XapianDb.database.should be_a_kind_of XapianDb::InMemoryDatabase
+        expect(XapianDb.database).to be_a_kind_of XapianDb::InMemoryDatabase
       end
 
       it "accepts a persistent database" do
@@ -18,8 +18,8 @@ describe XapianDb::Config do
         XapianDb::Config.setup do |config|
           config.database db_path
         end
-        File.exist?(db_path).should be_true
-        XapianDb.database.should be_a_kind_of XapianDb::PersistentDatabase
+        expect(File.exist?(db_path)).to be_truthy
+        expect(XapianDb.database).to be_a_kind_of XapianDb::PersistentDatabase
         FileUtils.rm_rf db_path
       end
 
@@ -27,12 +27,12 @@ describe XapianDb::Config do
         db_path = "/tmp/xapian_db"
         FileUtils.rm_rf db_path
 
-        XapianDb.should_receive :create_db
+        expect(XapianDb).to receive :create_db
         XapianDb::Config.setup do |config|
           config.database db_path
         end
 
-        XapianDb.should_receive :open_db
+        expect(XapianDb).to receive :open_db
         XapianDb::Config.setup do |config|
           config.database db_path
         end
@@ -56,27 +56,27 @@ describe XapianDb::Config do
         XapianDb::Config.setup do |config|
           config.adapter :generic
         end
-        XapianDb::Config.adapter.should be_equal XapianDb::Adapters::GenericAdapter
+        expect(XapianDb::Config.adapter).to be_equal XapianDb::Adapters::GenericAdapter
       end
 
       it "accepts a datamapper adapter" do
         XapianDb::Config.setup do |config|
           config.adapter :datamapper
         end
-        XapianDb::Config.adapter.should be_equal XapianDb::Adapters::DatamapperAdapter
+        expect(XapianDb::Config.adapter).to be_equal XapianDb::Adapters::DatamapperAdapter
       end
 
       it "accepts an active_record adapter" do
         XapianDb::Config.setup do |config|
           config.adapter :active_record
         end
-        XapianDb::Config.adapter.should be_equal XapianDb::Adapters::ActiveRecordAdapter
+        expect(XapianDb::Config.adapter).to be_equal XapianDb::Adapters::ActiveRecordAdapter
       end
 
       it "raises an error if the configured adapter is unknown" do
-        lambda{XapianDb::Config.setup do |config|
+        expect{XapianDb::Config.setup do |config|
           config.adapter :unknown
-        end}.should raise_error
+        end}.to raise_error
       end
     end
 
@@ -85,7 +85,7 @@ describe XapianDb::Config do
         XapianDb::Config.setup do |config|
           config.writer :direct
         end
-        XapianDb::Config.writer.should be_equal XapianDb::IndexWriters::DirectWriter
+        expect(XapianDb::Config.writer).to be_equal XapianDb::IndexWriters::DirectWriter
       end
 
       it "accepts the beanstalk writer, if the beanstalk-client gem is installed" do
@@ -93,7 +93,7 @@ describe XapianDb::Config do
           XapianDb::Config.setup do |config|
             config.writer :beanstalk
           end
-          XapianDb::Config.writer.should be_equal XapianDb::IndexWriters::BeanstalkWriter
+          expect(XapianDb::Config.writer).to be_equal XapianDb::IndexWriters::BeanstalkWriter
         else
           pending "cannot run this spec without the beanstalk-client gem installed"
         end
@@ -104,7 +104,7 @@ describe XapianDb::Config do
           XapianDb::Config.setup do |config|
             config.writer :resque
           end
-          XapianDb::Config.writer.should == XapianDb::IndexWriters::ResqueWriter
+          expect(XapianDb::Config.writer).to eq(XapianDb::IndexWriters::ResqueWriter)
         else
           pending "cannot run this spec without the resque gem installed"
         end
@@ -115,44 +115,44 @@ describe XapianDb::Config do
           XapianDb::Config.setup do |config|
             config.writer :sidekiq
           end
-          XapianDb::Config.writer.should == XapianDb::IndexWriters::SidekiqWriter
+          expect(XapianDb::Config.writer).to eq(XapianDb::IndexWriters::SidekiqWriter)
         else
           pending "cannot run this spec without the sidekiq gem installed"
         end
       end
 
       it "raises an error if the configured writer is unknown" do
-        lambda{XapianDb::Config.setup do |config|
+        expect{XapianDb::Config.setup do |config|
           config.writer :unknown
-        end}.should raise_error
+        end}.to raise_error
       end
 
     end
 
     describe ".beanstalk_daemon" do
       it "defaults to localhost:11300" do
-        XapianDb::Config.beanstalk_daemon_url.should == "localhost:11300"
+        expect(XapianDb::Config.beanstalk_daemon_url).to eq("localhost:11300")
       end
 
       it "accepts an url" do
         XapianDb::Config.setup do |config|
           config.beanstalk_daemon_url "localhost:9000"
         end
-        XapianDb::Config.beanstalk_daemon_url.should == "localhost:9000"
+        expect(XapianDb::Config.beanstalk_daemon_url).to eq("localhost:9000")
       end
 
     end
 
     describe ".resque_queue" do
       it "returns 'xapian_db' by default" do
-        XapianDb::Config.resque_queue.should == 'xapian_db'
+        expect(XapianDb::Config.resque_queue).to eq('xapian_db')
       end
 
       it "accepts a name" do
         XapianDb::Config.setup do |config|
           config.resque_queue 'my_queue'
         end
-        XapianDb::Config.resque_queue.should == 'my_queue'
+        expect(XapianDb::Config.resque_queue).to eq('my_queue')
       end
     end
 
@@ -162,30 +162,30 @@ describe XapianDb::Config do
         XapianDb::Config.setup do |config|
           config.language :de
         end
-        XapianDb::Config.stemmer.should be_a_kind_of Xapian::Stem
-        XapianDb::Config.stopper.should be_a_kind_of Xapian::SimpleStopper
+        expect(XapianDb::Config.stemmer).to be_a_kind_of Xapian::Stem
+        expect(XapianDb::Config.stopper).to be_a_kind_of Xapian::SimpleStopper
       end
 
       it "does not create a stopper for the argument :none" do
         XapianDb::Config.setup do |config|
           config.language :none
         end
-        XapianDb::Config.stemmer.should be_a_kind_of Xapian::Stem
-        XapianDb::Config.stopper.should_not be
+        expect(XapianDb::Config.stemmer).to be_a_kind_of Xapian::Stem
+        expect(XapianDb::Config.stopper).not_to be
       end
 
       it "raises an invalid argument error if an unsupported language is applied" do
-        lambda{XapianDb::Config.setup do |config|
+        expect{XapianDb::Config.setup do |config|
           config.language :not_supported
-        end}.should raise_error ArgumentError
+        end}.to raise_error ArgumentError
       end
 
       it "can handle nil as an argument" do
         XapianDb::Config.setup do |config|
           config.language nil
         end
-        XapianDb::Config.stemmer.should be_a_kind_of Xapian::Stem
-        XapianDb::Config.stopper.should_not be
+        expect(XapianDb::Config.stemmer).to be_a_kind_of Xapian::Stem
+        expect(XapianDb::Config.stopper).not_to be
       end
 
     end
@@ -195,7 +195,7 @@ describe XapianDb::Config do
         XapianDb::Config.setup do |config|
           config.term_min_length 2
         end
-        XapianDb::Config.term_min_length.should == 2
+        expect(XapianDb::Config.term_min_length).to eq(2)
       end
     end
 
@@ -204,11 +204,11 @@ describe XapianDb::Config do
         XapianDb::Config.setup do |config|
           config.term_splitter_count 3
         end
-        XapianDb::Config.term_splitter_count.should == 3
+        expect(XapianDb::Config.term_splitter_count).to eq(3)
       end
 
       it "defaults to 0" do
-        XapianDb::Config.term_splitter_count.should == 0
+        expect(XapianDb::Config.term_splitter_count).to eq(0)
       end
     end
 
@@ -217,7 +217,7 @@ describe XapianDb::Config do
         XapianDb::Config.setup do |config|
           config.enable_query_flag Xapian::QueryParser::FLAG_PHRASE
         end
-        XapianDb::Config.query_flags.should include(Xapian::QueryParser::FLAG_PHRASE)
+        expect(XapianDb::Config.query_flags).to include(Xapian::QueryParser::FLAG_PHRASE)
       end
     end
 
@@ -227,7 +227,7 @@ describe XapianDb::Config do
         XapianDb::Config.setup do |config|
           config.disable_query_flag Xapian::QueryParser::FLAG_WILDCARD
         end
-        XapianDb::Config.query_flags.should_not include(Xapian::QueryParser::FLAG_WILDCARD)
+        expect(XapianDb::Config.query_flags).not_to include(Xapian::QueryParser::FLAG_WILDCARD)
       end
     end
 

@@ -18,7 +18,7 @@ describe XapianDb::IndexWriters::TransactionalWriter do
 
   let(:object) {
     obj = IndexedObject.new(1)
-    obj.stub!(:text).and_return("Some text")
+    allow(obj).to receive(:text).and_return("Some text")
     obj
   }
   let(:writer) { XapianDb::IndexWriters::TransactionalWriter.new }
@@ -26,7 +26,7 @@ describe XapianDb::IndexWriters::TransactionalWriter do
   describe "#index(obj)" do
     it "registers an index request for an object" do
       writer.index object
-      writer.index_requests.size.should == 1
+      expect(writer.index_requests.size).to eq(1)
     end
   end
 
@@ -34,14 +34,14 @@ describe XapianDb::IndexWriters::TransactionalWriter do
 
     it "registers an index request for an object" do
       writer.delete_doc_with object.xapian_id
-      writer.delete_requests.size.should == 1
+      expect(writer.delete_requests.size).to eq(1)
     end
   end
 
   describe "#reindex(klass)" do
 
     it "should raise a 'not supported' exception" do
-      lambda { writer.reindex_class IndexedObject }.should raise_error "rebuild_xapian_index is not supported in transactions"
+      expect { writer.reindex_class IndexedObject }.to raise_error "rebuild_xapian_index is not supported in transactions"
     end
 
   end
@@ -50,18 +50,18 @@ describe XapianDb::IndexWriters::TransactionalWriter do
 
     it "commits the index requests to the database", :working => true do
       writer.index object
-      XapianDb.database.size.should == 0 # not commited yet
+      expect(XapianDb.database.size).to eq(0) # not commited yet
       writer.commit_using XapianDb::IndexWriters::DirectWriter
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
 
     it "commits the delete requests to the database" do
       XapianDb::IndexWriters::DirectWriter.index object
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
       writer.delete_doc_with object.xapian_id
-      XapianDb.database.size.should == 1 # not commited yet
+      expect(XapianDb.database.size).to eq(1) # not commited yet
       writer.commit_using XapianDb::IndexWriters::DirectWriter
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
     end
 
   end

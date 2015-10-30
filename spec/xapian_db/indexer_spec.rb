@@ -27,9 +27,9 @@ describe XapianDb::Indexer do
 
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @obj       = IndexedObject.new(1)
-      @obj.stub!(:text).and_return("Some Text")
-      @obj.stub!(:no_value).and_return(nil)
-      @obj.stub!(:array).and_return([1, "two", Date.today])
+      allow(@obj).to receive(:text).and_return("Some Text")
+      allow(@obj).to receive(:no_value).and_return(nil)
+      allow(@obj).to receive(:array).and_return([1, "two", Date.today])
       @indexer = XapianDb::Indexer.new(@db, @blueprint)
       @doc     = @indexer.build_document_for(@obj)
 
@@ -37,48 +37,48 @@ describe XapianDb::Indexer do
     end
 
     it "creates a Xapian::Document from an configured object" do
-      @doc.should be_a_kind_of(Xapian::Document)
+      expect(@doc).to be_a_kind_of(Xapian::Document)
     end
 
     it "inserts the xapian_id into the data property of the Xapian::Document" do
-      @doc.data.should == @obj.xapian_id
+      expect(@doc.data).to eq(@obj.xapian_id)
     end
 
     it "adds the class name of the object as the first value" do
-      @doc.values[0].value.should == @obj.class.name
+      expect(@doc.values[0].value).to eq(@obj.class.name)
     end
 
     it "adds values for the configured methods" do
-      @doc.values[@position_offset + 1].value.should == Xapian::sortable_serialise(@obj.id)
-      @doc.values[@position_offset + 2].value.should == "Some Text"
+      expect(@doc.values[@position_offset + 1].value).to eq(Xapian::sortable_serialise(@obj.id))
+      expect(@doc.values[@position_offset + 2].value).to eq("Some Text")
     end
 
     it "adds terms for the configured methods" do
-      @doc.terms.map(&:term).should include("some")
-      @doc.terms.map(&:term).should include("text")
-      @doc.terms.map(&:term).should include("1") # from the array field
-      @doc.terms.map(&:term).should include("two") # from the array field
+      expect(@doc.terms.map(&:term)).to include("some")
+      expect(@doc.terms.map(&:term)).to include("text")
+      expect(@doc.terms.map(&:term)).to include("1") # from the array field
+      expect(@doc.terms.map(&:term)).to include("two") # from the array field
     end
 
     it "does not add a value for a filed containing nil" do
-      @doc.values[@position_offset + 3].should_not be
+      expect(@doc.values[@position_offset + 3]).not_to be
     end
 
     it "serializes arrays as jason, if specified" do
-      @doc.values[@position_offset].value.should == [1, "two", Date.today].to_json
+      expect(@doc.values[@position_offset].value).to eq([1, "two", Date.today].to_json)
     end
 
     it "uses a stemmer if globally configured" do
-      @obj.stub!(:text).and_return("kochen")
+      allow(@obj).to receive(:text).and_return("kochen")
       doc = @indexer.build_document_for(@obj)
-      doc.terms.map(&:term).should_not include "Zkoch"
+      expect(doc.terms.map(&:term)).not_to include "Zkoch"
 
       # Now we set the language to german and test the generated terms
       XapianDb.setup do |config|
         config.language :de
       end
       doc = @indexer.build_document_for(@obj)
-      doc.terms.map(&:term).should include "Zkoch"
+      expect(doc.terms.map(&:term)).to include "Zkoch"
     end
 
     it "evaluates a block for an attribute if specified" do
@@ -97,8 +97,8 @@ describe XapianDb::Indexer do
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer = XapianDb::Indexer.new(@db, @blueprint)
       doc = @indexer.build_document_for(@obj)
-      doc.values[@position_offset].value.should == "not zero"
-      (doc.terms.map(&:term) & %w(not zero)).should == %w(not zero)
+      expect(doc.values[@position_offset].value).to eq("not zero")
+      expect(doc.terms.map(&:term) & %w(not zero)).to eq(%w(not zero))
     end
 
     it "evaluates a block for an index method if specified" do
@@ -117,7 +117,7 @@ describe XapianDb::Indexer do
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer = XapianDb::Indexer.new(@db, @blueprint)
       doc = @indexer.build_document_for(@obj)
-      (doc.terms.map(&:term) & %w(not zero)).should == %w(not zero)
+      expect(doc.terms.map(&:term) & %w(not zero)).to eq(%w(not zero))
     end
 
     it "calls the natural sort order block if present" do
@@ -132,7 +132,7 @@ describe XapianDb::Indexer do
       obj       = IndexedObject.new(1)
       indexer   = XapianDb::Indexer.new(@db, @blueprint)
       doc       = indexer.build_document_for(obj)
-      doc.values[1].value.should == "fixed"
+      expect(doc.values[1].value).to eq("fixed")
     end
 
   end
@@ -149,11 +149,11 @@ describe XapianDb::Indexer do
 
     @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     @obj       = IndexedObject.new(1)
-    @obj.stub!(:strange_object).and_return ObjectReturningNilOnToS.new
+    allow(@obj).to receive(:strange_object).and_return ObjectReturningNilOnToS.new
     @indexer = XapianDb::Indexer.new(@db, @blueprint)
 
     doc = @indexer.build_document_for(@obj)
-    doc.terms.should have(3).items # The tree terms we always add to a document
+    expect(doc.terms.size).to eq(3) # The tree terms we always add to a document
   end
 
   it "respects the term min length option" do
@@ -168,11 +168,11 @@ describe XapianDb::Indexer do
 
     @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     @obj       = IndexedObject.new(1)
-    @obj.stub!(:text).and_return "1 xy"
+    allow(@obj).to receive(:text).and_return "1 xy"
     @indexer = XapianDb::Indexer.new(@db, @blueprint)
 
     doc = @indexer.build_document_for(@obj)
-    doc.terms.map(&:term).should_not include "1"
+    expect(doc.terms.map(&:term)).not_to include "1"
   end
 
   it "does generate a prefixed term if the prefixed option is not set" do
@@ -187,11 +187,11 @@ describe XapianDb::Indexer do
 
     @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     @obj       = IndexedObject.new(1)
-    @obj.stub!(:text).and_return "xy"
+    allow(@obj).to receive(:text).and_return "xy"
     @indexer = XapianDb::Indexer.new(@db, @blueprint)
 
     doc = @indexer.build_document_for(@obj)
-    doc.terms.map(&:term).should include "XTEXTxy"
+    expect(doc.terms.map(&:term)).to include "XTEXTxy"
   end
 
   it "does generate a prefixed term if the prefixed option is set to true" do
@@ -206,11 +206,11 @@ describe XapianDb::Indexer do
 
     @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     @obj       = IndexedObject.new(1)
-    @obj.stub!(:text).and_return "xy"
+    allow(@obj).to receive(:text).and_return "xy"
     @indexer = XapianDb::Indexer.new(@db, @blueprint)
 
     doc = @indexer.build_document_for(@obj)
-    doc.terms.map(&:term).should include "XTEXTxy"
+    expect(doc.terms.map(&:term)).to include "XTEXTxy"
   end
 
   it "does not generate a prefixed term if the prefixed option is false" do
@@ -225,11 +225,11 @@ describe XapianDb::Indexer do
 
     @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     @obj       = IndexedObject.new(1)
-    @obj.stub!(:text).and_return "xy"
+    allow(@obj).to receive(:text).and_return "xy"
     @indexer = XapianDb::Indexer.new(@db, @blueprint)
 
     doc = @indexer.build_document_for(@obj)
-    doc.terms.map(&:term).should_not include "XTEXTxy"
+    expect(doc.terms.map(&:term)).not_to include "XTEXTxy"
   end
 
   it "splits each term if split_term_count != 0" do
@@ -244,11 +244,11 @@ describe XapianDb::Indexer do
 
     @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     @obj       = IndexedObject.new(1)
-    @obj.stub!(:text).and_return "test"
+    allow(@obj).to receive(:text).and_return "test"
     @indexer = XapianDb::Indexer.new(@db, @blueprint)
 
     doc = @indexer.build_document_for(@obj)
-    doc.terms.map(&:term)[3..-1].should == %w(t te test)
+    expect(doc.terms.map(&:term)[3..-1]).to eq(%w(t te test))
   end
 
   it "does not split each term if split_term_count != 0 but the no_split-option is set on the attribute" do
@@ -263,11 +263,11 @@ describe XapianDb::Indexer do
 
     @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
     @obj       = IndexedObject.new(1)
-    @obj.stub!(:text).and_return "test"
+    allow(@obj).to receive(:text).and_return "test"
     @indexer = XapianDb::Indexer.new(@db, @blueprint)
 
     doc = @indexer.build_document_for(@obj)
-    doc.terms.map(&:term)[3..-1].should == %w(test)
+    expect(doc.terms.map(&:term)[3..-1]).to eq(%w(test))
   end
 
 end

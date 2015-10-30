@@ -18,21 +18,21 @@ describe XapianDb::Database do
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer   = XapianDb::Indexer.new(XapianDb.database, @blueprint)
       @obj       = IndexedObject.new(1)
-      @obj.stub!(:text).and_return("Some Text")
+      allow(@obj).to receive(:text).and_return("Some Text")
       @doc       = @indexer.build_document_for(@obj)
     end
 
     it "should store the document in the database" do
-      XapianDb.database.store_doc(@doc).should be_true
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
       XapianDb.database.commit
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
 
     it "must replace a document if the object is already indexed" do
-      XapianDb.database.store_doc(@doc).should be_true
-      XapianDb.database.store_doc(@doc).should be_true
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
       XapianDb.database.commit
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
 
   end
@@ -51,17 +51,17 @@ describe XapianDb::Database do
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer   = XapianDb::Indexer.new(XapianDb.database, @blueprint)
       @obj       = IndexedObject.new(1)
-      @obj.stub!(:text).and_return("Some Text")
+      allow(@obj).to receive(:text).and_return("Some Text")
       @doc       = @indexer.build_document_for(@obj)
     end
 
     it "should delete the document with this term in the database" do
-      XapianDb.database.store_doc(@doc).should be_true
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
       XapianDb.database.commit
-      XapianDb.database.size.should == 1
-      XapianDb.database.delete_doc_with_unique_term(@doc.data).should be_true
+      expect(XapianDb.database.size).to eq(1)
+      expect(XapianDb.database.delete_doc_with_unique_term(@doc.data)).to be_truthy
       XapianDb.database.commit
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
     end
 
   end
@@ -85,17 +85,17 @@ describe XapianDb::Database do
       # Create two test objects we will delete later
       obj = IndexedObject.new(1)
       doc = @indexer.build_document_for(obj)
-      XapianDb.database.store_doc(doc).should be_true
+      expect(XapianDb.database.store_doc(doc)).to be_truthy
       obj = IndexedObject.new(2)
       doc = @indexer.build_document_for(obj)
-      XapianDb.database.store_doc(doc).should be_true
+      expect(XapianDb.database.store_doc(doc)).to be_truthy
       XapianDb.database.commit
-      XapianDb.database.size.should == 2
+      expect(XapianDb.database.size).to eq(2)
 
       # Now delete all docs of IndexedObject
       XapianDb.database.delete_docs_of_class(IndexedObject)
       XapianDb.database.commit
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
 
     end
 
@@ -117,23 +117,23 @@ describe XapianDb::Database do
       # Create two test objects we will delete later
       obj = IndexedObject.new(1)
       doc = @indexer.build_document_for(obj)
-      XapianDb.database.store_doc(doc).should be_true
+      expect(XapianDb.database.store_doc(doc)).to be_truthy
       obj = IndexedObject.new(2)
       doc = @indexer.build_document_for(obj)
-      XapianDb.database.store_doc(doc).should be_true
+      expect(XapianDb.database.store_doc(doc)).to be_truthy
 
       # Now create an object of a different class that has a term "IndexedObject"
       leave_me_alone = LeaveMeAlone.new(1, "IndexedObject")
       doc = @indexer.build_document_for(leave_me_alone)
-      XapianDb.database.store_doc(doc).should be_true
+      expect(XapianDb.database.store_doc(doc)).to be_truthy
 
       XapianDb.database.commit
-      XapianDb.database.size.should == 3
+      expect(XapianDb.database.size).to eq(3)
 
       # Now delete all docs of IndexedObject
       XapianDb.database.delete_docs_of_class(IndexedObject)
       XapianDb.database.commit
-      XapianDb.database.size.should == 1 # leave_me_alone must still exist
+      expect(XapianDb.database.size).to eq(1) # leave_me_alone must still exist
 
     end
 
@@ -149,7 +149,7 @@ describe XapianDb::Database do
     end
 
     it "must be 0 for a new database" do
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
     end
 
   end
@@ -168,45 +168,45 @@ describe XapianDb::Database do
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer   = XapianDb::Indexer.new(XapianDb.database, @blueprint)
       @obj       = IndexedObject.new(1)
-      @obj.stub!(:text).and_return("Some Text")
-      @obj.stub!(:text2).and_return("findme_in_text2")
+      allow(@obj).to receive(:text).and_return("Some Text")
+      allow(@obj).to receive(:text2).and_return("findme_in_text2")
       @doc       = @indexer.build_document_for(@obj)
     end
 
     it "should return an empty resultset for nil as the search argument" do
-      XapianDb.database.store_doc(@doc).should be_true
-      XapianDb.database.search(nil).size.should == 0
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
+      expect(XapianDb.database.search(nil).size).to eq(0)
     end
 
     it "should return an empty resultset for an empty string as the search argument" do
-      XapianDb.database.store_doc(@doc).should be_true
-      XapianDb.database.search(" ").size.should == 0
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
+      expect(XapianDb.database.search(" ").size).to eq(0)
     end
 
     it "should find a stored document" do
-      XapianDb.database.store_doc(@doc).should be_true
-      XapianDb.database.search("Some").size.should == 1
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
+      expect(XapianDb.database.search("Some").size).to eq(1)
     end
 
     it "should find a stored document with a wildcard expression" do
-      XapianDb.database.store_doc(@doc).should be_true
-      XapianDb.database.search("Som*").size.should == 1
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
+      expect(XapianDb.database.search("Som*").size).to eq(1)
     end
 
     it "should find a stored document with a field expression" do
-      XapianDb.database.store_doc(@doc).should be_true
-      XapianDb.database.search("text:findme_in_text2").size.should == 0
-      XapianDb.database.search("text2:findme_in_text2").size.should == 1
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
+      expect(XapianDb.database.search("text:findme_in_text2").size).to eq(0)
+      expect(XapianDb.database.search("text2:findme_in_text2").size).to eq(1)
     end
 
     it "should retry if a Xapian::DatabaseModifiedError occurs" do
-      XapianDb.database.store_doc(@doc).should be_true
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
 
       # first try
-      XapianDb::Resultset.should_receive(:new).and_raise IOError.new "DatabaseModifiedError: The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation"
+      expect(XapianDb::Resultset).to receive(:new).and_raise IOError.new "DatabaseModifiedError: The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation"
       # second try
-      XapianDb::Resultset.should_receive(:new).and_return [1]
-      XapianDb.database.search("text2:findme_in_text2").size.should == 1
+      expect(XapianDb::Resultset).to receive(:new).and_return [1]
+      expect(XapianDb.database.search("text2:findme_in_text2").size).to eq(1)
     end
 
     it "should support phrase searches" do
@@ -218,17 +218,17 @@ describe XapianDb::Database do
         blueprint.index :text
       end
       obj       = IndexedObject.new(1)
-      obj.stub!(:text).and_return("This is a complete sentence")
+      allow(obj).to receive(:text).and_return("This is a complete sentence")
       doc       = @indexer.build_document_for(obj)
-      XapianDb.database.store_doc(doc).should be_true
+      expect(XapianDb.database.store_doc(doc)).to be_truthy
 
       obj       = IndexedObject.new(2)
-      obj.stub!(:text).and_return("This sentence is a complete one")
+      allow(obj).to receive(:text).and_return("This sentence is a complete one")
       doc       = @indexer.build_document_for(obj)
-      XapianDb.database.store_doc(doc).should be_true
+      expect(XapianDb.database.store_doc(doc)).to be_truthy
 
-      XapianDb.database.search('This is a complete sentence').size.should == 2
-      XapianDb.database.search('"This is a complete sentence"').size.should == 1
+      expect(XapianDb.database.search('This is a complete sentence').size).to eq(2)
+      expect(XapianDb.database.search('"This is a complete sentence"').size).to eq(1)
     end
 
     describe "spelling correction" do
@@ -249,22 +249,22 @@ describe XapianDb::Database do
       end
 
       it "should provide a spelling correction if a language is configured" do
-        @obj.stub!(:text).and_return("Hallo Nachbar")
+        allow(@obj).to receive(:text).and_return("Hallo Nachbar")
         @doc     = @indexer.build_document_for(@obj)
-        db.store_doc(@doc).should be_true
+        expect(db.store_doc(@doc)).to be_truthy
         db.commit
-        db.size.should == 1
+        expect(db.size).to eq(1)
         result = db.search "Halo Naachbar"
-        result.spelling_suggestion.should == "hallo nachbar"
+        expect(result.spelling_suggestion).to eq("hallo nachbar")
       end
 
       it "should provide correction with the right encoding" do
-        @obj.stub!(:text).and_return("Tschüs")
+        allow(@obj).to receive(:text).and_return("Tschüs")
         @doc = @indexer.build_document_for(@obj)
         db.store_doc(@doc)
         db.commit
         result = db.search "stchüs"
-        result.spelling_suggestion.should == "tschüs"
+        expect(result.spelling_suggestion).to eq("tschüs")
       end
     end
 
@@ -278,15 +278,15 @@ describe XapianDb::Database do
         end
 
         obj = IndexedObject.new(1)
-        obj.stub!(:text).and_return("same_sort")
-        obj.stub!(:text2).and_return("B text")
-        obj.stub!(:number).and_return(10)
+        allow(obj).to receive(:text).and_return("same_sort")
+        allow(obj).to receive(:text2).and_return("B text")
+        allow(obj).to receive(:number).and_return(10)
         doc = @indexer.build_document_for(obj)
         XapianDb.database.store_doc doc
         obj = IndexedObject.new(2)
-        obj.stub!(:text).and_return("same_sort")
-        obj.stub!(:text2).and_return("A text")
-        obj.stub!(:number).and_return(1)
+        allow(obj).to receive(:text).and_return("same_sort")
+        allow(obj).to receive(:text2).and_return("A text")
+        allow(obj).to receive(:number).and_return(1)
         doc = @indexer.build_document_for(obj)
         XapianDb.database.store_doc doc
       end
@@ -297,7 +297,7 @@ describe XapianDb::Database do
 
           it "sorts the result by relevance, then id" do
             result = XapianDb.database.search "same_sort"
-            result.map { |doc| doc.data.split("-").last.to_i }.should == [1, 2]
+            expect(result.map { |doc| doc.data.split("-").last.to_i }).to eq([1, 2])
           end
 
         end
@@ -311,18 +311,18 @@ describe XapianDb::Database do
             end
 
             obj = IndexedObject.new(1)
-            obj.stub!(:text).and_return("Text B")
+            allow(obj).to receive(:text).and_return("Text B")
             doc = @indexer.build_document_for(obj)
             XapianDb.database.store_doc doc
             obj = IndexedObject.new(2)
-            obj.stub!(:text).and_return("Text A")
+            allow(obj).to receive(:text).and_return("Text A")
             doc = @indexer.build_document_for(obj)
             XapianDb.database.store_doc doc
           end
 
           it "sorts the result by relevance, then natural sort" do
             result = XapianDb.database.search "Text"
-            result.map { |doc| doc.data.split("-").last.to_i }.should == [2, 1]
+            expect(result.map { |doc| doc.data.split("-").last.to_i }).to eq([2, 1])
           end
         end
       end
@@ -330,65 +330,65 @@ describe XapianDb::Database do
       it "accepts the :sort_indices option for a query" do
         sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text2)]
         result = XapianDb.database.search "text", :sort_indices => sort_indices
-        result.size.should == 2
-        result.first.text2.should == "A text"
-        result.last.text2.should == "B text"
+        expect(result.size).to eq(2)
+        expect(result.first.text2).to eq("A text")
+        expect(result.last.text2).to eq("B text")
       end
 
       it "accepts the :sort_indices option for a query that is scoped to a class" do
         sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text2)]
         result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => sort_indices
-        result.size.should == 2
-        result.first.text2.should == "A text"
-        result.last.text2.should == "B text"
+        expect(result.size).to eq(2)
+        expect(result.first.text2).to eq("A text")
+        expect(result.last.text2).to eq("B text")
       end
 
       it "accepts the :sort_decending option for a query" do
         sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text)]
         result = XapianDb.database.search "text", :sort_indices => sort_indices, :sort_decending => true
-        result.size.should == 2
-        result.first.text2.should == "B text"
-        result.last.text2.should == "A text"
+        expect(result.size).to eq(2)
+        expect(result.first.text2).to eq("B text")
+        expect(result.last.text2).to eq("A text")
       end
 
       it "accepts the :sort_decending option for a query that is scoped to a class" do
         sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text)]
         result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => sort_indices, :sort_decending => true
-        result.size.should == 2
-        result.first.text2.should == "B text"
-        result.last.text2.should == "A text"
+        expect(result.size).to eq(2)
+        expect(result.first.text2).to eq("B text")
+        expect(result.last.text2).to eq("A text")
       end
 
       it "accepts multiple indices for the :sort_indices option" do
         sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text), XapianDb::DocumentBlueprint.value_number_for(:text2)]
         result = XapianDb.database.search "text", :sort_indices => sort_indices
-        result.size.should == 2
-        result.first.text2.should == "A text"
-        result.last.text2.should == "B text"
+        expect(result.size).to eq(2)
+        expect(result.first.text2).to eq("A text")
+        expect(result.last.text2).to eq("B text")
       end
 
       it "accepts multiple indices for the :sort_indices option for a query that is scoped to a class" do
         sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text), XapianDb::DocumentBlueprint.value_number_for(:text2)]
         result = XapianDb.database.search "indexed_class:indexedobject and text", :sort_indices => sort_indices
-        result.size.should == 2
-        result.first.text2.should == "A text"
-        result.last.text2.should == "B text"
+        expect(result.size).to eq(2)
+        expect(result.first.text2).to eq("A text")
+        expect(result.last.text2).to eq("B text")
       end
 
       it "orders the result numerically if a number attribute is used for sorting" do
         sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:number)]
         result = XapianDb.database.search "text", :sort_indices => sort_indices
-        result.size.should == 2
-        result.first.number.should == 1
-        result.last.number.should == 10
+        expect(result.size).to eq(2)
+        expect(result.first.number).to eq(1)
+        expect(result.last.number).to eq(10)
       end
 
       it "accepts the :order option for a query" do
         # sort_indices = [XapianDb::DocumentBlueprint.value_number_for(:text2)]
         result = XapianDb.database.search "text", order: [:text2]
-        result.size.should == 2
-        result.first.text2.should == "A text"
-        result.last.text2.should == "B text"
+        expect(result.size).to eq(2)
+        expect(result.first.text2).to eq("A text")
+        expect(result.last.text2).to eq("B text")
       end
 
       it "raises an argument error if sort_indices and order are both used" do
@@ -416,19 +416,19 @@ describe XapianDb::Database do
 
       indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       obj = IndexedObject.new(1)
-      obj.stub!(:text).and_return "Facet A"
+      allow(obj).to receive(:text).and_return "Facet A"
       db.store_doc indexer.build_document_for(obj)
       obj = IndexedObject.new(2)
-      obj.stub!(:text).and_return "Facet B"
+      allow(obj).to receive(:text).and_return "Facet B"
       db.store_doc indexer.build_document_for(obj)
       XapianDb::Adapters::BaseAdapter.add_class_helper_methods_to IndexedObject
     end
 
     it "should return a hash containing the values of the attributes and their count" do
       facets = XapianDb.database.facets :text, "facet"
-      facets.size.should == 2
-      facets["Facet A"].should == 1
-      facets["Facet B"].should == 1
+      expect(facets.size).to eq(2)
+      expect(facets["Facet A"]).to eq(1)
+      expect(facets["Facet B"]).to eq(1)
     end
 
     it "collects the facets across all indexed classes" do
@@ -437,14 +437,14 @@ describe XapianDb::Database do
       end
       indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:OtherIndexedObject)
       obj = OtherIndexedObject.new(1)
-      obj.stub!(:text).and_return "Facet C"
+      allow(obj).to receive(:text).and_return "Facet C"
       db.store_doc indexer.build_document_for(obj)
 
       facets = XapianDb.database.facets :text, "facet"
-      facets.size.should == 3
-      facets["Facet A"].should == 1
-      facets["Facet B"].should == 1
-      facets["Facet C"].should == 1
+      expect(facets.size).to eq(3)
+      expect(facets["Facet A"]).to eq(1)
+      expect(facets["Facet B"]).to eq(1)
+      expect(facets["Facet C"]).to eq(1)
 
     end
 
@@ -486,23 +486,23 @@ describe XapianDb::Database do
 
     it "accepts a single xapian document" do
       reference = XapianDb.database.search "xapian rocks"
-      lambda { XapianDb.database.find_similar_to reference.first }.should_not raise_error
+      expect { XapianDb.database.find_similar_to reference.first }.not_to raise_error
     end
 
     it "accepts a resultset" do
       reference = XapianDb.database.search "xapian"
-      lambda { XapianDb.database.find_similar_to reference }.should_not raise_error
+      expect { XapianDb.database.find_similar_to reference }.not_to raise_error
     end
 
     it "returns a resultset" do
       reference = XapianDb.database.search "xapian"
-      XapianDb.database.find_similar_to(reference).should be_a XapianDb::Resultset
+      expect(XapianDb.database.find_similar_to(reference)).to be_a XapianDb::Resultset
     end
 
     it "does not return the reference document(s)" do
       reference = XapianDb.database.search "xapian rocks"
       result = XapianDb.database.find_similar_to(reference)
-      result.detect {|doc| doc.docid == reference.first.docid}.should_not be
+      expect(result.detect {|doc| doc.docid == reference.first.docid}).not_to be
     end
 
     describe "with a class option" do
@@ -530,7 +530,7 @@ describe XapianDb::Database do
       it "should not find documents based on other classes" do
         reference = XapianDb.database.search "xapian rocks"
         result = XapianDb.database.find_similar_to(reference, :class => Class)
-        result.detect { |doc| doc.indexed_class != Class.name }.should_not be
+        expect(result.detect { |doc| doc.indexed_class != Class.name }).not_to be
       end
 
     end
@@ -540,7 +540,7 @@ describe XapianDb::Database do
       it "respects the limit" do
         reference = XapianDb.database.search "xapian rocks"
         result = XapianDb.database.find_similar_to reference, :limit => 1
-        result.size.should == 1
+        expect(result.size).to eq(1)
       end
 
     end
@@ -562,7 +562,7 @@ describe XapianDb::InMemoryDatabase do
       doc = Xapian::Document.new
       doc.data = "1" # We need data to store the doc
       XapianDb.database.store_doc(doc)
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
 
   end
@@ -585,7 +585,7 @@ describe XapianDb::PersistentDatabase do
     doc = Xapian::Document.new
     doc.data = "1" # We need data to store the doc
     XapianDb.database.store_doc(doc)
-    XapianDb.database.size.should == 0
+    expect(XapianDb.database.size).to eq(0)
   end
 
   describe "#commit" do
@@ -594,9 +594,9 @@ describe XapianDb::PersistentDatabase do
       doc = Xapian::Document.new
       doc.data = "1" # We need data to store the doc
       XapianDb.database.store_doc(doc)
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
       XapianDb.database.commit
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
 
   end
