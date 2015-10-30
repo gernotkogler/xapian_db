@@ -231,5 +231,22 @@ describe XapianDb::Config do
       end
     end
 
+    describe ".indexer_preprocess_callback" do
+      it "sets the indexer preprocess callback method" do
+        class Klass
+          def self.normalize(text) end
+        end
+        XapianDb::Config.setup do |config|
+          config.indexer_preprocess_callback Klass.method(:normalize)
+        end
+
+        expect(XapianDb::Config.preprocess_terms).to be_a_kind_of Method
+
+        XapianDb::Config.setup do |config|
+          config.indexer_preprocess_callback nil
+        end
+      end
+    end
+
   end
 end

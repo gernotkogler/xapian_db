@@ -194,6 +194,20 @@ are ordered by relevance and - within the same relevance - by the natural sort o
     end
   end
 
+You can specify a Ruby method for preprocessing the indexed terms. The method needs to be a class method that takes one argument (the terms to be indexed) and
+returns a string. You can configure it globaly in the config or on a blueprint. For example, this setup will make words with accented e characters searchable
+by their accentless form:
+
+  class Util
+    def self.strip_accents(terms)
+      terms.gsub(/[éèêëÉÈÊË]/, "e")
+    end
+  end
+
+  XapianDb::Config.setup do |config|
+    config.indexer_preprocess_callback UtilT.method(:strip_accents)
+  end
+
 You may use attributes from associated objekts in a blueprint; if you do that and an associated object is updated, your objects should be reindexed, too. You can tell XapnaDB about those dependencies like so:
 
   XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|

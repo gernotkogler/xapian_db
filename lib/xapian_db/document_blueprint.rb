@@ -274,6 +274,7 @@ module XapianDb
       @dependencies         = []
       @_natural_sort_order  = :id
       @autoindex            = true
+      @indexer_preprocess_callback = nil
     end
 
     # Set the adapter
@@ -409,6 +410,29 @@ module XapianDb
 
     def dependency(klass_name, when_changed: [], &block)
       @dependencies << Dependency.new(klass_name.to_s, when_changed, block)
+    end
+
+    # Set the indexer preprocess callback.
+    # @param [Method] method a class method; needs to take one parameter and return a string.
+    # @example
+    #   class Util
+    #     def self.strip_accents(terms)
+    #       terms.gsub(/[éèêëÉÈÊË]/, "e")
+    #     end
+    #   end
+    #
+    #   XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+    #     blueprint.attribute :name
+    #     blueprint.indexer_preprocess_callback Util.method(:strip_accents)
+    #   end
+    def indexer_preprocess_callback(method)
+      @indexer_preprocess_callback = method
+    end
+
+    # Reader for indexer_preprocess_callback.
+    # Returns the terms preprocessing method for this blueprint, the global method from config or nil.
+    def preprocess_terms
+      @indexer_preprocess_callback || XapianDb::Config.preprocess_terms
     end
 
     # Options for an indexed method

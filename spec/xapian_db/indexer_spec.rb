@@ -135,6 +135,23 @@ describe XapianDb::Indexer do
       expect(doc.values[1].value).to eq("fixed")
     end
 
+    it "calls the indexer preprocess callback" do
+      class Klass
+        def self.normalize_global(text); "text"; end
+      end
+      XapianDb::Config.setup do |config|
+        config.indexer_preprocess_callback Klass.method(:normalize_global)
+      end
+
+      @indexer = XapianDb::Indexer.new(@db, @blueprint)
+      doc = @indexer.build_document_for(@obj)
+
+      expect(doc.terms.map(&:term)).to include "text"
+
+      XapianDb::Config.setup do |config|
+        config.indexer_preprocess_callback nil
+      end
+    end
   end
 
   it "can handle attribute objects that return nil on to_s" do

@@ -32,7 +32,7 @@ module XapianDb
       end
 
       # Install delegates for the config instance variables
-      [:database, :adapter, :writer, :stemmer, :stopper].each do |attr|
+      [:database, :adapter, :writer, :stemmer, :stopper, :preprocess_terms].each do |attr|
         define_method attr do
           @config.nil? ? nil : @config.instance_variable_get("@_#{attr}")
         end
@@ -181,6 +181,22 @@ module XapianDb
     def disable_query_flag(flag)
       @_enabled_query_flags ||= []
       @_enabled_query_flags.delete flag
+    end
+
+    # Set the indexer preprocess callback.
+    # @param [Method] method a class method; needs to take one parameter and return a string.
+    # @example
+    #   class Util
+    #     def self.strip_accents(terms)
+    #       terms.gsub(/[éèêëÉÈÊË]/, "e")
+    #     end
+    #   end
+    #
+    #   XapianDb::Config.setup do |config|
+    #     config.indexer_preprocess_callback Util.method(:strip_accents)
+    #   end
+    def indexer_preprocess_callback(method)
+      @_preprocess_terms = method
     end
 
   end

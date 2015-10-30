@@ -693,4 +693,40 @@ describe XapianDb::DocumentBlueprint do
       expect(blueprint.type_map[:untyped]).to eq(:string)
     end
   end
+
+  describe ".preprocess_terms" do
+    before :each do
+      class Klass
+        def self.normalize_global(text); end
+        def self.normalize_local(text); end
+      end
+
+      XapianDb::Config.setup do |config|
+        config.indexer_preprocess_callback Klass.method(:normalize_global)
+      end
+    end
+
+    after :each do
+      XapianDb::Config.setup do |config|
+        config.indexer_preprocess_callback nil
+      end
+    end
+
+    it "returns the global indexer preprocess callback if none is configured on the blueprint" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+      expect(blueprint.preprocess_terms).to eq Klass.method(:normalize_global)
+    end
+
+    it "returns the indexer preprocess callback configured on the blueprint" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.indexer_preprocess_callback Klass.method(:normalize_local)
+      end
+      blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+
+      expect(blueprint.preprocess_terms).to eq Klass.method(:normalize_local)
+    end
+
+  end
 end
