@@ -403,7 +403,7 @@ describe XapianDb::Database do
 
     let (:db) { XapianDb.database }
 
-    before :all do
+    before :each do
       XapianDb.setup do |config|
         config.adapter  :generic
         config.database :memory

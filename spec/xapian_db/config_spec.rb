@@ -76,7 +76,7 @@ describe XapianDb::Config do
       it "raises an error if the configured adapter is unknown" do
         expect{XapianDb::Config.setup do |config|
           config.adapter :unknown
-        end}.to raise_error
+        end}.to raise_error LoadError
       end
     end
 
@@ -124,7 +124,7 @@ describe XapianDb::Config do
       it "raises an error if the configured writer is unknown" do
         expect{XapianDb::Config.setup do |config|
           config.writer :unknown
-        end}.to raise_error
+        end}.to raise_error LoadError
       end
 
     end

@@ -65,7 +65,7 @@ describe XapianDb::Resultset do
     end
 
     it "raises an exception if an unsupported option is passed" do
-      expect{XapianDb::Resultset.new(@enquiry, :unsupported => "?")}.to raise_error
+      expect{XapianDb::Resultset.new(@enquiry, :unsupported => "?")}.to raise_error 'unsupported options for resultset: {:unsupported=>"?"}'
     end
 
     it "accepts a limit option (as a string or an integer)" do
@@ -110,7 +110,7 @@ describe XapianDb::Resultset do
     end
 
     it "raises an exception if page is requested that does not exist" do
-      expect{XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 3)}.to raise_error
+      expect{XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 3)}.to raise_error "page  does not exist"
     end
 
     it "should populate itself with found xapian documents" do

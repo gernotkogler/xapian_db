@@ -31,7 +31,7 @@ describe XapianDb::Adapters::GenericAdapter do
 
     it "should raise an exception if the unique key is not configured" do
       XapianDb::Adapters::GenericAdapter.unique_key # undef the unique key
-      expect{XapianDb::Adapters::GenericAdapter.add_class_helper_methods_to(MyClass)}.to raise_error
+      expect{XapianDb::Adapters::GenericAdapter.add_class_helper_methods_to(MyClass)}.to raise_error "Unique key is not configured for generic adapter!"
     end
 
     it "should add the method 'xapian_id' to the configured class" do
