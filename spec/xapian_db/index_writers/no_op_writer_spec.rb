@@ -18,7 +18,7 @@ describe XapianDb::IndexWriters::NoOpWriter do
 
   let(:object) {
     obj = IndexedObject.new(1)
-    obj.stub!(:text).and_return("Some text")
+    allow(obj).to receive(:text).and_return("Some text")
     obj
   }
   let(:writer) { XapianDb::IndexWriters::NoOpWriter }
@@ -26,7 +26,7 @@ describe XapianDb::IndexWriters::NoOpWriter do
   describe "#index(obj)" do
     it "does nothing" do
       writer.index object
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
     end
   end
 
@@ -38,14 +38,14 @@ describe XapianDb::IndexWriters::NoOpWriter do
 
     it "does nothing" do
       writer.delete_doc_with object.xapian_id
-      XapianDb.database.size.should == 1 # the object indexed in the before block
+      expect(XapianDb.database.size).to eq(1) # the object indexed in the before block
     end
   end
 
   describe "#reindex(klass)" do
 
     it "should raise a 'not supported' exception" do
-      lambda { writer.reindex_class IndexedObject }.should raise_error "rebuild_xapian_index is not supported inside a block with auto indexing disabled"
+      expect { writer.reindex_class IndexedObject }.to raise_error "rebuild_xapian_index is not supported inside a block with auto indexing disabled"
     end
 
   end

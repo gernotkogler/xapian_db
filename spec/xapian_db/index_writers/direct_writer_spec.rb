@@ -15,24 +15,24 @@ describe XapianDb::IndexWriters::DirectWriter do
       blueprint.attribute :text
     end
     @obj = IndexedObject.new(1)
-    @obj.stub!(:text).and_return("Some text")
+    allow(@obj).to receive(:text).and_return("Some text")
   end
 
   describe ".index(obj)" do
     it "adds an object to the index" do
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
       XapianDb::IndexWriters::DirectWriter.index @obj
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
   end
 
   describe ".delete_doc_with(xapian_id)" do
     it "removes a document from the index" do
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
       XapianDb::IndexWriters::DirectWriter.index @obj
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
       XapianDb::IndexWriters::DirectWriter.delete_doc_with @obj.xapian_id
-      XapianDb.database.size.should == 0
+      expect(XapianDb.database.size).to eq(0)
     end
   end
 
@@ -54,7 +54,7 @@ describe XapianDb::IndexWriters::DirectWriter do
 
     it "adds all instances of a class to the index" do
       XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
 
     it "accepts a verbose option" do
@@ -64,12 +64,12 @@ describe XapianDb::IndexWriters::DirectWriter do
       rescue
       end
       XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject, :verbose => true
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
 
     it "adds all instances of a class to the index" do
       XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject
-      XapianDb.database.size.should == 1
+      expect(XapianDb.database.size).to eq(1)
     end
 
     it "uses the blueprint base query if specified" do
@@ -78,7 +78,7 @@ describe XapianDb::IndexWriters::DirectWriter do
         blueprint.attribute :name
         blueprint.base_query { DatamapperObject }
       end
-      XapianDb::DocumentBlueprint.blueprint_for(:DatamapperObject).lazy_base_query.should_receive(:call).and_return DatamapperObject
+      expect(XapianDb::DocumentBlueprint.blueprint_for(:DatamapperObject).lazy_base_query).to receive(:call).and_return DatamapperObject
       XapianDb::IndexWriters::DirectWriter.reindex_class DatamapperObject
     end
   end

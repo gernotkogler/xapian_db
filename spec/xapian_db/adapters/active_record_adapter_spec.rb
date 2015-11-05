@@ -29,15 +29,15 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
 
     it "adds the method 'xapian_id' to the configured class" do
-      object.should respond_to(:xapian_id)
+      expect(object).to respond_to(:xapian_id)
     end
 
     it "adds the method 'order_condition' to the configured class" do
-      object.class.should respond_to(:order_condition)
+      expect(object.class).to respond_to(:order_condition)
     end
 
     it "adds an after save hook to the configured class" do
-      ActiveRecordObject.hooks[:after_save].should be_a_kind_of(Proc)
+      expect(ActiveRecordObject.hooks[:after_save]).to be_a_kind_of(Proc)
     end
 
     it "does not add an after save hook if autoindexing is turned off for this blueprint" do
@@ -45,19 +45,19 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.autoindex false
       end
-      ActiveRecordObject.hooks[:after_save].should_not be
+      expect(ActiveRecordObject.hooks[:after_save]).not_to be
     end
 
     it "adds an after destroy hook to the configured class" do
-      ActiveRecordObject.hooks[:after_destroy].should be_a_kind_of(Proc)
+      expect(ActiveRecordObject.hooks[:after_destroy]).to be_a_kind_of(Proc)
     end
 
     it "adds a class method to reindex all objects of a class" do
-      ActiveRecordObject.should respond_to(:rebuild_xapian_index)
+      expect(ActiveRecordObject).to respond_to(:rebuild_xapian_index)
     end
 
     it "adds the helper methods from the base class" do
-      ActiveRecordObject.should respond_to(:search)
+      expect(ActiveRecordObject).to respond_to(:search)
     end
   end
 
@@ -66,26 +66,26 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     it "adds the method 'id' to the object" do
       mod = Module.new
       XapianDb::Adapters::ActiveRecordAdapter.add_doc_helper_methods_to(mod)
-      mod.instance_methods.should include(:id)
+      expect(mod.instance_methods).to include(:id)
     end
 
     it "adds the method 'indexed_object' to the object" do
       mod = Module.new
       XapianDb::Adapters::ActiveRecordAdapter.add_doc_helper_methods_to(mod)
-      mod.instance_methods.should include(:indexed_object)
+      expect(mod.instance_methods).to include(:indexed_object)
     end
   end
 
   describe ".xapian_id" do
     it "returns a unique id composed of the class name and the id" do
-      object.xapian_id.should == "#{object.class}-#{object.id}"
+      expect(object.xapian_id).to eq("#{object.class}-#{object.id}")
     end
   end
 
   describe ".primary_key_for(klass)" do
 
     it "returns the name of the primary key column" do
-      XapianDb::Adapters::ActiveRecordAdapter.primary_key_for(ActiveRecordObject).should == ActiveRecordObject.primary_key
+      expect(XapianDb::Adapters::ActiveRecordAdapter.primary_key_for(ActiveRecordObject)).to eq(ActiveRecordObject.primary_key)
     end
 
   end
@@ -93,12 +93,12 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
   describe "the after commit hook" do
 
     it "should not (re)index the object, if it is a destroy transaction" do
-      XapianDb.should_not_receive(:reindex)
+      expect(XapianDb).not_to receive(:reindex)
       object.destroy
     end
 
     it "should (re)index the object, if it is a create/update action" do
-      XapianDb.should_receive(:reindex)
+      expect(XapianDb).to receive(:reindex)
       object.save
     end
 
@@ -108,7 +108,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
         blueprint.ignore_if {name == "Kogler"}
       end
       object.save
-      XapianDb.search("Kogler").size.should == 0
+      expect(XapianDb.search("Kogler").size).to eq(0)
     end
 
     it "should index the object if an ignore expression in the blueprint is not met" do
@@ -117,7 +117,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
         blueprint.ignore_if {name == "not Kogler"}
       end
       object.save
-      XapianDb.search("Kogler").size.should == 1
+      expect(XapianDb.search("Kogler").size).to eq(1)
     end
 
     it "should (re)index a dependent object if necessary" do
@@ -133,10 +133,10 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
         end
       end
       previous_changes = { 'name' => 'something' }
-      source_object.stub!(:previous_changes).and_return previous_changes
+      allow(source_object).to receive(:previous_changes).and_return previous_changes
 
-      XapianDb.should_receive(:reindex).with(source_object, true, changed_attrs: previous_changes.keys)
-      XapianDb.should_receive(:reindex).with(dependent_object, true, changed_attrs: previous_changes.keys)
+      expect(XapianDb).to receive(:reindex).with(source_object, true, changed_attrs: previous_changes.keys)
+      expect(XapianDb).to receive(:reindex).with(dependent_object, true, changed_attrs: previous_changes.keys)
 
       source_object.save
     end
@@ -145,9 +145,9 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
   describe "the after destroy hook" do
     it "should remove the object from the index" do
       object.save
-      XapianDb.search("Kogler").size.should == 1
+      expect(XapianDb.search("Kogler").size).to eq(1)
       object.destroy
-      XapianDb.search("Kogler").size.should == 0
+      expect(XapianDb.search("Kogler").size).to eq(0)
     end
   end
 
@@ -156,7 +156,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     it "should return the id of the object that is linked with the document" do
       object.save
       doc = XapianDb.search("Kogler").first
-      doc.id.should == object.id
+      expect(doc.id).to eq(object.id)
     end
   end
 
@@ -167,34 +167,34 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       doc = XapianDb.search("Kogler").first
       # Since we do not have identity map in active_record, we can only
       # compare the ids, not the objects
-      doc.indexed_object.id.should == object.id
+      expect(doc.indexed_object.id).to eq(object.id)
     end
   end
 
   describe ".rebuild_xapian_index" do
     it "should (re)index all objects of this class" do
       object.save
-      XapianDb.search("Kogler").size.should == 1
+      expect(XapianDb.search("Kogler").size).to eq(1)
 
       # We reopen the in memory database to destroy the index
       XapianDb.setup do |config|
         config.database :memory
       end
-      XapianDb.search("Kogler").size.should == 0
+      expect(XapianDb.search("Kogler").size).to eq(0)
 
       ActiveRecordObject.rebuild_xapian_index
-      XapianDb.search("Kogler").size.should == 1
+      expect(XapianDb.search("Kogler").size).to eq(1)
     end
 
     it "should respect an ignore expression" do
       object.save
-      XapianDb.search("Kogler").size.should == 1
+      expect(XapianDb.search("Kogler").size).to eq(1)
 
       # We reopen the in memory database to destroy the index
       XapianDb.setup do |config|
         config.database :memory
       end
-      XapianDb.search("Kogler").size.should == 0
+      expect(XapianDb.search("Kogler").size).to eq(0)
 
       XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.index :name
@@ -202,7 +202,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       end
 
       ActiveRecordObject.rebuild_xapian_index
-      XapianDb.search("Kogler").size.should == 0
+      expect(XapianDb.search("Kogler").size).to eq(0)
     end
 
   end

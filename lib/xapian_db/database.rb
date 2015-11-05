@@ -86,7 +86,7 @@ module XapianDb
         enquiry.set_sort_by_key_then_relevance(sorter, sort_decending)
       else
         sorter.add_value DocumentBlueprint.value_number_for(:natural_sort_order)
-        enquiry.set_sort_by_relevance_then_key sorter, true
+        enquiry.set_sort_by_relevance_then_key sorter, false
       end
 
       opts[:spelling_suggestion] = @query_parser.spelling_suggestion

@@ -11,7 +11,7 @@ describe XapianDb::ModelExtenders::ActiveRecord do
   describe ".inherited(klass)" do
 
     it "checks if a blueprint for the klass is specified" do
-      XapianDb::DocumentBlueprint.should_receive(:configured?).with(ActiveRecordObject.name)
+      expect(XapianDb::DocumentBlueprint).to receive(:configured?).with(ActiveRecordObject.name)
       subject.inherited(ActiveRecordObject)
     end
 
@@ -19,7 +19,7 @@ describe XapianDb::ModelExtenders::ActiveRecord do
       XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.attribute :array
       end
-      XapianDb::DocumentBlueprint.blueprint_for(:ActiveRecordObject)._adapter.should_receive(:add_class_helper_methods_to).with(ActiveRecordObject)
+      expect(XapianDb::DocumentBlueprint.blueprint_for(:ActiveRecordObject)._adapter).to receive(:add_class_helper_methods_to).with(ActiveRecordObject)
       subject.inherited(ActiveRecordObject)
     end
 

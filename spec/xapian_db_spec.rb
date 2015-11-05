@@ -14,7 +14,7 @@ describe XapianDb do
       XapianDb.setup do |config|
         config.database :memory
       end
-      XapianDb.database.should be_a_kind_of XapianDb::InMemoryDatabase
+      expect(XapianDb.database).to be_a_kind_of XapianDb::InMemoryDatabase
     end
 
   end
@@ -23,16 +23,16 @@ describe XapianDb do
 
     it "should create an in memory database by default" do
       db = XapianDb.create_db
-      db.reader.should be_a_kind_of(Xapian::Database)
-      db.writer.should be_a_kind_of(Xapian::Database)
+      expect(db.reader).to be_a_kind_of(Xapian::Database)
+      expect(db.writer).to be_a_kind_of(Xapian::Database)
     end
 
     it "should create a database on disk if a path is given" do
       temp_dir = "/tmp/xapiandb"
       db = XapianDb.create_db(:path => temp_dir)
-      db.reader.should be_a_kind_of(Xapian::Database)
-      db.writer.should be_a_kind_of(Xapian::WritableDatabase)
-      File.exists?(temp_dir).should be_true
+      expect(db.reader).to be_a_kind_of(Xapian::Database)
+      expect(db.writer).to be_a_kind_of(Xapian::WritableDatabase)
+      expect(File.exists?(temp_dir)).to be_truthy
       FileUtils.rm_rf temp_dir
     end
 
@@ -42,19 +42,19 @@ describe XapianDb do
 
     it "should open an in memory database by default" do
       db = XapianDb.open_db
-      db.reader.should be_a_kind_of(Xapian::Database)
-      db.writer.should be_a_kind_of(Xapian::Database)
+      expect(db.reader).to be_a_kind_of(Xapian::Database)
+      expect(db.writer).to be_a_kind_of(Xapian::Database)
     end
 
     it "should open a database on disk if a path is given" do
       # First we create a test database
       temp_dir = "/tmp/xapiandb"
       db = XapianDb.create_db(:path => temp_dir)
-      File.exists?(temp_dir).should be_true
+      expect(File.exists?(temp_dir)).to be_truthy
 
       # Now we try to open the created database again
       db = XapianDb.open_db(:path => temp_dir)
-      db.reader.should be_a_kind_of(Xapian::Database)
+      expect(db.reader).to be_a_kind_of(Xapian::Database)
       FileUtils.rm_rf temp_dir
     end
 
@@ -69,11 +69,11 @@ describe XapianDb do
     end
 
     it "should delegate the search to the current database" do
-      XapianDb.search("Something").should be_a_kind_of(XapianDb::Resultset)
+      expect(XapianDb.search("Something")).to be_a_kind_of(XapianDb::Resultset)
     end
 
     it "accepts per_page and page options" do
-      XapianDb.search("Something", :per_page => 10, :page => 1).should be_a_kind_of(XapianDb::Resultset)
+      expect(XapianDb.search("Something", :per_page => 10, :page => 1)).to be_a_kind_of(XapianDb::Resultset)
     end
 
     describe "with an order expression" do
@@ -84,28 +84,28 @@ describe XapianDb do
         end
         indexer = XapianDb::Indexer.new XapianDb.database, XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
         obj1 = IndexedObject.new(1)
-        obj1.stub!(:text).and_return "A text"
+        allow(obj1).to receive(:text).and_return "A text"
         XapianDb.database.store_doc indexer.build_document_for(obj1)
         obj2 = IndexedObject.new(2)
-        obj2.stub!(:text).and_return "B text"
+        allow(obj2).to receive(:text).and_return "B text"
         XapianDb.database.store_doc indexer.build_document_for(obj2)
         XapianDb.database.commit
       end
 
       it "should raise an argument error if the :order option contains an unknown attribute" do
-        lambda { XapianDb.search "text", :order => :unkown }.should raise_error ArgumentError
+        expect { XapianDb.search "text", :order => :unkown }.to raise_error ArgumentError
       end
 
       it "should accept an :order option" do
         result = XapianDb.search "text", :order => :text
-        result.first.text.should == "A text"
-        result.last.text.should == "B text"
+        expect(result.first.text).to eq("A text")
+        expect(result.last.text).to eq("B text")
       end
 
       it "should accept an :sort_decending option" do
         result = XapianDb.search "text", :order => :text, :sort_decending => true
-        result.first.text.should == "B text"
-        result.last.text.should == "A text"
+        expect(result.first.text).to eq("B text")
+        expect(result.last.text).to eq("A text")
       end
 
     end
@@ -121,7 +121,7 @@ describe XapianDb do
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.attribute :text
       end
-      XapianDb.facets(:text, "Something").should be_a_kind_of(Hash)
+      expect(XapianDb.facets(:text, "Something")).to be_a_kind_of(Hash)
     end
 
   end
@@ -147,19 +147,19 @@ describe XapianDb do
     it "updates the xapian document belonging to the object" do
       @object = ActiveRecordObject.new(1, "Kogler")
       @object.save
-      XapianDb.search("Kogler").size.should == 1
-      @object.stub!(:name).and_return "renamed"
+      expect(XapianDb.search("Kogler").size).to eq(1)
+      allow(@object).to receive(:name).and_return "renamed"
       XapianDb.reindex(@object)
-      XapianDb.search("renamed").size.should == 1
+      expect(XapianDb.search("renamed").size).to eq(1)
     end
 
     it "deletes the xapian document if the ignore_if clause evaluates to false" do
       @object = ActiveRecordObject.new(1, "Kogler")
       @object.save
-      XapianDb.search("Kogler").size.should == 1
+      expect(XapianDb.search("Kogler").size).to eq(1)
       @object.date = Date.today + 1
       XapianDb.reindex(@object)
-      XapianDb.search("Kogler").size.should == 0
+      expect(XapianDb.search("Kogler").size).to eq(0)
     end
 
   end
@@ -176,8 +176,8 @@ describe XapianDb do
 
     it "does nothing if no blueprints are configured" do
       XapianDb::DocumentBlueprint.reset
-      lambda{XapianDb.rebuild_xapian_index}.should_not raise_error
-      XapianDb.rebuild_xapian_index.should be_false
+      expect{XapianDb.rebuild_xapian_index}.not_to raise_error
+      expect(XapianDb.rebuild_xapian_index).to be_falsey
     end
 
     it "rebuilds the index for all blueprints" do
@@ -187,16 +187,16 @@ describe XapianDb do
       @object = ActiveRecordObject.new(1, "Kogler")
       @object.save
 
-      XapianDb.search("Kogler").size.should == 1
+      expect(XapianDb.search("Kogler").size).to eq(1)
 
       # We reopen the in memory database to destroy the index
       XapianDb.setup do |config|
         config.database :memory
       end
-      XapianDb.search("Kogler").size.should == 0
+      expect(XapianDb.search("Kogler").size).to eq(0)
 
       XapianDb.rebuild_xapian_index
-      XapianDb.search("Kogler").size.should == 1
+      expect(XapianDb.search("Kogler").size).to eq(1)
     end
 
     it "ignores blueprints that describe plain ruby classes" do
@@ -208,7 +208,7 @@ describe XapianDb do
       XapianDb.setup do |config|
         config.database :memory
       end
-      lambda {XapianDb.rebuild_xapian_index}.should_not raise_error
+      expect {XapianDb.rebuild_xapian_index}.not_to raise_error
     end
 
   end
@@ -234,24 +234,24 @@ describe XapianDb do
 
     it "should should get the objects by date" do
       result = XapianDb.search("date:#{Date.today.strftime('%Y-%m-%d')}")
-      result.size.should == 1
-      result.first.data.should == "ActiveRecordObject-2"
+      expect(result.size).to eq(1)
+      expect(result.first.data).to eq("ActiveRecordObject-2")
     end
 
     it "should find all objects with a full range" do
-      XapianDb.search("date:#{@object1.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").should have(3).items
+      expect(XapianDb.search("date:#{@object1.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").size).to eq(3)
     end
 
     it "should find selection of objects with partial range" do
-      XapianDb.search("date:#{@object2.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").should have(2).items
+      expect(XapianDb.search("date:#{@object2.date.strftime('%Y-%m-%d')}..#{@object3.date.strftime('%Y-%m-%d')}").size).to eq(2)
     end
 
     it "should find selection of objects with open ending range" do
-      XapianDb.search("date:#{@object3.date.strftime('%Y-%m-%d')}..").should have(1).item
+      expect(XapianDb.search("date:#{@object3.date.strftime('%Y-%m-%d')}..").size).to eq(1)
     end
 
     it "should find selection of objects with open beginning range" do
-      XapianDb.search("date:..#{@object2.date.strftime('%Y-%m-%d')}").should have(2).items
+      expect(XapianDb.search("date:..#{@object2.date.strftime('%Y-%m-%d')}").size).to eq(2)
     end
   end
 
@@ -276,24 +276,24 @@ describe XapianDb do
 
     it "should should get the objects by number" do
       result = XapianDb.search("age:31")
-      result.size.should == 1
-      result.first.data.should == "ActiveRecordObject-2"
+      expect(result.size).to eq(1)
+      expect(result.first.data).to eq("ActiveRecordObject-2")
     end
 
     it "should find all objects with a full range" do
-      XapianDb.search("age:30..32").should have(3).items
+      expect(XapianDb.search("age:30..32").size).to eq(3)
     end
 
     it "should find selection of objects with partial range" do
-      XapianDb.search("age:31..32").should have(2).items
+      expect(XapianDb.search("age:31..32").size).to eq(2)
     end
 
     it "should find selection of objects with open ending range" do
-      XapianDb.search("age:32..").should have(1).item
+      expect(XapianDb.search("age:32..").size).to eq(1)
     end
 
     it "should find selection of objects with open beginning range" do
-      XapianDb.search("age:..31").should have(2).items
+      expect(XapianDb.search("age:..31").size).to eq(2)
     end
   end
 
@@ -317,19 +317,19 @@ describe XapianDb do
     end
 
     it "should find all objects with a full range" do
-      XapianDb.search("name:Adam..Chris").should have(3).items
+      expect(XapianDb.search("name:Adam..Chris").size).to eq(3)
     end
 
     it "should find selection of objects with partial range" do
-      XapianDb.search("name:Bernard..Chris").should have(2).items
+      expect(XapianDb.search("name:Bernard..Chris").size).to eq(2)
     end
 
     it "should find selection of objects with open ending range" do
-      XapianDb.search("name:Chris..").should have(1).item
+      expect(XapianDb.search("name:Chris..").size).to eq(1)
     end
 
     it "should find selection of objects with open beginning range" do
-      XapianDb.search("name:..Bernard").should have(2).items
+      expect(XapianDb.search("name:..Bernard").size).to eq(2)
     end
   end
 
@@ -356,14 +356,14 @@ describe XapianDb do
         XapianDb.transaction do
           object.save
         end
-        XapianDb.database.size.should == 1
+        expect(XapianDb.database.size).to eq(1)
       end
 
       it "reraises exceptions" do
-        lambda { XapianDb.transaction do
+        expect { XapianDb.transaction do
           object.save
           raise "oops"
-        end }.should raise_error "oops"
+        end }.to raise_error "oops"
       end
 
       it "does not index the objects saved in the block if the block raises an error" do
@@ -374,14 +374,14 @@ describe XapianDb do
           end
           rescue
         end
-        XapianDb.database.size.should == 0
+        expect(XapianDb.database.size).to eq(0)
       end
 
       it "logs exceptions if used within a rails app" do
-        Rails = mock "Rails"
-        logger = mock "logger"
-        Rails.stub(:logger).and_return logger
-        logger.should_receive :error
+        Rails = double "Rails"
+        logger = double "logger"
+        allow(Rails).to receive(:logger).and_return logger
+        expect(logger).to receive :error
 
         begin
           XapianDb.transaction do
@@ -390,7 +390,7 @@ describe XapianDb do
           end
           rescue
         end
-        XapianDb.database.size.should == 0
+        expect(XapianDb.database.size).to eq(0)
       end
 
     end
@@ -400,21 +400,21 @@ describe XapianDb do
 
       describe ".index(obj)" do
         it "delegates the request to the configured writer" do
-          XapianDb::Config.writer.should_receive(:index).once
+          expect(XapianDb::Config.writer).to receive(:index).once
           XapianDb.index object
         end
       end
 
       describe ".delete_doc_with(xapian_id)" do
         it "delegates the request to the configured writer" do
-          XapianDb::Config.writer.should_receive(:delete_doc_with).once
+          expect(XapianDb::Config.writer).to receive(:delete_doc_with).once
           XapianDb.delete_doc_with object.xapian_id
         end
       end
 
       describe ".reindex_class(klass)" do
         it "delegates the request to the configured writer" do
-          XapianDb::Config.writer.should_receive(:reindex_class).once
+          expect(XapianDb::Config.writer).to receive(:reindex_class).once
           XapianDb.reindex_class object.class
         end
       end
@@ -445,14 +445,14 @@ describe XapianDb do
         XapianDb.auto_indexing_disabled do
           object.save
         end
-        XapianDb.database.size.should == 0
+        expect(XapianDb.database.size).to eq(0)
       end
 
       it "reraises exceptions" do
-        lambda { XapianDb.auto_indexing_disabled do
+        expect { XapianDb.auto_indexing_disabled do
           object.save
           raise "oops"
-        end }.should raise_error "oops"
+        end }.to raise_error "oops"
       end
 
     end
