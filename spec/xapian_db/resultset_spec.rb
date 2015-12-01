@@ -75,6 +75,29 @@ describe XapianDb::Resultset do
       expect(resultset.size).to          eq(2)
       expect(resultset.current_page).to  eq(1)
       expect(resultset.total_pages).to   eq(2)
+      expect(resultset.limit_value).to   eq(2)
+      expect(resultset.total_count).to   eq(@matches.size)
+      expect(resultset.total_entries).to eq(@matches.size)
+    end
+
+    it "accepts a count option (as a string or an integer)" do
+      allow(@mset).to receive(:matches).and_return(@matches[0..1])
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :count => "2")
+      expect(resultset.hits).to          eq(3)
+      expect(resultset.size).to          eq(2)
+      expect(resultset.current_page).to  eq(1)
+      expect(resultset.total_pages).to   eq(2)
+      expect(resultset.total_count).to   eq(@matches.size)
+      expect(resultset.total_entries).to eq(@matches.size)
+    end
+
+    it "accepts an offset option (as a string or an integer)" do
+      allow(@mset).to receive(:matches).and_return(@matches[1..2])
+      resultset = XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :count => "2", offset: "1")
+      expect(resultset.hits).to          eq(3)
+      expect(resultset.size).to          eq(2)
+      expect(resultset.current_page).to  eq(1.5)
+      expect(resultset.total_pages).to   eq(2)
       expect(resultset.total_count).to   eq(@matches.size)
       expect(resultset.total_entries).to eq(@matches.size)
     end
@@ -110,7 +133,16 @@ describe XapianDb::Resultset do
     end
 
     it "raises an exception if page is requested that does not exist" do
-      expect{XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 3)}.to raise_error "page  does not exist"
+      expect{XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 3)}.to raise_error ArgumentError, "page 3 does not exist"
+    end
+
+    it "raises an exception if page is requested that does not exist within given limit" do
+      expect{XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 2, limit: 2)}.to raise_error ArgumentError, "page 2 does not exist within given limit"
+    end
+
+    it "raises an exception if elements of both page / per_page and offset / count are given" do
+      expect{XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, :page => 2, offset: 1, count: 3)}.to raise_error ArgumentError, "impossible combination of parameters"
+      expect{XapianDb::Resultset.new(@enquiry, :db_size => @matches.size, :per_page => 2, offset: 1)}.to raise_error ArgumentError, "impossible combination of parameters"
     end
 
     it "should populate itself with found xapian documents" do

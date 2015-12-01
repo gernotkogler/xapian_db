@@ -45,7 +45,9 @@ module XapianDb
     #   Pass nil to get an empty result set.
     # @param [Hash] options
     # @option options [Integer] :db_size The current size (nr of docs) of the database
-    # @option options [Integer] :limit The maximum number of documents to retrieve
+    # @option options [Integer] :limit The maximum number of documents to retrieve (in total, not per request)
+    # @option options [Integer] :offset The index of the first result to retrieve
+    # @option options [Integer] :count The maximum number of documents to retrieve per request (analogous to "limit" in SQL)
     # @option options [Integer] :page (1) The page number to retrieve
     # @option options [Integer] :per_page (10) How many docs per page? Ignored if a limit option is given
     # @option options [String] :spelling_suggestion (nil) The spelling corrected query (if a language is configured)
@@ -56,25 +58,33 @@ module XapianDb
       db_size              = params.delete :db_size
       @spelling_suggestion = params.delete :spelling_suggestion
       limit                = params.delete :limit
+      offset               = params.delete :offset
+      count                = params.delete :count
       page                 = params.delete :page
       per_page             = params.delete :per_page
       raise ArgumentError.new "unsupported options for resultset: #{params}" if params.size > 0
       raise ArgumentError.new "db_size option is required" unless db_size
+      raise ArgumentError.new "impossible combination of parameters" unless (page.nil? && per_page.nil?) || (offset.nil? && count.nil?)
+
+      calculated_page = offset.nil? || count.nil? ? nil : (offset.to_f / count.to_f) + 1
 
       limit    = limit.nil? ? db_size : limit.to_i
-      per_page = per_page.nil? ? limit : per_page.to_i
-      page     = page.nil? ? 1 : page.to_i
-      offset   = (page - 1) * per_page
-      count  = offset + per_page < limit ? per_page : limit - offset
+      per_page = per_page.nil? ? (count.nil? ? limit.to_i : count.to_i) : per_page.to_i
+      page     = page.nil? ? (calculated_page.nil? ? 1 : calculated_page) : page.to_i
+      offset   = offset.nil? ? (page - 1) * per_page : offset.to_i
+      count    = count.nil? ? (offset + per_page < limit ? per_page : limit - offset) : count.to_i
+
+      raise ArgumentError.new "page #{page} does not exist" if (page - 1) * per_page > db_size
 
       result_window = enquiry.mset(offset, count)
       @hits = result_window.matches_estimated
       return build_empty_resultset if @hits == 0
-      raise ArgumentError.new "page #{@page} does not exist" if @hits > 0 && offset >= limit
+
+      raise ArgumentError.new "page #{page} does not exist within given limit" if @hits > 0 && offset >= limit
 
       self.replace result_window.matches.map{|match| decorate(match).document}
       @total_pages  = (@hits / per_page.to_f).ceil
-      @current_page = page
+      @current_page = (page == page.to_i) ? page.to_i : page
       @limit_value  = per_page
     end
 
