@@ -63,17 +63,17 @@ module XapianDb
       raise ArgumentError.new "unsupported options for resultset: #{params}" if params.size > 0
       raise ArgumentError.new "db_size option is required" unless db_size
 
-      raise ArgumentError.new "impossible combination of parameters" unless per_page.nil? || limit.nil? || per_page == limit
+      unless (page.nil? && per_page.nil?) || (limit.nil? && offset.nil?)
+        raise ArgumentError.new "Impossible combination of parameters. Either pass page and/or per_page, or limit and/or offset."
+      end
 
       calculated_page = offset.nil? || limit.nil? ? nil : (offset.to_f / limit.to_f) + 1
-      limit           = limit.nil? ? db_size : limit.to_i
-      per_page        = per_page.nil? ? limit.to_i : per_page.to_i
 
-      raise ArgumentError.new "impossible combination of parameters" unless offset.nil? || page.nil? || ((page - 1) * per_page) == offset
-
-      page   = page.nil? ? (calculated_page.nil? ? 1 : calculated_page) : page.to_i
-      offset = offset.nil? ? (page - 1) * per_page : offset.to_i
-      count  = per_page < limit ? per_page : limit
+      limit    = limit.nil? ? db_size : limit.to_i
+      per_page = per_page.nil? ? limit.to_i : per_page.to_i
+      page     = page.nil? ? (calculated_page.nil? ? 1 : calculated_page) : page.to_i
+      offset   = offset.nil? ? (page - 1) * per_page : offset.to_i
+      count    = per_page < limit ? per_page : limit
 
       return build_empty_resultset if (page - 1) * per_page > db_size
       result_window = enquiry.mset(offset, count)

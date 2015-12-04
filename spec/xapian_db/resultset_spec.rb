@@ -125,16 +125,9 @@ describe XapianDb::Resultset do
       expect(XapianDb::Resultset.new(@enquiry, db_size: @matches.size, per_page: 2, :page => 3).count).to eq(0)
     end
 
-    it "raises an exception if incompatible elements of both per_page and limit are given" do
-      expect{XapianDb::Resultset.new(@enquiry, db_size: @matches.size, per_page: 2, limit: 3)}.to raise_error ArgumentError, "impossible combination of parameters"
-    end
-
-    it "raises an exception if incompatible elements of both page / per_page and offset / limit are given" do
-      expect{XapianDb::Resultset.new(@enquiry, db_size: @matches.size, per_page: 2, page: 2, offset: 1, limit: 2)}.to raise_error ArgumentError, "impossible combination of parameters"
-    end
-
-    it "raises no exception if compatible elements of both page / per_page and offset / limit are given" do
-      expect{XapianDb::Resultset.new(@enquiry, db_size: @matches.size, per_page: 2, page: 2, offset: 2, limit: 2)}.not_to raise_error
+    it "raises an exception if elements of both page / per_page and offset / limit are given" do
+      expected_error = "Impossible combination of parameters. Either pass page and/or per_page, or limit and/or offset."
+      expect{XapianDb::Resultset.new(@enquiry, db_size: @matches.size, per_page: 2, page: 2, offset: 1, limit: 2)}.to raise_error ArgumentError, expected_error
     end
 
     it "should populate itself with found xapian documents" do
