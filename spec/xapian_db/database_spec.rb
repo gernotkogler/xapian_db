@@ -73,11 +73,15 @@ describe XapianDb::Database do
         config.adapter :generic
         config.database :memory
       end
-      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
-        blueprint.attribute :id
+      %i[ IndexedObject IndexedObjectSubclass IndexedObjectDT IndexedObjectTrackedSubclass ].each do |klass|
+        XapianDb::DocumentBlueprint.setup(klass) do |blueprint|
+          blueprint.attribute :id
+        end
       end
-      @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
-      @indexer   = XapianDb::Indexer.new(XapianDb.database, @blueprint)
+      @blueprint    = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+      @blueprint_dt = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObjectDT)
+      @indexer    = XapianDb::Indexer.new(XapianDb.database, @blueprint)
+      @indexer_dt = XapianDb::Indexer.new(XapianDb.database, @blueprint_dt)
     end
 
     it "should delete all docs of the given class" do
@@ -96,6 +100,40 @@ describe XapianDb::Database do
       XapianDb.database.delete_docs_of_class(IndexedObject)
       XapianDb.database.commit
       expect(XapianDb.database.size).to eq(0)
+
+    end
+
+    it "should delete all docs of descendant classes, too, if they are tracked" do
+
+      # Create a doc for a tracked subclass
+      obj = IndexedObjectTrackedSubclass.new(1)
+      doc = @indexer_dt.build_document_for(obj)
+      expect(XapianDb.database.store_doc(doc)).to be_truthy
+
+      XapianDb.database.commit
+      expect(XapianDb.database.size).to eq(1)
+
+      # Now delete all docs of the object's superclass
+      XapianDb.database.delete_docs_of_class(IndexedObjectDT)
+      XapianDb.database.commit
+      expect(XapianDb.database.size).to eq(0)
+
+    end
+
+    it "ignore descendant classes where no descendants tracking mechanism is employed" do
+
+      # Create a doc for a non-tracked subclass
+      obj = IndexedObjectSubclass.new(1)
+      doc = @indexer.build_document_for(obj)
+      expect(XapianDb.database.store_doc(doc)).to be_truthy
+
+      XapianDb.database.commit
+      expect(XapianDb.database.size).to eq(1)
+
+      # Now delete all docs of the object's superclass
+      XapianDb.database.delete_docs_of_class(IndexedObject)
+      XapianDb.database.commit
+      expect(XapianDb.database.size).to eq(1)
 
     end
 

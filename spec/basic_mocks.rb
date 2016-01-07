@@ -9,7 +9,7 @@ class String
     self # not really important what we return
   end
 
-  def parameterize 
+  def parameterize
     self # not really important what we return
   end
 
@@ -22,6 +22,23 @@ class IndexedObject
   def initialize(id)
     @id = id
   end
+end
+
+class IndexedObjectSubclass < IndexedObject
+end
+
+require 'descendants_tracker'
+class IndexedObjectDT
+  extend DescendantsTracker
+
+  attr_reader :id
+
+  def initialize(id)
+    @id = id
+  end
+end
+
+class IndexedObjectTrackedSubclass < IndexedObjectDT
 end
 
 class OtherIndexedObject
