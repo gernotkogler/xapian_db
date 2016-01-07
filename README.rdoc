@@ -32,7 +32,7 @@ I tried hard but I couldn't find such a thing so I decided to write it, based on
 
 == Requirements
 
-* ruby 1.9.2 or newer
+* ruby 2.0.0 or newer
 * rails 3.0 or newer (if you want to use it with rails)
 * xapian-core and xapian-ruby binaries installed
 

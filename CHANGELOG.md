@@ -2,6 +2,7 @@
 
 Changes:
 
+  - The required Ruby version is now 2.0.0 since we started using keyword parameters in method definitions 
   - Ability do define and handle dependencies between blueprints (see README)
   - explicit order option for searches
 
