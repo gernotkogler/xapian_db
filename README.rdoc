@@ -34,7 +34,7 @@ I tried hard but I couldn't find such a thing so I decided to write it, based on
 
 * ruby 2.0.0 or newer
 * rails 3.0 or newer (if you want to use it with rails)
-* xapian-core and xapian-ruby binaries installed
+* xapian-core and xapian-ruby binaries 1.2.x installed
 
 == Installing xapian binaries
 
