@@ -35,10 +35,19 @@ module XapianDb
       true
     end
 
-    # Delete all docs of a specific class
+    # Delete all docs of a specific class.
+    #
+    # If `klass` tracks its descendants, then docs of any subclasses will be deleted, too.
+    # (ActiveRecord does this by default; the gem 'descendants_tracker' offers an alternative.)
+    #
     # @param [Class] klass A class that has a {XapianDb::DocumentBlueprint} configuration
     def delete_docs_of_class(klass)
       writer.delete_document("C#{klass}")
+      if klass.respond_to? :descendants
+        klass.descendants.each do |subclass|
+          writer.delete_document("C#{subclass}")
+        end
+      end
       true
     end
 

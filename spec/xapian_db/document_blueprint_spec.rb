@@ -226,9 +226,12 @@ describe XapianDb::DocumentBlueprint do
     it "does replace the blueprint for a class if the class is reloaded" do
       XapianDb::DocumentBlueprint.setup(:IndexedObject)
       expect(XapianDb::DocumentBlueprint.configured_classes.size).to eq(1)
+
       # reload IndexedObject
       Object.send(:remove_const, :IndexedObject)
+      Object.send(:remove_const, :IndexedObjectSubclass)
       load File.expand_path('../../basic_mocks.rb', __FILE__)
+
       XapianDb::DocumentBlueprint.setup(:IndexedObject)
       expect(XapianDb::DocumentBlueprint.configured_classes.size).to eq(1)
     end

@@ -1,7 +1,14 @@
+## [next]
+
+Fixes:
+
+  - `XapianDb.database.delete_docs_of_class(klass)` now deletes docs of all descendants of `klass`, too (if tracked)
+
 ##1.3.6 (August 14th, 2015)
 
 Changes:
 
+  - The required Ruby version is now 2.0.0 since we started using keyword parameters in method definitions 
   - Ability do define and handle dependencies between blueprints (see README)
   - explicit order option for searches
 

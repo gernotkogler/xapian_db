@@ -14,7 +14,8 @@ Gem::Specification.new do |s|
   s.homepage     = %q{https://github.com/garaio/xapian_db}
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Xapian-DB", "--main", "README.rdoc"]
 
-  s.required_rubygems_version = ">=1.3.6"
+  s.required_ruby_version     = ">= 2.0.0"
+  s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "daemons", ">= 1.0.10"
 
@@ -26,8 +27,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency "ruby-progressbar"
   s.add_development_dependency "resque",           ">= 1.19.0"
   s.add_development_dependency "sidekiq",          ">= 2.13.0"
-  s.add_development_dependency "xapian-ruby",      "= 1.2.21"
+  s.add_development_dependency "xapian-ruby",      "= 1.2.22"
   s.add_development_dependency "pry-rails"
+  s.add_development_dependency "descendants_tracker"
 
   s.files         = Dir.glob("lib/**/*") + Dir.glob("tasks/*") + Dir.glob("xapian_source/*") + %w(LICENSE README.rdoc CHANGELOG.md Rakefile)
   s.require_path  = "lib"

@@ -19,6 +19,9 @@ db = XapianDb.create_db
 # 2: Define a class which should get indexed; we define a class that
 # could be an ActiveRecord or Datamapper Domain class
 class Person
+  # If you are using inheritance hierarchies among indexed classes outside of ActiveRecord,
+  # using DescendantsTracker helps with rebuilding the Xapian index for a given class and all its subclasses.
+  extend DescendantsTracker
 
   attr_accessor :id, :name, :first_name, :date_of_birth
 
