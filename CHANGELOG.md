@@ -1,14 +1,24 @@
-## [next]
+##1.3.7 (January 12th, 2016)
+
+Breaking Changes:
+
+  - search methods accept either a limit option OR page / per_page options, not both
 
 Fixes:
 
   - `XapianDb.database.delete_docs_of_class(klass)` now deletes docs of all descendants of `klass`, too (if tracked)
 
+Changes:
+
+  - Ability to declare dependenices between blueprints
+  - Support for result ordering
+  - added a indexer preprocess callback to manipulate the terms that the indexer will index
+
 ##1.3.6 (August 14th, 2015)
 
 Changes:
 
-  - The required Ruby version is now 2.0.0 since we started using keyword parameters in method definitions 
+  - The required Ruby version is now 2.0.0 since we started using keyword parameters in method definitions
   - Ability do define and handle dependencies between blueprints (see README)
   - explicit order option for searches
 

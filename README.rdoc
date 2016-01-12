@@ -208,7 +208,7 @@ by their accentless form:
     config.indexer_preprocess_callback UtilT.method(:strip_accents)
   end
 
-You may use attributes from associated objekts in a blueprint; if you do that and an associated object is updated, your objects should be reindexed, too. You can tell XapnaDB about those dependencies like so:
+You may use attributes from associated objects in a blueprint; if you do that and an associated object is updated, your objects should be reindexed, too. You can tell XapnaDB about those dependencies like so:
 
   XapianDb::DocumentBlueprint.setup(:Person) do |blueprint|
     blueprint.attribue :address, :as => :json
