@@ -37,7 +37,10 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
 
     it "adds an after save hook to the configured class" do
-      expect(ActiveRecordObject.hooks[:after_save]).to be_a_kind_of(Proc)
+      expect(ActiveRecordObject.hooks[:after_save].length).to eq(1)
+      ActiveRecordObject.hooks[:after_save].each do |hook|
+        expect(hook).to be_a_kind_of(Proc)
+      end
     end
 
     it "does not add an after save hook if autoindexing is turned off for this blueprint" do
@@ -45,11 +48,15 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
         blueprint.autoindex false
       end
-      expect(ActiveRecordObject.hooks[:after_save]).not_to be
+      expect(ActiveRecordObject.hooks[:after_save]).to be_empty
     end
 
     it "adds an after destroy hook to the configured class" do
-      expect(ActiveRecordObject.hooks[:after_destroy]).to be_a_kind_of(Proc)
+      # expect 2 because the ActiveRecordObject implementation for these specs adds an :after_destroy on :after_commit, too
+      expect(ActiveRecordObject.hooks[:after_destroy].length).to eq(2)
+      ActiveRecordObject.hooks[:after_destroy].each do |hook|
+        expect(hook).to be_a_kind_of(Proc)
+      end
     end
 
     it "adds a class method to reindex all objects of a class" do
@@ -137,6 +144,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       allow(object_that_changes).to receive(:previous_changes).and_return(previous_changes)
 
       expect(XapianDb).to receive(:reindex).with(object_that_should_update, true, changed_attrs: previous_changes.keys)
+      expect(XapianDb).not_to receive(:reindex).with(object_that_changes, true, changed_attrs: previous_changes.keys)
 
       object_that_changes.save
     end
