@@ -121,24 +121,24 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
 
     it "should (re)index a dependent object if necessary" do
-      source_object    = ActiveRecordObject.new 1, 'Müller'
-      dependent_object = ActiveRecordObject.new 1, 'Meier'
+      class IndexedActiveRecordObject < ActiveRecordObject; end; IndexedActiveRecordObject.reset
+      class ChangingActiveRecordObject < ActiveRecordObject; end; ChangingActiveRecordObject.reset
+      object_that_should_update = IndexedActiveRecordObject.new 1, 'Müller'
+      object_that_changes       = ChangingActiveRecordObject.new 1, 'Meier'
 
-      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
+      XapianDb::DocumentBlueprint.setup(:IndexedActiveRecordObject) do |blueprint|
         blueprint.index :name
 
-        # doesn't make a lot of sense to declare a circular dependency but for this spec it doesn't matter
-        blueprint.dependency :ActiveRecordObject, when_changed: %i(name) do |person|
-          [dependent_object]
+        blueprint.dependency :ChangingActiveRecordObject, when_changed: %i(name) do |_object|
+          [object_that_should_update]
         end
       end
       previous_changes = { 'name' => 'something' }
-      allow(source_object).to receive(:previous_changes).and_return previous_changes
+      allow(object_that_changes).to receive(:previous_changes).and_return(previous_changes)
 
-      expect(XapianDb).to receive(:reindex).with(source_object, true, changed_attrs: previous_changes.keys)
-      expect(XapianDb).to receive(:reindex).with(dependent_object, true, changed_attrs: previous_changes.keys)
+      expect(XapianDb).to receive(:reindex).with(object_that_should_update, true, changed_attrs: previous_changes.keys)
 
-      source_object.save
+      object_that_changes.save
     end
   end
 
