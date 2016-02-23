@@ -47,7 +47,7 @@ Make sure version 1.2.6 or newer is installed.
 If you want to use xapian_db in a Rails app, you need Rails 3 or newer.
 
 For a first look, look at the examples in the examples folder. There's the simple ruby script basic.rb that shows the basic
-usage of XapianDB without rails. In the basic_rails folder you'll find a very simple Rails app unsing XapianDb.
+usage of XapianDB without rails. In the basic_rails folder you'll find a very simple Rails app using XapianDb.
 
 The following steps assume that you are using xapian_db within a Rails app.
 
@@ -205,7 +205,7 @@ by their accentless form:
   end
 
   XapianDb::Config.setup do |config|
-    config.indexer_preprocess_callback UtilT.method(:strip_accents)
+    config.indexer_preprocess_callback Util.method(:strip_accents)
   end
 
 You may use attributes from associated objects in a blueprint; if you do that and an associated object is updated, your objects should be reindexed, too. You can tell XapnaDB about those dependencies like so:
