@@ -35,10 +35,10 @@ module XapianDb
 
       # Add the searchable prefixes to allow searches by field
       # (like "name:Kogler")
-      processors = [] # add processors (currently only one maximum) to scope in order to avoid
-                      # segfaults because the Ruby objects are GCd before the underlying
-                      # objects are used by parse_query, see for similar problem in php:
-                      # http://grokbase.com/t/xapian/xapian-discuss/079tvjx0wd/segmentation-fault-using-xapiandatevaluerangeprocessor-with-php-bindings
+      processors = [] # The reason for having a seemingly useless "processors" array is as follows:
+      # We need to add a reference to the generated Xapian::XYValueRangeProcessor objects to the scope that calls parser.parse_query.
+      # If we don't, the Ruby GC will often garbage collect the generated objects before parser.parse_query can be called,
+      # which would free the memory of the corresponding C++ objects and result in segmentation faults upon calling parse_query.
       XapianDb::DocumentBlueprint.searchable_prefixes.each do |prefix|
         parser.add_prefix(prefix.to_s.downcase, "X#{prefix.to_s.upcase}")
         type_info = XapianDb::DocumentBlueprint.type_info_for(prefix)
@@ -48,15 +48,15 @@ module XapianDb
           when :date
             processor = Xapian::DateValueRangeProcessor.new(value_number, "#{prefix}:")
             processors << processor
-            parser.add_valuerangeprocessor processor
+            parser.add_valuerangeprocessor(processor)
           when :number
             processor = Xapian::NumberValueRangeProcessor.new(value_number, "#{prefix}:")
             processors << processor
-            parser.add_valuerangeprocessor processor
+            parser.add_valuerangeprocessor(processor)
           when :string
             processor = Xapian::StringValueRangeProcessor.new(value_number, "#{prefix}:")
             processors << processor
-            parser.add_valuerangeprocessor processor
+            parser.add_valuerangeprocessor(processor)
         end
       end
       query = parser.parse_query(expression, @query_flags)
