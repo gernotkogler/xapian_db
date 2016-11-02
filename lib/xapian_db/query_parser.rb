@@ -35,6 +35,10 @@ module XapianDb
 
       # Add the searchable prefixes to allow searches by field
       # (like "name:Kogler")
+      processors = [] # The reason for having a seemingly useless "processors" array is as follows:
+      # We need to add a reference to the generated Xapian::XYValueRangeProcessor objects to the scope that calls parser.parse_query.
+      # If we don't, the Ruby GC will often garbage collect the generated objects before parser.parse_query can be called,
+      # which would free the memory of the corresponding C++ objects and result in segmentation faults upon calling parse_query.
       XapianDb::DocumentBlueprint.searchable_prefixes.each do |prefix|
         parser.add_prefix(prefix.to_s.downcase, "X#{prefix.to_s.upcase}")
         type_info = XapianDb::DocumentBlueprint.type_info_for(prefix)
@@ -42,11 +46,17 @@ module XapianDb
         value_number = XapianDb::DocumentBlueprint.value_number_for(prefix)
         case type_info
           when :date
-            parser.add_valuerangeprocessor Xapian::DateValueRangeProcessor.new(value_number, "#{prefix}:")
+            processor = Xapian::DateValueRangeProcessor.new(value_number, "#{prefix}:")
+            processors << processor
+            parser.add_valuerangeprocessor(processor)
           when :number
-            parser.add_valuerangeprocessor Xapian::NumberValueRangeProcessor.new(value_number, "#{prefix}:")
+            processor = Xapian::NumberValueRangeProcessor.new(value_number, "#{prefix}:")
+            processors << processor
+            parser.add_valuerangeprocessor(processor)
           when :string
-            parser.add_valuerangeprocessor Xapian::StringValueRangeProcessor.new(value_number, "#{prefix}:")
+            processor = Xapian::StringValueRangeProcessor.new(value_number, "#{prefix}:")
+            processors << processor
+            parser.add_valuerangeprocessor(processor)
         end
       end
       query = parser.parse_query(expression, @query_flags)
