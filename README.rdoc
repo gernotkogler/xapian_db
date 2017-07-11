@@ -64,7 +64,7 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
     adapter: datamapper # Avaliable adapters: :active_record, :datamapper
     language: de        # Global language; can be overridden for specific blueprints
     term_min_length: 2  # Ignore single character terms
-    enable_query_flags: FLAG_PHRASE, FLAG_SPELLING_CORRECTION
+    enabled_query_flags: FLAG_PHRASE, FLAG_SPELLING_CORRECTION
 
   development:
     database: db/xapian_db/development
