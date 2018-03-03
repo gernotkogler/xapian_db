@@ -26,6 +26,8 @@ module XapianDb
     # ---------------------------------------------------------------------------------
     class << self
 
+      attr_reader :blueprints
+
       # Configure the blueprint for a class.
       # Available options:
       # - adapter (see {#adapter} for details)

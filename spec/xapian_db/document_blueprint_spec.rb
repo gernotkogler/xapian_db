@@ -58,6 +58,17 @@ describe XapianDb::DocumentBlueprint do
     end
   end
 
+  describe ".blueprints" do
+
+    it "returns configured blueprints hash" do
+      XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+        blueprint.index :id
+        blueprint.index :name
+      end
+      expect(XapianDb::DocumentBlueprint.blueprints).to eq({ "IndexedObject" => XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject) })
+    end
+  end
+
   describe ".blueprint_for(name)" do
 
     before :each do

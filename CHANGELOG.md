@@ -1,3 +1,9 @@
+##1.3.7.1 (March 3rd, 2018)
+
+Changes:
+
+  - Allow access to configured blueprints through XapianDb::DocumentBlueprint
+
 ##1.3.7 (January 12th, 2016)
 
 Breaking Changes:
