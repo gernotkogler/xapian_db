@@ -146,7 +146,7 @@ module XapianDb
       # @return [String] the encoded number
       def self.encode(number)
         case number.class.name
-          when "Fixnum", "Float", "Bignum"
+          when "Fixnum", "Float", "Bignum", "Integer"
             Xapian::sortable_serialise number
           when "BigDecimal"
             Xapian::sortable_serialise number.to_f
@@ -175,7 +175,7 @@ module XapianDb
       def self.encode(number)
         return nil if number.nil?
         case number.class.name
-          when "Fixnum"
+          when "Fixnum", "Integer"
             Xapian::sortable_serialise number
           else
             raise ArgumentError.new "#{number} was expected to be an integer"
