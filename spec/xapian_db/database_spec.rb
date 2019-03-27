@@ -202,12 +202,16 @@ describe XapianDb::Database do
       XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
         blueprint.index :text
         blueprint.index :text2
+        blueprint.index :boolean_attr do
+          true
+        end
       end
       @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
       @indexer   = XapianDb::Indexer.new(XapianDb.database, @blueprint)
       @obj       = IndexedObject.new(1)
       allow(@obj).to receive(:text).and_return("Some Text")
       allow(@obj).to receive(:text2).and_return("findme_in_text2")
+      allow(@obj).to receive(:boolean_attr).and_return(true)
       @doc       = @indexer.build_document_for(@obj)
     end
 
@@ -235,6 +239,16 @@ describe XapianDb::Database do
       expect(XapianDb.database.store_doc(@doc)).to be_truthy
       expect(XapianDb.database.search("text:findme_in_text2").size).to eq(0)
       expect(XapianDb.database.search("text2:findme_in_text2").size).to eq(1)
+    end
+
+    it "should find a stored document with a boolean field expression" do
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
+      expect(XapianDb.database.search("boolean_attr:true").size).to eq(1)
+    end
+
+    it "should find a stored document with scope indexedobject and with boolean field expression" do
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
+      expect(XapianDb.database.search("indexed_class:(indexedobject) and boolean_attr:true").size).to eq(1)
     end
 
     it "should retry if a Xapian::DatabaseModifiedError occurs" do
