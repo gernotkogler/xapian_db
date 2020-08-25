@@ -160,7 +160,7 @@ module XapianDb
       # @return [BigDecimal] the decoded number
       def self.decode(encoded_number)
         begin
-          BigDecimal.new(Xapian::sortable_unserialise(encoded_number).to_s)
+          BigDecimal(Xapian::sortable_unserialise(encoded_number).to_s)
         rescue TypeError
           raise ArgumentError.new "#{encoded_number} cannot be unserialized"
         end

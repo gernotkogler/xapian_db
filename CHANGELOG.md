@@ -1,3 +1,11 @@
+##1.3.7.4
+
+Changes:
+
+- Instantiation of a BigDecimal using 'BigDecimal.new()' has been replaced with the new format 'BigDecimal() -- this is compatible with BigDecimal v1.4.x and v2.0.x AND drops support for BigDecimal v1.3.5'
+
+**NOTE: Dropping support for BigDecimal v1.3.5 also drops the support of Ruby 2.2.x and earlier versions of Ruby.**
+
 ##1.3.7.3 (November 30th, 2018)
 
 Changes:
