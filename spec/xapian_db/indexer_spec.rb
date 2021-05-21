@@ -152,6 +152,34 @@ describe XapianDb::Indexer do
         config.indexer_preprocess_callback nil
       end
     end
+
+    context "Spelling correction" do
+      let(:db_path) { "/tmp/xapian_db" }
+      let(:db) { XapianDb.create_db(path: db_path) }
+      let(:indexer) { XapianDb::Indexer.new(db, @blueprint) }
+      let(:spelling_suggestion) { db.writer.get_spelling_suggestion("soma") }
+
+      before do
+        FileUtils.rm_rf(db_path)
+        FileUtils.mkdir_p(db_path)
+      end
+
+      it "creates spelling entries by default" do
+        indexer.build_document_for(@obj)
+        expect(spelling_suggestion).to eq "some"
+      end
+
+      describe "with deactivated spelling" do
+        it "creates no spelling entries" do
+          XapianDb::Config.setup do |config|
+            config.disable_query_flag(Xapian::QueryParser::FLAG_SPELLING_CORRECTION)
+          end
+
+          indexer.build_document_for(@obj)
+          expect(spelling_suggestion).to be_empty
+        end
+      end
+    end
   end
 
   it "can handle attribute objects that return nil on to_s" do

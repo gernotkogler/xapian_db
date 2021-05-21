@@ -59,13 +59,16 @@ module XapianDb
     # Index all configured text methods
     def index_text
       term_generator = Xapian::TermGenerator.new
-      term_generator.database = @database.writer
       term_generator.document = @xapian_doc
       if XapianDb::Config.stemmer
         term_generator.stemmer  = XapianDb::Config.stemmer
         term_generator.stopper  = XapianDb::Config.stopper if XapianDb::Config.stopper
         # Enable the creation of a spelling dictionary if the database is not in memory
-        term_generator.set_flags Xapian::TermGenerator::FLAG_SPELLING if @database.is_a? XapianDb::PersistentDatabase
+        if @database.is_a?(XapianDb::PersistentDatabase) &&
+           XapianDb::Config.query_flags.include?(Xapian::QueryParser::FLAG_SPELLING_CORRECTION)
+          term_generator.database = @database.writer
+          term_generator.set_flags Xapian::TermGenerator::FLAG_SPELLING
+        end
       end
 
       # Index the primary key as a unique term
