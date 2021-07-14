@@ -48,18 +48,16 @@ module XapianDb
            klass.class_eval do
              # add the after commit logic, unless the blueprint has autoindexing turned off
              if XapianDb::DocumentBlueprint.blueprint_for(klass.name).autoindex?
-               after_commit do
-                 unless self.destroyed?
-                   XapianDb.reindex(self, true, changed_attrs: self.previous_changes.keys)
-                   XapianDb::DocumentBlueprint.dependencies_for(klass.name, self.previous_changes.keys).each do |dependency|
-                     dependency.block.call(self).each{ |model| XapianDb.reindex model, true, changed_attrs: self.previous_changes.keys }
-                   end
+               after_commit on: [:create, :update] do
+                 XapianDb.reindex(self, true, changed_attrs: self.previous_changes.keys)
+                 XapianDb::DocumentBlueprint.dependencies_for(klass.name, self.previous_changes.keys).each do |dependency|
+                   dependency.block.call(self).each{ |model| XapianDb.reindex model, true, changed_attrs: self.previous_changes.keys }
                  end
                end
              end
 
-             # add the after destroy logic
-             after_destroy do
+             # maybe to be consistent, this should also only happen when autoindex is turned on?
+             after_commit on: :destroy do
                XapianDb.delete_doc_with(self.xapian_id)
              end
 
