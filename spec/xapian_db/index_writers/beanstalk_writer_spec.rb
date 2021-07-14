@@ -19,7 +19,7 @@ describe XapianDb::IndexWriters::BeanstalkWriter do
   describe ".index(obj, commit=true, changed_attrs: [])" do
     it "puts the index task on the beanstalk queue" do
       changed_attrs = ['name']
-      expect(described_class.beanstalk).to receive(:put).with({task: "index_task", class: object.class.name, id: object.id, changed_attrs: changed_attrs }.to_json)
+      expect(described_class.beanstalk).to receive(:put).with({ task: "index_task", class: object.class.name, id: object.id, changed_attrs: changed_attrs, commit: true }.to_json)
       XapianDb::IndexWriters::BeanstalkWriter.index object, true, changed_attrs: changed_attrs
     end
   end
