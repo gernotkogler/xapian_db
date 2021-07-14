@@ -45,15 +45,38 @@ module XapianDb
              end
            end
 
+           if XapianDb::DocumentBlueprint.blueprint_for(klass.name).autoindex?
+             # add after_commit and after_destroy hooks for all dependencies, unless the blueprint has autoindexing turned off
+             XapianDb::DocumentBlueprint.blueprint_for(klass.name).dependencies.each do |dependency|
+               dependent_on_klass_name = dependency.dependent_on
+               if eval("defined?(#{dependent_on_klass_name}) && #{dependent_on_klass_name}.is_a?(Class)")
+                 dependent_on_klass = XapianDb::Utilities.constantize(dependent_on_klass_name)
+                 dependent_on_klass.class_eval do
+                   # all attributes have "changed" after a record is destroyed
+                   after_destroy do
+                     XapianDb::DocumentBlueprint.dependencies_for(dependent_on_klass.name, self.attributes.keys).each do |dependency|
+                       dependency.block.call(self).each{ |model| XapianDb.reindex model, true, changed_attrs: self.attributes.keys }
+                     end
+                   end
+                   # after_commit should update all dependent models
+                   after_commit do
+                     unless self.destroyed?
+                       XapianDb::DocumentBlueprint.dependencies_for(dependent_on_klass.name, self.previous_changes.keys).each do |dependency|
+                         dependency.block.call(self).each{ |model| XapianDb.reindex model, true, changed_attrs: self.previous_changes.keys }
+                       end
+                     end
+                   end
+                 end
+               end
+             end
+           end
+
            klass.class_eval do
              # add the after commit logic, unless the blueprint has autoindexing turned off
              if XapianDb::DocumentBlueprint.blueprint_for(klass.name).autoindex?
                after_commit do
                  unless self.destroyed?
                    XapianDb.reindex(self, true, changed_attrs: self.previous_changes.keys)
-                   XapianDb::DocumentBlueprint.dependencies_for(klass.name, self.previous_changes.keys).each do |dependency|
-                     dependency.block.call(self).each{ |model| XapianDb.reindex model, true, changed_attrs: self.previous_changes.keys }
-                   end
                  end
                end
              end

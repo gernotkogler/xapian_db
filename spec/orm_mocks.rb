@@ -13,7 +13,10 @@ class PersistentObject
 
     def reset
       @objects = []
-      @hooks = {}
+      @hooks = {
+        after_save: [],
+        after_destroy: [],
+      }
     end
 
     def count
@@ -50,13 +53,17 @@ class PersistentObject
 
   def save
     self.class.where("1=1") << self
-    instance_eval &self.class.hooks[:after_save] if self.class.hooks[:after_save]
+    self.class.hooks[:after_save].each do |hook|
+      instance_eval &hook
+    end
   end
 
   def destroy
     self.class.where("1=1").delete self
     @destroyed = true
-    instance_eval &self.class.hooks[:after_destroy]
+    self.class.hooks[:after_destroy].each do |hook|
+      instance_eval &hook
+    end
   end
 
   def destroyed?
@@ -90,7 +97,7 @@ class DatamapperObject < PersistentObject
     # Simulate the after method of datamapper
     def after(action, &block)
       @hooks ||= {}
-      @hooks["after_#{action}".to_sym] = block
+      @hooks["after_#{action}".to_sym] << block
     end
 
   end
@@ -120,15 +127,14 @@ class ActiveRecordObject < PersistentObject
 
     # Simulate the after_commit method of activerecord
     def after_commit(&block)
-      @hooks ||= {}
-      @hooks["after_save".to_sym] = block
-      @hooks["after_destroy".to_sym] = block
+      @hooks[:after_save] << block
+      @hooks[:after_destroy] << block
     end
 
     # Simulate the after_destroy method of activerecord
     def after_destroy(&block)
       @hooks ||= {}
-      @hooks["after_destroy".to_sym] = block
+      @hooks[:after_destroy] << block
     end
   end
 

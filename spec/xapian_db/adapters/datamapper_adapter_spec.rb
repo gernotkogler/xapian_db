@@ -33,11 +33,17 @@ describe XapianDb::Adapters::DatamapperAdapter do
     end
 
     it "adds an after save hook to the configured class" do
-      expect(DatamapperObject.hooks[:after_save]).to be_a_kind_of(Proc)
+      expect(DatamapperObject.hooks[:after_save].length).to eq(1)
+      DatamapperObject.hooks[:after_save].each do |hook|
+        expect(hook).to be_a_kind_of(Proc)
+      end
     end
 
     it "adds an after destroy hook to the configured class" do
-      expect(DatamapperObject.hooks[:after_destroy]).to be_a_kind_of(Proc)
+      expect(DatamapperObject.hooks[:after_destroy].length).to eq(1)
+      DatamapperObject.hooks[:after_destroy].each do |hook|
+        expect(hook).to be_a_kind_of(Proc)
+      end
     end
 
     it "adds a class method to reindex all objects of a class" do
