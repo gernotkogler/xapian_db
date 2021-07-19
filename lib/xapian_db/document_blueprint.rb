@@ -352,7 +352,7 @@ module XapianDb
     # @param [Array] args An array of arguments; you can pass a method name, an array of method names
     #   or a method name and an options hash.
     # @param [Block] &block An optional block for complex configurations
-    # Avaliable options:
+    # Available options:
     # - :weight (default: 1) The weight for this indexed value
     # @example Simple index declaration
     #   blueprint.index :name

@@ -61,7 +61,7 @@ You can override these defaults by placing a config file named 'xapian_db.yml' i
 
   # XapianDb configuration
   defaults: &defaults
-    adapter: datamapper # Avaliable adapters: :active_record, :datamapper
+    adapter: datamapper # Available adapters: :active_record, :datamapper
     language: de        # Global language; can be overridden for specific blueprints
     term_min_length: 2  # Ignore single character terms
     enabled_query_flags: FLAG_PHRASE, FLAG_SPELLING_CORRECTION
@@ -226,7 +226,8 @@ If you want to manage the (re)indexing of your objects on your own, turn off aut
     blueprint.autoindex false
   end
 
-This will turn off the auto-reindexing for any object of the configured class. Use XapianDb.reindex(object) to trigger the reindexing logic in your code. Please note that destroying an object will always remove it from the xapian index.
+This will turn off the auto-reindexing for any object of the configured class. Use XapianDb.reindex(object) to trigger the reindexing logic in your code.
+It will also turn off the auto-deletion of the doc, when the object gets destroyed. Use XapianDb.delete_doc_with(object.xapian_id) to trigger deletion logic in your code.
 
 
 Place these configurations either into the corresponding class or - I prefer to have the index configurations outside
