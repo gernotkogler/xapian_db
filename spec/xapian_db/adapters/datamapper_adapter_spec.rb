@@ -36,8 +36,24 @@ describe XapianDb::Adapters::DatamapperAdapter do
       expect(DatamapperObject.hooks[:after_save]).to be_a_kind_of(Proc)
     end
 
+    it "does not add an after save hook if autoindexing is turned off for this blueprint" do
+      DatamapperObject.reset
+      XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
+        blueprint.autoindex false
+      end
+      expect(DatamapperObject.hooks[:after_save]).not_to be
+    end
+
     it "adds an after destroy hook to the configured class" do
       expect(DatamapperObject.hooks[:after_destroy]).to be_a_kind_of(Proc)
+    end
+
+    it "does not add an after destroy hook if autoindexing is turned off for this blueprint" do
+      DatamapperObject.reset
+      XapianDb::DocumentBlueprint.setup(:DatamapperObject) do |blueprint|
+        blueprint.autoindex false
+      end
+      expect(DatamapperObject.hooks[:after_destroy]).not_to be
     end
 
     it "adds a class method to reindex all objects of a class" do
