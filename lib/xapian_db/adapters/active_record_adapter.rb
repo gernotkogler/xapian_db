@@ -54,11 +54,10 @@ module XapianDb
                    dependency.block.call(self).each{ |model| XapianDb.reindex model, true, changed_attrs: self.previous_changes.keys }
                  end
                end
-             end
 
-             # maybe to be consistent, this should also only happen when autoindex is turned on?
-             after_commit on: :destroy do
-               XapianDb.delete_doc_with(self.xapian_id)
+               after_commit on: :destroy do
+                 XapianDb.delete_doc_with(self.xapian_id)
+               end
              end
 
              # Add a method to reindex all models of this class
