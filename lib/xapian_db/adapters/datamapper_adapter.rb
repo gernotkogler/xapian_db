@@ -47,20 +47,20 @@ module XapianDb
            end
 
            klass.class_eval do
+             # add the after save/destroy logic, unless the blueprint has autoindexing turned off
+             if XapianDb::DocumentBlueprint.blueprint_for(klass.name).autoindex?
+               after :save do
+                 blueprint = XapianDb::DocumentBlueprint.blueprint_for klass.to_s
+                 if blueprint.should_index?(self)
+                   XapianDb.index(self)
+                 else
+                   XapianDb.delete_doc_with(self.xapian_id)
+                 end
+               end
 
-             # add the after save logic
-             after :save do
-               blueprint = XapianDb::DocumentBlueprint.blueprint_for klass.to_s
-               if blueprint.should_index?(self)
-                 XapianDb.index(self)
-               else
+               after :destroy do
                  XapianDb.delete_doc_with(self.xapian_id)
                end
-             end
-
-             # add the after destroy logic
-             after :destroy do
-               XapianDb.delete_doc_with(self.xapian_id)
              end
 
              # Add a method to reindex all models of this class
