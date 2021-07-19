@@ -1,3 +1,9 @@
+## 1.3.8 (July 19th, 2021)
+
+Fixes:
+
+- xapian docs are deleted in the after commit hook in order to respect transaction rollbacks
+
 ## 1.3.7.4 (October 27th, 2020)
 
 Changes:
