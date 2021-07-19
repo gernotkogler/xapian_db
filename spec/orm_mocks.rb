@@ -90,7 +90,7 @@ class DatamapperObject < PersistentObject
     # Simulate the after method of datamapper
     def after(action, &block)
       @hooks ||= {}
-      @hooks["after_#{action}".to_sym] = block
+      @hooks[:"after_#{action}"] = block
     end
 
   end
@@ -119,16 +119,24 @@ class ActiveRecordObject < PersistentObject
     end
 
     # Simulate the after_commit method of activerecord
-    def after_commit(&block)
+    #
+    # Supported args: { on: [:update, :create, :destroy] }
+    # - :update, :create get mapped to after_save
+    # - :destroy gets mapped to after_destroy
+    #
+    # The mock does *not* simulate the transaction behaviour itself
+    def after_commit(*args, &block)
       @hooks ||= {}
-      @hooks["after_save".to_sym] = block
-      @hooks["after_destroy".to_sym] = block
-    end
+      options = args&.last&.is_a?(::Hash) ? args.pop : {}
 
-    # Simulate the after_destroy method of activerecord
-    def after_destroy(&block)
-      @hooks ||= {}
-      @hooks["after_destroy".to_sym] = block
+      if options[:on]
+        fire_on = Array(options[:on]) # wrap in an array, should it not already be an array
+        @hooks[:after_save]    = block unless (fire_on & %i[create update]).empty?
+        @hooks[:after_destroy] = block unless (fire_on & %i[destroy]).empty?
+      else
+        # keep with the old behaviour
+        @hooks[:after_save] = block
+      end
     end
   end
 

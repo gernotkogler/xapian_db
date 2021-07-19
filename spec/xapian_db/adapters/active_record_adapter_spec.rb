@@ -52,6 +52,14 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
       expect(ActiveRecordObject.hooks[:after_destroy]).to be_a_kind_of(Proc)
     end
 
+    it "does not add an after destroy hook if autoindexing is turned off for this blueprint" do
+      ActiveRecordObject.reset
+      XapianDb::DocumentBlueprint.setup(:ActiveRecordObject) do |blueprint|
+        blueprint.autoindex false
+      end
+      expect(ActiveRecordObject.hooks[:after_destroy]).not_to be
+    end
+
     it "adds a class method to reindex all objects of a class" do
       expect(ActiveRecordObject).to respond_to(:rebuild_xapian_index)
     end
@@ -142,7 +150,7 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
     end
   end
 
-  describe "the after destroy hook" do
+  describe "after_commit on: :destroy" do
     it "should remove the object from the index" do
       object.save
       expect(XapianDb.search("Kogler").size).to eq(1)
