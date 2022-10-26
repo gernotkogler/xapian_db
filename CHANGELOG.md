@@ -1,3 +1,9 @@
+## 1.3.9 (October 26th, 2022)
+
+Fixes:
+
+- `XapianDb.execute_block` now uses `Thread.current[:xapian_db_block_writer]` to store its block-local writer as to avoid leaking into another Thread
+
 ## 1.3.8 (July 19th, 2021)
 
 Fixes:
