@@ -455,6 +455,28 @@ describe XapianDb do
         end }.to raise_error "oops"
       end
 
+      describe "thread safety" do
+        it 'still indexes within another thread' do
+          # this thread has auto_indexing disabled
+          # and should not autoindex
+          t1 = Thread.new do
+            XapianDb.auto_indexing_disabled do
+              object.save
+              sleep(1)
+            end
+            # expect(XapianDb.database.size).to eq(0)
+          end
+
+          # this thread should still autoindex
+          t2 = Thread.new do
+             object.save
+             expect(XapianDb.database.size).to eq(1)
+          end
+
+          [t1, t2].map(&:join)
+        end
+      end
+
     end
   end
 end

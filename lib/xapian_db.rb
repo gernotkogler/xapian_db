@@ -106,21 +106,21 @@ module XapianDb
   # Update an object in the index
   # @param [Object] obj An instance of a class with a blueprint configuration
   def self.index(obj, commit=true, changed_attrs: [])
-    writer = @block_writer || XapianDb::Config.writer
+    writer = Thread.current[:xapian_db_block_writer] || XapianDb::Config.writer
     writer.index obj, commit, changed_attrs: changed_attrs
   end
 
   # Remove a document from the index
   # @param [String] xapian_id The document id
   def self.delete_doc_with(xapian_id, commit=true)
-    writer = @block_writer || XapianDb::Config.writer
+    writer = Thread.current[:xapian_db_block_writer] || XapianDb::Config.writer
     writer.delete_doc_with xapian_id, commit
   end
 
   # Update or delete a xapian document belonging to an object depending on the ignore_if logic(if present)
   # @param [Object] object An instance of a class with a blueprint configuration
   def self.reindex(object, commit=true, changed_attrs: [])
-    writer = @block_writer || XapianDb::Config.writer
+    writer = Thread.current[:xapian_db_block_writer] || XapianDb::Config.writer
     blueprint = XapianDb::DocumentBlueprint.blueprint_for object.class.name
     if blueprint.should_index?(object)
       writer.index object, commit, changed_attrs: changed_attrs
@@ -174,7 +174,7 @@ module XapianDb
   # @option opts [Object] :writer An index writer
   # @option opts [String] :error_message the error message to log if an error occurs
   def self.execute_block(opts, &block)
-    @block_writer = opts[:writer]
+    Thread.current[:xapian_db_block_writer] = opts[:writer]
     begin
       block.call
     rescue Exception => ex
@@ -188,7 +188,7 @@ module XapianDb
       raise
     ensure
       # release the block writer
-      @block_writer = nil
+      Thread.current[:xapian_db_block_writer] = nil
     end
   end
 end
