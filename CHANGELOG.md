@@ -1,3 +1,9 @@
+## 1.3.10 (March 2nd, 2023)
+
+Fixes:
+
+- Improved the code that reads the `xapian_db.yml` file to allow aliases in the yml file when using Ruby 3.1 or higher.
+
 ## 1.3.9 (October 26th, 2022)
 
 Fixes:
