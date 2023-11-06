@@ -24,16 +24,19 @@ module XapianDb
         end
 
         def index(options)
+          options = JSON.parse(options)
           klass = constantize options['class']
           obj   = klass.respond_to?('get') ? klass.get(options['id']) : klass.find(options['id'])
           DirectWriter.index obj, true, changed_attrs: options[:changed_attrs]
         end
 
         def delete_doc(options)
+          options = JSON.parse(options)
           DirectWriter.delete_doc_with options['xapian_id']
         end
 
         def reindex_class(options)
+          options = JSON.parse(options)
           klass = constantize options['class']
           DirectWriter.reindex_class klass, :verbose => false
         end
