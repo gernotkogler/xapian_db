@@ -5,7 +5,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name         = %q{xapian_db}
-  s.version      = "1.3.10"
+  s.version      = "1.3.11"
   s.authors      = ["Gernot Kogler"]
   s.license      = 'MIT'
   s.summary      = %q{Ruby library to use a Xapian db as a key/value store with high performance fulltext search}
@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake"
   s.add_development_dependency "ruby-progressbar"
   s.add_development_dependency "resque",           ">= 1.19.0"
-  s.add_development_dependency "sidekiq",          ">= 2.13.0"
+  s.add_development_dependency "sidekiq",          "~> 7.1"
   s.add_development_dependency "xapian-ruby",      "= 1.4.17"
   s.add_development_dependency "pry-rails"
   s.add_development_dependency "descendants_tracker"

@@ -17,19 +17,24 @@ module XapianDb
         # Update an object in the index
         # @param [Object] obj An instance of a class with a blueprint configuration
         def index(obj, commit=true, changed_attrs: [])
-          Sidekiq::Client.enqueue worker_class, :index, :class => obj.class.name, :id => obj.id, :changed_attrs => changed_attrs
+          Sidekiq::Client.enqueue worker_class, 'index',
+                                  {
+                                    class: obj.class.name,
+                                    id: obj.id,
+                                    changed_attrs: changed_attrs
+                                  }.to_json
         end
 
         # Remove an object from the index
         # @param [String] xapian_id The document id
         def delete_doc_with(xapian_id, commit=true)
-          Sidekiq::Client.enqueue worker_class, :delete_doc, :xapian_id => xapian_id
+          Sidekiq::Client.enqueue worker_class, 'delete_doc', { xapian_id: xapian_id }.to_json
         end
 
         # Reindex all objects of a given class
         # @param [Class] klass The class to reindex
         def reindex_class(klass, options = {})
-          Sidekiq::Client.enqueue worker_class, :reindex_class, :class => klass.name
+          Sidekiq::Client.enqueue worker_class, 'reindex_class', { class: klass.name }.to_json
         end
 
         def worker_class
