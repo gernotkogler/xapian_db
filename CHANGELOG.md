@@ -1,3 +1,9 @@
+## 1.3.11 (November 13th, 2023)
+
+Changes:
+
+- Update sidekiq version
+
 ## 1.3.10 (March 2nd, 2023)
 
 Fixes:
