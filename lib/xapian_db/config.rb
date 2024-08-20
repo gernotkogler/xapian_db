@@ -61,6 +61,10 @@ module XapianDb
         @config.instance_variable_get("@_set_max_expansion")
       end
 
+      def sidekiq_retry
+        @config.instance_variable_get("@_sidekiq_retry") || false
+      end
+
       def term_splitter_count
         @config.instance_variable_get("@_term_splitter_count") || 0
       end
@@ -78,8 +82,9 @@ module XapianDb
     # DSL methods
     # ---------------------------------------------------------------------------------
 
-    attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_sidekiq_queue, 
-                :_stemmer, :_stopper, :_term_min_length, :_term_splitter_count, :_enabled_query_flags, :_set_max_expansion
+    attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_sidekiq_queue,
+                :_stemmer, :_stopper, :_term_min_length, :_term_splitter_count, :_enabled_query_flags,
+                :_set_max_expansion, :_sidekiq_retry
 
     # Set the global database to use
     # @param [String] path The path to the database. Either apply a file sytem path or :memory
@@ -157,6 +162,12 @@ module XapianDb
     # @param [Integer] value The value to set for the set_max_expansion setting.
     def set_max_expansion(value)
       @_set_max_expansion = value
+    end
+
+    # Set the value for the Sidekiq retry setting.
+    # @param [Boolean, Numeric] value The value to set for the Sidekiq retry setting.
+    def sidekiq_retry(value)
+      @_sidekiq_retry = value
     end
 
     # Set the language.
