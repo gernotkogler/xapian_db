@@ -44,6 +44,10 @@ module XapianDb
         def set_max_expansion
           XapianDb::Config.set_max_expansion
         end
+
+        def sidekiq_retry
+          XapianDb::Config.sidekiq_retry
+        end
       end
     end
   end

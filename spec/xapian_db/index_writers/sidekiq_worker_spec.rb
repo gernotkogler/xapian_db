@@ -24,6 +24,13 @@ describe XapianDb::IndexWriters::SidekiqWorker do
     end
   end
 
+  describe ".sidekiq_retry" do
+    it "returns the retry value specified in the config" do
+      allow(XapianDb::Config).to receive(:sidekiq_retry) { 3 }
+      expect(subject.sidekiq_retry).to eq(3)
+    end
+  end
+
   describe ".index" do
     it "adds an object to the index" do
       obj.save

@@ -537,8 +537,10 @@ Install and start redis as described on the {resque github page}[https://github.
     writer:       sidekiq
     sidekiq_queue: my_queue
     set_max_expansion: 100
+    sidekiq_retry: false
 
 If you don't specify a queue name XapianDb will use 'xapian_db' by default.
+Additionally, if you don't provide a 'sidekiq_retry' option, it will default to 'false'.
 
 === 4. Start sidekiq
 
