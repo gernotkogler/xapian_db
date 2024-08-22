@@ -10,6 +10,8 @@ module XapianDb
 
       SidekiqWorker.class_eval do
         include Sidekiq::Worker
+
+        sidekiq_options set_max_expansion: set_max_expansion
       end
 
       class << self
@@ -40,6 +42,10 @@ module XapianDb
         # @param [Class] klass The class to reindex
         def reindex_class(klass, _options = {})
           Sidekiq::Client.enqueue_to(queue, worker_class, 'reindex_class', { class: klass.name }.to_json)
+        end
+
+        def set_max_expansion
+          XapianDb::Config.set_max_expansion
         end
 
         def worker_class

@@ -57,6 +57,10 @@ module XapianDb
         @config.instance_variable_get("@_term_min_length") || 1
       end
 
+      def set_max_expansion
+        @config.instance_variable_get("@_set_max_expansion")
+      end
+
       def term_splitter_count
         @config.instance_variable_get("@_term_splitter_count") || 0
       end
@@ -75,7 +79,7 @@ module XapianDb
     # ---------------------------------------------------------------------------------
 
     attr_reader :_database, :_adapter, :_writer, :_beanstalk_daemon, :_resque_queue, :_sidekiq_queue, 
-                :_stemmer, :_stopper, :_term_min_length, :_term_splitter_count, :_enabled_query_flags
+                :_stemmer, :_stopper, :_term_min_length, :_term_splitter_count, :_enabled_query_flags, :_set_max_expansion
 
     # Set the global database to use
     # @param [String] path The path to the database. Either apply a file sytem path or :memory
@@ -147,6 +151,12 @@ module XapianDb
     # @param [String] name The name of the sidekiq queue
     def sidekiq_queue(name)
       @_sidekiq_queue = name
+    end
+
+    # Set the value for the max_expansion setting.
+    # @param [Integer] value The value to set for the set_max_expansion setting.
+    def set_max_expansion(value)
+      @_set_max_expansion = value
     end
 
     # Set the language.

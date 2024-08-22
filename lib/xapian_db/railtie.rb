@@ -58,6 +58,7 @@ module XapianDb
         config.language @language.try(:to_sym)
         config.term_min_length @term_min_length
         config.term_splitter_count @term_splitter_count
+        config.set_max_expansion @set_max_expansion
         @enabled_query_flags.each  { |flag| config.enable_query_flag flag }
         @disabled_query_flags.each { |flag| config.disable_query_flag flag }
       end
@@ -85,6 +86,7 @@ module XapianDb
       @term_min_length      = env_config["term_min_length"]
       @enable_phrase_search = env_config["enable_phrase_search"] == true
       @term_splitter_count  = env_config["term_splitter_count"] || 0
+      @set_max_expansion    = env_config["set_max_expansion"]
 
       if env_config["enabled_query_flags"]
         @enabled_query_flags = []

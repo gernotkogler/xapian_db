@@ -40,6 +40,10 @@ module XapianDb
           klass = constantize options['class']
           DirectWriter.reindex_class klass, :verbose => false
         end
+
+        def set_max_expansion
+          XapianDb::Config.set_max_expansion
+        end
       end
     end
   end
