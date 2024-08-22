@@ -32,6 +32,8 @@ module XapianDb
         parser.stemming_strategy = Xapian::QueryParser::STEM_SOME
         parser.stopper           = XapianDb::Config.stopper
       end
+      max_expansion = XapianDb::Config.set_max_expansion
+      parser.set_max_expansion(max_expansion, Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) if max_expansion
 
       # Add the searchable prefixes to allow searches by field
       # (like "name:Kogler")
