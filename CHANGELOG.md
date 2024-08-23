@@ -1,3 +1,9 @@
+## 1.3.12 (August 23th, 2024)
+
+Changes:
+
+- Add set_max_expansion option
+
 ## 1.3.11 (November 13th, 2023)
 
 Changes:
