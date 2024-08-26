@@ -1,3 +1,9 @@
+## 1.3.13 (August 26th, 2024)
+
+Changes:
+
+- make sidekiq_retry configurable for Xapian
+
 ## 1.3.12 (August 23th, 2024)
 
 Changes:
