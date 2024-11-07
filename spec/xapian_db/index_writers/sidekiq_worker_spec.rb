@@ -36,7 +36,7 @@ describe XapianDb::IndexWriters::SidekiqWorker do
       obj.save
       XapianDb.database.delete_docs_of_class obj.class
       expect(XapianDb.database.size).to eq(0)
-      subject.perform 'index', 'class' => obj.class.name, 'id' => obj.id
+      subject.perform 'index', { 'class' => obj.class.name, 'id' => obj.id }.to_json
       expect(XapianDb.database.size).to eq(1)
     end
   end
@@ -45,7 +45,7 @@ describe XapianDb::IndexWriters::SidekiqWorker do
     it "removes an object from the index" do
       obj.save
       expect(XapianDb.database.size).to eq(1)
-      subject.perform 'delete_doc', 'xapian_id' => obj.xapian_id
+      subject.perform 'delete_doc', { 'xapian_id' => obj.xapian_id }.to_json
       expect(XapianDb.database.size).to eq(0)
     end
   end
@@ -55,7 +55,7 @@ describe XapianDb::IndexWriters::SidekiqWorker do
       obj.save
       XapianDb.database.delete_docs_of_class obj.class
       expect(XapianDb.database.size).to eq(0)
-      subject.perform 'reindex_class', 'class' => obj.class.name
+      subject.perform 'reindex_class', { 'class' => obj.class.name }.to_json
       expect(XapianDb.database.size).to eq(1)
     end
   end
