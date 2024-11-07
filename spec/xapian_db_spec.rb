@@ -32,7 +32,7 @@ describe XapianDb do
       db = XapianDb.create_db(:path => temp_dir)
       expect(db.reader).to be_a_kind_of(Xapian::Database)
       expect(db.writer).to be_a_kind_of(Xapian::WritableDatabase)
-      expect(File.exists?(temp_dir)).to be_truthy
+      expect(File.exist?(temp_dir)).to be_truthy
       FileUtils.rm_rf temp_dir
     end
 
@@ -50,7 +50,7 @@ describe XapianDb do
       # First we create a test database
       temp_dir = "/tmp/xapiandb"
       db = XapianDb.create_db(:path => temp_dir)
-      expect(File.exists?(temp_dir)).to be_truthy
+      expect(File.exist?(temp_dir)).to be_truthy
 
       # Now we try to open the created database again
       db = XapianDb.open_db(:path => temp_dir)
