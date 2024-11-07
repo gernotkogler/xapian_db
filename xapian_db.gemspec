@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "ruby-progressbar"
   s.add_development_dependency "resque",           ">= 1.19.0"
   s.add_development_dependency "sidekiq",          "~> 7.1"
-  s.add_development_dependency "xapian-ruby",      "= 1.4.17"
+  s.add_development_dependency "xapian-ruby",      "= 1.4.22"
   s.add_development_dependency "pry-rails"
   s.add_development_dependency "descendants_tracker"
 
