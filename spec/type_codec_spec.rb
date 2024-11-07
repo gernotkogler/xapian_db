@@ -202,7 +202,7 @@ describe XapianDb::TypeCodec::NumberCodec do
 
     it "decodes a string representing a number to a BigDecimal" do
       encoded_number = Xapian::sortable_serialise(1.5)
-      expect(described_class.decode(encoded_number)).to eq(BigDecimal.new("1.5"))
+      expect(described_class.decode(encoded_number)).to eq(BigDecimal("1.5"))
     end
 
     it "raises an argument error if the argument ist not a string" do
