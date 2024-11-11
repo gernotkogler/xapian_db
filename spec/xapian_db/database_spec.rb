@@ -283,6 +283,18 @@ describe XapianDb::Database do
       expect(XapianDb.database.search('"This is a complete sentence"').size).to eq(1)
     end
 
+    it 'supports query parser class injection' do
+      my_query_parser = double('MyQueryParser klass')
+      query_parser_instance = double('MyQueryParser instance').as_null_object
+      stub_const('MyQueryParser', my_query_parser)
+      allow(my_query_parser).to receive(:new).and_return(query_parser_instance)
+      expect(query_parser_instance).to receive(:parse).and_return(XapianDb::QueryParser.new(XapianDb.database).parse('Some Text'))
+
+      expect(XapianDb.database.store_doc(@doc)).to be_truthy
+      expect(XapianDb.database.search("unimportant").size).to eq(0)
+      expect(XapianDb.database.search("unimportant", parser_klass: MyQueryParser).size).to eq(1)
+    end
+
     describe "spelling correction" do
       # For these specs we need a persistent database since spelling dictionaries
       # are not supported for in memory databases
@@ -497,7 +509,27 @@ describe XapianDb::Database do
       expect(facets["Facet A"]).to eq(1)
       expect(facets["Facet B"]).to eq(1)
       expect(facets["Facet C"]).to eq(1)
+    end
 
+    it 'supports query parser class injection' do
+      my_query_parser = double('MyQueryParser klass')
+      query_parser_instance = double('MyQueryParser instance').as_null_object
+      stub_const('MyQueryParser', my_query_parser)
+      allow(my_query_parser).to receive(:new).and_return(query_parser_instance)
+      expect(query_parser_instance).to receive(:parse).and_return(XapianDb::QueryParser.new(XapianDb.database).parse('facet'))
+
+      XapianDb::DocumentBlueprint.setup(:OtherIndexedObject) do |blueprint|
+        blueprint.attribute :text
+      end
+      indexer = XapianDb::Indexer.new db, XapianDb::DocumentBlueprint.blueprint_for(:OtherIndexedObject)
+      obj = OtherIndexedObject.new(1)
+      allow(obj).to receive(:text).and_return "Facet C"
+      db.store_doc indexer.build_document_for(obj)
+
+      original_facets = XapianDb.database.facets :text, "unimportant"
+      injected_facets = XapianDb.database.facets :text, "unimportant", parser_klass: MyQueryParser
+      expect(original_facets.size).to eq(0)
+      expect(injected_facets.size).to eq(3)
     end
 
   end
@@ -555,6 +587,30 @@ describe XapianDb::Database do
       reference = XapianDb.database.search "xapian rocks"
       result = XapianDb.database.find_similar_to(reference)
       expect(result.detect {|doc| doc.docid == reference.first.docid}).not_to be
+    end
+
+    it 'supports query parser class injection for class scopes' do
+      my_query_parser = double('MyQueryParser klass')
+      query_parser_instance = double('MyQueryParser instance').as_null_object
+      stub_const('MyQueryParser', my_query_parser)
+      allow(my_query_parser).to receive(:new).and_return(query_parser_instance)
+      expect(query_parser_instance).to receive(:parse).and_return(XapianDb::QueryParser.new(XapianDb.database).parse('xapian'))
+
+      reference = XapianDb.database.search "xapian"
+      expect(XapianDb.database.find_similar_to(reference, class: Object)).to be_a XapianDb::Resultset
+      expect(XapianDb.database.find_similar_to(reference, class: Object, parser_klass: MyQueryParser)).to be_a XapianDb::Resultset
+    end
+
+    it 'ignores query parser class injection without class scopes' do
+      my_query_parser = double('MyQueryParser klass')
+      query_parser_instance = double('MyQueryParser instance').as_null_object
+      stub_const('MyQueryParser', my_query_parser)
+      allow(my_query_parser).to receive(:new).and_return(query_parser_instance)
+      expect(query_parser_instance).not_to receive(:parse)
+
+      reference = XapianDb.database.search "xapian"
+      expect(XapianDb.database.find_similar_to(reference)).to be_a XapianDb::Resultset
+      expect(XapianDb.database.find_similar_to(reference, parser_klass: MyQueryParser)).to be_a XapianDb::Resultset
     end
 
     describe "with a class option" do
