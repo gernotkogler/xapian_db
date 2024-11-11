@@ -1,3 +1,9 @@
+## 1.3.14 (November 11th, 2024)
+
+Changes:
+
+- maintenance
+
 ## 1.3.13 (August 26th, 2024)
 
 Changes:
