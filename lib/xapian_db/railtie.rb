@@ -31,9 +31,9 @@ module XapianDb
       config_file_path = "#{Rails.root}/config/xapian_db.yml"
       if File.exist?(config_file_path)
         db_config = if YAML.respond_to?(:unsafe_load_file) # Psych 4.0 way
-                      YAML.unsafe_load_file(config_file_path)
+                      YAML.unsafe_load(ERB.new(File.read(config_file_path)).result)
                     else
-                      YAML.load_file(config_file_path)
+                      YAML.safe_load(ERB.new(File.read(config_file_path)).result, aliases: true)
                     end
         env_config = db_config[Rails.env]
         env_config ? configure_from(env_config) : configure_defaults
