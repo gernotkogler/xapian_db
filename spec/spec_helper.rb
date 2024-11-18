@@ -30,11 +30,6 @@ RSpec.configure do |config|
   # instead of true.
   # config.use_transactional_fixtures = true
   config.before(:each) do
-    if defined?(Rails)
-      @original_rails = Rails
-      Object.send(:remove_const, :Rails)
-    end
-
     XapianDb::Adapters::GenericAdapter.unique_key do
       "#{self.class}-#{self.id}"
     end
@@ -50,13 +45,6 @@ RSpec.configure do |config|
       config.enable_query_flag Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE
       config.enable_query_flag Xapian::QueryParser::FLAG_SPELLING_CORRECTION
       config.disable_query_flag Xapian::QueryParser::FLAG_PHRASE
-    end
-  end
-
-  config.after(:each) do
-    if @original_rails
-      Object.const_set(:Rails, @original_rails)
-      @original_rails = nil
     end
   end
 end
