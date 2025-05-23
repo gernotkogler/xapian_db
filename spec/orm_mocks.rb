@@ -101,6 +101,12 @@ end
 # of active_record and has methods to test the helper methods
 class ActiveRecordObject < PersistentObject
 
+  def initialize(*)
+    super
+
+    previous_changes['name'] = @name
+  end
+
   class << self
     def table_name
       self.name
@@ -140,7 +146,12 @@ class ActiveRecordObject < PersistentObject
     end
   end
 
+  def name=(new_name)
+    @previous_changes['name'] = @name
+    @name = new_name
+  end
+
   def previous_changes
-    Hash.new
+    @previous_changes ||= Hash.new
   end
 end

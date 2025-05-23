@@ -148,6 +148,15 @@ describe XapianDb::Adapters::ActiveRecordAdapter do
 
       source_object.save
     end
+
+    it "should not reindex the object if no changes have been made" do
+      object.previous_changes.clear
+      expect(object.previous_changes).to be_empty
+
+      expect(XapianDb).not_to receive(:reindex)
+      object.save
+    end
+
   end
 
   describe "after_commit on: :destroy" do
