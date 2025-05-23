@@ -49,9 +49,12 @@ module XapianDb
              # add the after commit logic, unless the blueprint has autoindexing turned off
              if XapianDb::DocumentBlueprint.blueprint_for(klass.name).autoindex?
                after_commit on: [:create, :update] do
-                 XapianDb.reindex(self, true, changed_attrs: self.previous_changes.keys)
-                 XapianDb::DocumentBlueprint.dependencies_for(klass.name, self.previous_changes.keys).each do |dependency|
-                   dependency.block.call(self).each{ |model| XapianDb.reindex model, true, changed_attrs: self.previous_changes.keys }
+                 changed_attrs = self.previous_changes.keys
+                 next if changed_attrs.empty?
+
+                 XapianDb.reindex(self, true, changed_attrs:)
+                 XapianDb::DocumentBlueprint.dependencies_for(klass.name, changed_attrs).each do |dependency|
+                   dependency.block.call(self).each{ |model| XapianDb.reindex(model, true, changed_attrs:) }
                  end
                end
 

@@ -461,6 +461,7 @@ describe XapianDb do
           # and should not autoindex
           t1 = Thread.new do
             XapianDb.auto_indexing_disabled do
+              object.name = 'changed 1'
               object.save
               sleep(1)
             end
@@ -469,8 +470,9 @@ describe XapianDb do
 
           # this thread should still autoindex
           t2 = Thread.new do
-             object.save
-             expect(XapianDb.database.size).to eq(1)
+            object.name = 'changed 2'
+            object.save
+            expect(XapianDb.database.size).to eq(1)
           end
 
           [t1, t2].map(&:join)
