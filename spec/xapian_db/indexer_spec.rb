@@ -331,7 +331,7 @@ describe XapianDb::Indexer do
     @indexer = XapianDb::Indexer.new(@db, @blueprint)
 
     doc = @indexer.build_document_for(@obj)
-    # Should only contain "a", "ab", "ab" (once from split, once as full term)
+    # Should contain "a" (from splitting), and "ab" (appears twice: once from splitting and once as the full term)
     # But actually, Xapian might deduplicate terms, so we check that we have at least "a" and "ab"
     terms = doc.terms.map(&:term)[3..-1]
     expect(terms).to include("a")
