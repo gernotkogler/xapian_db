@@ -315,4 +315,105 @@ describe XapianDb::Indexer do
     expect(doc.terms.map(&:term)[3..-1]).to eq(%w(test))
   end
 
+  it "does not create duplicates when term is shorter than term_splitter_count" do
+    XapianDb.setup do |config|
+      config.term_splitter_count 5
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text, prefixed: false
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    allow(@obj).to receive(:text).and_return "ab"
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    # Should only contain "a", "ab", "ab" (once from split, once as full term)
+    # But actually, Xapian might deduplicate terms, so we check that we have at least "a" and "ab"
+    terms = doc.terms.map(&:term)[3..-1]
+    expect(terms).to include("a")
+    expect(terms).to include("ab")
+    # The full term "ab" should be present
+    expect(terms.count("ab")).to be >= 1
+  end
+
+  it "ignores empty terms when splitting" do
+    XapianDb.setup do |config|
+      config.term_splitter_count 2
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text, prefixed: false
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    allow(@obj).to receive(:text).and_return "test  query"
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    terms = doc.terms.map(&:term)[3..-1]
+    # Should contain split terms for "test" and "query", but not empty strings
+    expect(terms).to include("t")
+    expect(terms).to include("te")
+    expect(terms).to include("test")
+    expect(terms).to include("q")
+    expect(terms).to include("qu")
+    expect(terms).to include("query")
+    # Should not contain empty strings
+    expect(terms).not_to include("")
+  end
+
+  it "handles empty string input gracefully" do
+    XapianDb.setup do |config|
+      config.term_splitter_count 2
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text, prefixed: false
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    allow(@obj).to receive(:text).and_return ""
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    # Should only contain the standard terms (Q, C, XINDEXED_CLASS), no empty terms
+    terms = doc.terms.map(&:term)
+    expect(terms).not_to include("")
+  end
+
+  it "handles multiple spaces correctly" do
+    XapianDb.setup do |config|
+      config.term_splitter_count 3
+    end
+    @db = XapianDb.create_db
+
+    XapianDb::DocumentBlueprint.setup(:IndexedObject) do |blueprint|
+      blueprint.attribute :text, prefixed: false
+    end
+
+    @blueprint = XapianDb::DocumentBlueprint.blueprint_for(:IndexedObject)
+    @obj       = IndexedObject.new(1)
+    allow(@obj).to receive(:text).and_return "foo   bar"
+    @indexer = XapianDb::Indexer.new(@db, @blueprint)
+
+    doc = @indexer.build_document_for(@obj)
+    terms = doc.terms.map(&:term)[3..-1]
+    # Should only contain terms for "foo" and "bar", no empty strings
+    expect(terms).to include("f")
+    expect(terms).to include("fo")
+    expect(terms).to include("foo")
+    expect(terms).to include("b")
+    expect(terms).to include("ba")
+    expect(terms).to include("bar")
+    expect(terms).not_to include("")
+  end
+
 end

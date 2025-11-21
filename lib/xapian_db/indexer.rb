@@ -125,7 +125,8 @@ module XapianDb
     def split(terms)
       splitted_terms = []
       terms.split(" ").each do |term|
-        (1..XapianDb::Config.term_splitter_count).each { |i| splitted_terms << term[0...i] }
+        max_length = [term.length, XapianDb::Config.term_splitter_count].min
+        (1..max_length).each { |i| splitted_terms << term[0...i] }
         splitted_terms << term
       end
       splitted_terms.join " "
