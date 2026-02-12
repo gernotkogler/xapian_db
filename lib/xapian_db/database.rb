@@ -51,6 +51,13 @@ module XapianDb
       true
     end
 
+    # A hashed cache for all parser classes that either arrived through dependency injection or by default
+    def cached_parser_for(parser_klass)
+      @query_parsers               ||= {}
+      @query_parsers[parser_klass] ||= parser_klass.new(self)
+    end
+    private :cached_parser_for
+
     # Perform a search
     # @param [String] expression A valid search expression.
     # @param [Hash] options
@@ -69,9 +76,10 @@ module XapianDb
     #   resultset = db.search("name:foo")
     # @return [XapianDb::Resultset] The resultset
     def search(expression, options={})
-      opts          = {:sort_decending => false}.merge(options)
-      @query_parser ||= QueryParser.new(self)
-      query         = @query_parser.parse(expression)
+      opts         = { :sort_decending => false }.merge(options)
+      parser_klass = opts.delete(:parser_klass) || XapianDb::QueryParser
+      query_parser = cached_parser_for(parser_klass)
+      query        = query_parser.parse(expression)
 
       # If we do not have a valid query we return an empty result set
       return Resultset.new(nil, opts) unless query
@@ -98,7 +106,7 @@ module XapianDb
         enquiry.set_sort_by_relevance_then_key sorter, false
       end
 
-      opts[:spelling_suggestion] = @query_parser.spelling_suggestion
+      opts[:spelling_suggestion] = query_parser.spelling_suggestion
       opts[:db_size]             = self.size
 
       retries = 0
@@ -139,10 +147,11 @@ module XapianDb
       terms_query     = Xapian::Query.new Xapian::Query::OP_OR, relevant_terms
       final_query     = Xapian::Query.new Xapian::Query::OP_AND_NOT, terms_query, reference_query
       if options[:class]
-        class_scope = "indexed_class:#{options[:class].name.downcase}"
-        @query_parser ||= QueryParser.new(self)
-        class_query   = @query_parser.parse(class_scope)
-        final_query   = Xapian::Query.new Xapian::Query::OP_AND, class_query, final_query
+        class_scope  = "indexed_class:#{options[:class].name.downcase}"
+        parser_klass = options.delete(:parser_klass) || XapianDb::QueryParser
+        query_parser = cached_parser_for(parser_klass)
+        class_query  = query_parser.parse(class_scope)
+        final_query  = Xapian::Query.new Xapian::Query::OP_AND, class_query, final_query
       end
       enquiry       = Xapian::Enquire.new(reader)
       enquiry.query = final_query
@@ -153,16 +162,17 @@ module XapianDb
     # @param [Symbol, String] attribute the name of an attribute declared in one ore more blueprints
     # @param [String] expression A valid search expression (see {#search} for examples).
     # @return [Hash<Class, Integer>] A hash containing the classes and the hits per class
-    def facets(attribute, expression)
+    def facets(attribute, expression, options = {})
      # return an empty hash if no search expression is given
       return {} if expression.nil? || expression.strip.empty?
       value_number         = XapianDb::DocumentBlueprint.value_number_for(attribute)
-      @query_parser        ||= QueryParser.new(self)
-      query                = @query_parser.parse(expression)
+      parser_klass         = options.delete(:parser_klass) || XapianDb::QueryParser
+      query_parser         = cached_parser_for(parser_klass)
+      query                = query_parser.parse(expression)
       enquiry              = Xapian::Enquire.new(reader)
       enquiry.query        = query
       enquiry.collapse_key = value_number
-      facets = {}
+      facets               = {}
       enquiry.mset(0, size).matches.each do |match|
         facet_value = match.document.value(value_number)
         # We must add 1 to the collapse_count since collapse_count means
